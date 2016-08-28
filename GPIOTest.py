@@ -29,7 +29,7 @@ else:
 
 if not onswitch:
 	print ('Status LED = Green')
-elif autoswitch:
+elif not autoswitch:
 	if status:
 		print ('Status LED = Red')
 	else:
