@@ -10,9 +10,7 @@ GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 status = not GPIO.input(2)
 autoswitch=GPIO.input(4)
-print autoswitch
 onswitch=GPIO.input(17)
-print onswitch
 GPIO.output(2, status)
 
 if status:
