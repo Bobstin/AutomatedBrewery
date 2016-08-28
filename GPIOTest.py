@@ -25,7 +25,7 @@ else:
 	print('Auto LED = Blue')
 
 
-if not onswitch
+if not onswitch:
 	print ('Status LED = Green')
 elif autoswitch:
 	if status:
