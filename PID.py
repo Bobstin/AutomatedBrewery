@@ -167,6 +167,18 @@ class PID(object):
 			self.lastInput = latestInput
 			self.lastRun = now
 
+	def autoTune(self,outputStartValue,outputChange,expectedNoiseAmplitude,lookBackTime):
+		#Autotunes the PID
+		#Starts by setting the output to a single value, and getting the system to a steady state
+		#Then introduces a known perterbance, and measures the response
+		#outputStartValue is the initial value to set the output at, and wait for steady state
+		#outputChange is the magnitude of the perterbance (output will go from outputStartValue+outputChange
+		#to outputStartValue-outputChange)
+		#expected noise amplitude and lookBackTime are smoothing parameters
+
+		#sets the output to the outputStartValue
+		
+
 
 
 
