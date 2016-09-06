@@ -29,8 +29,12 @@ import RPi.GPIO as GPIO
 import time
 
 class MAX31865(object):
+    @property
+    def temp(self):
+        return self.get_temp()
     
-    def __init__(self, cs_pin, clock_pin, data_in_pin, data_out_pin, address, data, units = "f", board = GPIO.BCM):
+
+    def __init__(self, cs_pin, clock_pin, data_in_pin, data_out_pin, address=int(0x80), data=int(0xc2), units = "f", board = GPIO.BCM):
 
         '''Initialize Soft (Bitbang) SPI bus
         Parameters:
@@ -210,6 +214,8 @@ class MAX31865(object):
     def get_temp(self):
         raw = self.get_data()
         temperature_data=self.data_to_temp(raw)
+        #print(temperature_data)
+        #print(type(temperature_data))
         temperature = temperature_data[2]
         return temperature
         
@@ -260,11 +266,11 @@ if __name__ == "__main__":
     while(running):
         try:
             for rtd in rtds:
-                temp = rtd.get_temp()
+                temp = rtd.temp
                 data=rtd.get_data()
                 result=rtd.convert(data)
                 print (result)
-                #print (temp)
+                print (temp)
             time.sleep(1)
             running = False
         except KeyboardInterrupt:

@@ -1,17 +1,8 @@
 import time
-
-class Source:
-	def __init__(self):
-		self.value=1
-
-class Output:
-	def __init__(self):
-		self.setting = None
-
 # By default, looks for an attribute called value for the input, and setting for the output
 # If you want to change that, then you can change the input/outputAttributeName
-# Input source must be available when PIF is initialized to get the starting value
-# Output device must have a parameter called setting
+# Input source must be available when PID is initialized to get the starting value
+# assumes that the output device is regularly checking a pipe to get the next value to go to
 class PID(object):
 	def __init__(self,inputSource,inputAttributeName='value'):
 		#creates placeholders for the PID values. These are allowed to be empty, but run() will
@@ -20,12 +11,15 @@ class PID(object):
 		self.Kp = None
 		self.Ki = None
 		self.Kd = None
-		self.outputDest = None
+		self.outputPipeConn = None
 		self.outputMin = None
 		self.outputMax = None
 		self.output = None
 		self.cycleTime = None
 		self.semiAutoValue = None
+		self.inputPipeConn = None
+		self.tempGraphInConn = None
+		self.updateGraph = None
 
 		self.inputSource = inputSource
 		self.outputAttributeName = 'setting'
@@ -60,6 +54,11 @@ class PID(object):
 		else:
 			print('Error: mode must be Auto, SemiAuto, or Manual. Not changing the mode.')
 
+	def checkPipe(self):
+		if self.inputPipeConn.poll():
+			data = self.pipeConn.recv()
+			setattr(self,data[0],data[1])
+
 	def run(self):
 		#since you just started the run, resets stop to 0
 		self.stop = 0
@@ -71,16 +70,28 @@ class PID(object):
 			if self.cycleTime != None:
 				self.nextCycleStart = time.time()*1000 + self.cycleTime
 
+                        #prints the temperature
+			latestInput = getattr(self.inputSource,self.inputAttributeName)
+			if self.tempGraphInConn != None:
+                                self.tempGraphInConn.send((latestInput, time.time()*1000))
+                                if self.updateGraph != None:
+                                        self.updateGraph.set()
+                                
+
 			#calculates the new setting
 			self.calculateOutput()
 
-			#sets the output device setting
-			if self.outputDest == None:
-				print('Error: outputDest is not set')
+			#sends the output to the output pipe connection
+			if self.outputPipeConn == None:
+				print('Error: outputPipeConn is not set')
 				self.stop = 1
-			else:				
-				self.outputDest.setting = self.output
+			else:                           
+				self.outputPipeConn.send((self.outputAttributeName,self.output))
 
+			#checks the input pipe to see if anything needs to change
+			if self.inputPipeConn != None:
+				self.checkPipe()
+			
 			#waits until the next cycle
 			if self.cycleTime != None:
 				if time.time()*1000 > self.nextCycleStart:
@@ -93,25 +104,13 @@ class PID(object):
 
 
 	def calculateOutput(self):
-		#Call this function to run the PID
-
-
 		#Performs checks to see if all parameters are set properly
-		if (self.Kp == None) | (self.Ki == None) | (self.Kd == None):
-			print('Error: Kp, Ki, and Kd are not all set')
-			self.stop = 1
-			return
-
+		
 		if self.outputMin >= self.outputMax:
 			print('Error: outputMin is greater than or equal to outputMax')
 			self.stop = 1
 			return
-
-		if ((self.Kp <0) | (self.Ki <0) | (self.Kd <0)) & ((self.Kp >0) | (self.Ki >0) | (self.Kd >0)):
-			print('Error: all K parameters must have the same sign')
-			self.stop = 1
-			return
-
+		
 		#if cycleTime is not set, then the PID will just run once (this is so that you can run the PID externally
 		#and not in its own loop). However, warn people that this is the case
 		if self.cycleTime == None:
@@ -129,6 +128,17 @@ class PID(object):
 			else:
 				self.output = self.semiAutoValue
 		elif self._mode == 'Auto':
+			#checks that all parameters are set properly
+			if (self.Kp == None) | (self.Ki == None) | (self.Kd == None):
+				print('Error: Kp, Ki, and Kd are not all set')
+				self.stop = 1
+				return
+
+			if ((self.Kp <0) | (self.Ki <0) | (self.Kd <0)) & ((self.Kp >0) | (self.Ki >0) | (self.Kd >0)):
+				print('Error: all K parameters must have the same sign')
+				self.stop = 1
+				return
+		
 			#gets the time change based on the last time it was run
 			time.sleep(.1)
 			now = time.time()*1000
@@ -177,30 +187,7 @@ class PID(object):
 		#expected noise amplitude and lookBackTime are smoothing parameters
 
 		#sets the output to the outputStartValue
-		
+		return
 
-
-
-
-
-Source = Source()
-Output = Output()
-PID = PID(Source,'value')
-
-print (Output.setting)
-
-PID.Kp=.1
-PID.Ki=.5
-PID.Kd=.1
-PID.outputMin = 0
-PID.outputMax = 100
-PID.setPoint = 1.1
-PID.outputDest = Output
-PID.cycleTime = 5000
-print(Output.setting)
-
-PID.run()
-
-print (Output.setting)
 
 

@@ -28,8 +28,3 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 		else:
 			self.water.setStyleSheet('QFrame {\n	background:rgb(0, 255, 0)\n}')
 
-
-if __name__ == '__main__':
-	app = QtWidgets.QApplication(sys.argv)
-	window = MyApp()
-	sys.exit(app.exec_())
