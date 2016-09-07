@@ -3,14 +3,12 @@ from PyQt5 import QtCore, QtGui, QtWidgets, uic
 import pyqtgraph
 
 qtCreatorFile = "./UI/AutomatedBreweryUI/DashboardLarge.ui"
-
-pyqtgraph.setConfigOption('background', 'w')
-pyqtgraph.setConfigOption('foreground', 'k')
-
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
 class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 	def __init__(self):
+		pyqtgraph.setConfigOption('background', 'w')
+		pyqtgraph.setConfigOption('foreground', 'k')
 		super(MyApp, self).__init__()
 		self.setupUi(self)
 		self.show()
