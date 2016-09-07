@@ -1,14 +1,9 @@
-import RPi.GPIO as GPIO
+#import RPi.GPIO as GPIO
+from EmulatorGUI import GPIO
 import time
-from multiprocessing import Process, Pipe, Event
-import RTD
-import PID
-import AutomatedBreweryUI
 import sys
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
-import pyqtgraph
 
-class HeatControl(object):
+class HeatController(object):
     @property
     def relay1(self):
         return self._relay1
@@ -140,7 +135,7 @@ class HeatControl(object):
             self._cycleTime = value
             self.calcOnOffTime()
 
-    def __init__(self, relay1Pin = 2, relay2Pin = 14, SSR1Pin = 3, SSR2Pin=15, heatSetting=0, cycleTime=2000, maxSetting=100, minSetting=0, pipeConn=None, heatGraphInConn=None, updateGraph=None):
+    def __init__(self, relay1Pin = 2, relay2Pin = 14, SSR1Pin = 3, SSR2Pin=15, heatSetting=0, cycleTime=2000, maxSetting=100, minSetting=0, pipeConn=None, heatGraphSignal=None):
         #Note that for the relays, 0 is on, but for the SSR, 1 is on, however this is handled on the backend
         #just set the relay/ssr to the right status
         self.relayOn = 0
@@ -157,9 +152,8 @@ class HeatControl(object):
         #check during run() to adjust parameters
         self.pipeConn = pipeConn
 
-        #If you want to update an external graph, you can pass a connection, as well as an event to trigger the update
-        self.heatGraphInConn = heatGraphInConn
-        self.updateGraph = updateGraph
+        #If you want to update an external graph, you can pass a signal
+        self.heatGraphSignal = heatGraphSignal
 
         #Setup the GPIO
         GPIO.setmode(GPIO.BCM)
@@ -196,9 +190,7 @@ class HeatControl(object):
             setattr(self,data[0],data[1])
 
     def sendGraphPoint(self):
-        self.heatGraphInConn.send((self.heatSetting, time.time()*1000))
-        if self.updateGraph != None:
-            self.updateGraph.set()
+        self.heatGraphSignal.emit(time.time()*1000, self.heatSetting, self.kettle)
         
 
     def run(self):
@@ -209,120 +201,23 @@ class HeatControl(object):
                 self.SSR1 = 0
                 time.sleep(self.offTime/1000)
                 if self.pipeConn != None: self.checkPipe()
-                if self.heatGraphInConn != None: self.sendGraphPoint()
+                if self.heatGraphSignal != None: self.sendGraphPoint()
             elif self.kettle == "BLK":
                 self.SSR2 = 1
                 time.sleep(self.onTime/1000)
                 self.SSR2 = 0
                 time.sleep(self.offTime/1000)
                 if self.pipeConn != None: self.checkPipe()
-                if self.heatGraphInConn != None: self.sendGraphPoint()
+                if self.heatGraphSignal != None: self.sendGraphPoint()
         
-def startHeatControl(heatConn,heatGraphInConn,updateGraph):
-    HeatCtrl = HeatControl(pipeConn=heatConn, heatGraphInConn=heatGraphInConn, updateGraph=updateGraph)
-    time.sleep(2)
-    HeatCtrl.heatSetting = 50
-    HeatCtrl.kettle = "MLT"
 
-def startPID(PIDConn,tempGraphInConn,updateGraph):
-    #Sets up the RTD
-    cs_pin = 8
-    clock_pin = 11
-    data_in_pin = 9
-    data_out_pin = 10
-    rtd = RTD.MAX31865(cs_pin, clock_pin, data_in_pin, data_out_pin, units='f')
 
-    time.sleep(5)
-    #Sets up the PID
-    inputSource = rtd
-    inputAttributeName = 'temp'
-    pid = PID.PID(inputSource,inputAttributeName)
-    pid.outputPipeConn = PIDConn
-    pid.outputMin = 0
-    pid.outputMax = 100
-    pid.cycleTime = 2000
-    pid.semiAutoValue = 10
-    pid.outputAttributeName = 'heatSetting'
-    pid.mode = 'SemiAuto'
-    pid.tempGraphInConn = tempGraphInConn
-    pid.updateGraph = updateGraph
-    pid.run()
 
-def startUI(tempGraphOutConn,heatGraphOutConn,updateGraph):
-    #creates the UI
-    app = QtWidgets.QApplication(sys.argv)
-    window = AutomatedBreweryUI.MyApp()
-    
 
-    #graphs start empty
-    tempx = []
-    tempy = []
-    heatx = []
-    heaty = []
-    #now = time.time()
-    #updateGraph.wait()
-    #updateGraph.clear()
-
-    #while True:
-        #print(time.time()-now)
-       # now = time.time()
-        #updateGraph.wait()
-        #updateGraph.clear()
-
-    #print("Got Here!")
-    #window.graph1.plot(tempx,tempy,clear=True)
-    
-    #while True:
-        #wait until something says to update the graphs
-        #updateGraph.wait()
-
-        #check if there are new data points, and if there are, append them
-        #if tempGraphOutConn.poll():
-           # newTempPoint = tempGraphOutConn.recv()
-            #tempx = [tempx,newTempPoint[0]]
-            #tempy = [tempy,newTempPoint[1]]
-                     
-       # if heatGraphOutConn.poll():
-            #newHeatPoint = heatGraphOutConn.recv()
-            #heatx = [heatx,newHeatPoint[0]]
-            #heaty = [heaty,newHeatPoint[1]]
-
-        #update the graphs
-        #print(tempx)
-       # print(tempy)
-        #print(heatx)
-        #print(heaty)
-        #window.graph1.plot(tempx,tempy,clear=True)
-        #window.graph2.plot(heatx,heaty,clear=True)
-
-        #reset the flag
-        #updateGraph.clear()
-    sys.exit(app.exec_())
-
-    
-    
-
-    
-
-if __name__ == '__main__':
-    GPIO.setwarnings(False)
-    heatConn, PIDConn = Pipe()
-    tempGraphInConn, tempGraphOutConn = Pipe()
-    heatGraphInConn, heatGraphOutConn = Pipe()
-
-    updateGraph = Event()
-    
-    heatProcess = Process(target = startHeatControl, args=(heatConn,heatGraphInConn,updateGraph))
-    PIDProcess = Process(target = startPID, args=(PIDConn,tempGraphInConn,updateGraph))
-    UIProcess = Process(target = startUI, args=(tempGraphOutConn,heatGraphOutConn,updateGraph))
-    heatProcess.start()
-    PIDProcess.start()
-    UIProcess.start()
 
 
     
-    heatProcess.join()
-    PIDProcess.join()
+    
 
 
         

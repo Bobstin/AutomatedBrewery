@@ -18,13 +18,15 @@ class PID(object):
 		self.cycleTime = None
 		self.semiAutoValue = None
 		self.inputPipeConn = None
-		self.tempGraphInConn = None
-		self.updateGraph = None
+		self.tempGraphSignal = None
 
 		self.inputSource = inputSource
 		self.outputAttributeName = 'setting'
 		self.inputAttributeName = inputAttributeName
 		self.lastInput = getattr(self.inputSource,self.inputAttributeName)
+		if self.lastInput == None: raise ValueError('Unable to get input value. Check inputSource and inputAttributeName')
+
+
 		self.lastRun = time.time()*1000
 		self.integralTerm = 0
 
@@ -72,10 +74,8 @@ class PID(object):
 
                         #prints the temperature
 			latestInput = getattr(self.inputSource,self.inputAttributeName)
-			if self.tempGraphInConn != None:
-                                self.tempGraphInConn.send((latestInput, time.time()*1000))
-                                if self.updateGraph != None:
-                                        self.updateGraph.set()
+			if self.tempGraphSignal != None:
+				self.tempGraphSignal.emit(time.time()*1000,latestInput)
                                 
 
 			#calculates the new setting

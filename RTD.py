@@ -25,7 +25,8 @@ __date__  = '05-Jan-2016'
 __maintainer__ = 'Alexey Tikhomirov'
 __status__ = 'Production'
 
-import RPi.GPIO as GPIO
+#import RPi.GPIO as GPIO
+from EmulatorGUI import GPIO
 import time
 
 class MAX31865(object):
@@ -216,7 +217,10 @@ class MAX31865(object):
         temperature_data=self.data_to_temp(raw)
         #print(temperature_data)
         #print(type(temperature_data))
-        temperature = temperature_data[2]
+        if temperature_data != None:
+            temperature = temperature_data[2]
+        else:
+            temperature = None
         return temperature
         
     
@@ -236,43 +240,3 @@ class MAX31865(object):
         '''Selective GPIO cleanup'''
         GPIO.setup(self.cs_pin, GPIO.IN)
         GPIO.setup(self.clock_pin, GPIO.IN)
-
-class MAX31865Error(Exception):
-     def __init__(self, value):
-         self.value = value
-     def __str__(self):
-         return repr(self.value)
-
-if __name__ == "__main__":
-
-    # Multi-chip example   
-    # Configure GPIO pins    
-    cs_pins = [8, 25, 24]
-    clock_pin = 11
-    data_in_pin = 9
-    data_out_pin = 10
-    
-    # Configure RTDs
-    rtds = []
-    address = int(0x80)    # RTD control register, see datasheet for details
-    data =  int(0xC2)      # RTD control register data, see datasheet for details
-    for cs_pin in cs_pins:
-        rtds.append(MAX31865(cs_pin, clock_pin, data_in_pin, data_out_pin, address, data,units='c'))  
-    for rtd in rtds:        
-        rtd.write()
-    
-    # Run main program    
-    running = True
-    while(running):
-        try:
-            for rtd in rtds:
-                temp = rtd.temp
-                data=rtd.get_data()
-                result=rtd.convert(data)
-                print (result)
-                print (temp)
-            time.sleep(1)
-            running = False
-        except KeyboardInterrupt:
-            running = False
-    GPIO.cleanup()

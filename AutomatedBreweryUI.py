@@ -1,30 +1,87 @@
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 import pyqtgraph
+from multiprocessing import Pipe
+import threading
+import time
+import RTD
+import PID
+import HeatControl
 
 qtCreatorFile = "./UI/AutomatedBreweryUI/DashboardLarge.ui"
-
-pyqtgraph.setConfigOption('background', 'w')
-pyqtgraph.setConfigOption('foreground', 'k')
-
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
 class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
+	tempGraphSignal = QtCore.pyqtSignal(float,float)
+	heatGraphSignal = QtCore.pyqtSignal(float,float,str)
+	heatConn, PIDConn = Pipe()
+
 	def __init__(self):
+		pyqtgraph.setConfigOption('background', 'w')
+		pyqtgraph.setConfigOption('foreground', 'k')
+
 		super(MyApp, self).__init__()
+
+		self.tempx = []
+		self.tempy = []
+		self.heatx = []
+		self.heaty = []
+
+		self.tempGraphSignal.connect(self.tempGraph)
+		self.heatGraphSignal.connect(self.heatGraph)
+
 		self.setupUi(self)
 		self.show()
-		#self.initUI()
 
-	def initUI(self):
-		self.sld.setMinimum(10)
-		self.sld.setMaximum(30)
-		self.sld.valueChanged.connect(self.testfunc)
+		heatThread = threading.Thread(target = self.startHeatControl, args=(self.heatConn,self.heatGraphSignal))
+		PIDThread = threading.Thread(target = self.startPID, args=(self.PIDConn,self.tempGraphSignal))
 
-	def testfunc(self):
-		self.HLT.setValue(self.sld.value())
-		if self.sld.value()<20:
-			self.water.setStyleSheet('QFrame {\n	background:rgb(255, 0, 0)\n}')
-		else:
-			self.water.setStyleSheet('QFrame {\n	background:rgb(0, 255, 0)\n}')
+		heatThread.start()
+		PIDThread.start()
 
+	def startHeatControl(self,heatConn,heatGraphSignal):
+		HeatCtrl = HeatControl.HeatController(pipeConn=heatConn, heatGraphSignal=heatGraphSignal)
+		time.sleep(2)
+		HeatCtrl.heatSetting = 50
+		HeatCtrl.kettle = "MLT"    	
+
+	def startPID(self,PIDConn,tempGraphSignal):
+		#Sets up the RTD
+		cs_pin = 8
+		clock_pin = 11
+		data_in_pin = 9
+		data_out_pin = 10
+		rtd = RTD.MAX31865(cs_pin, clock_pin, data_in_pin, data_out_pin, units='f')
+
+		time.sleep(5)
+		#Sets up the PID
+		inputSource = rtd
+		inputAttributeName = 'temp'
+		pid = PID.PID(inputSource,inputAttributeName)
+		pid.outputPipeConn = PIDConn
+		pid.outputMin = 0
+		pid.outputMax = 100
+		pid.cycleTime = 2000
+		pid.semiAutoValue = 10
+		pid.outputAttributeName = 'heatSetting'
+		pid.mode = 'SemiAuto'
+		pid.tempGraphSignal = tempGraphSignal
+		pid.run()
+
+	def tempGraph(self, x, y):
+		self.tempx.append(x)
+		self.tempy.append(y)
+		self.graph1.plot(self.tempx,self.tempy,clear=True)
+
+	def heatGraph(self, x, y, kettle):
+		self.heatx.append(x)
+		self.heaty.append(y)
+		self.graph2.plot(self.heatx,self.heaty,clear=True)
+
+if __name__ == '__main__':
+	app = QtWidgets.QApplication(sys.argv)
+	window = MyApp()
+	sys.exit(app.exec_())
+
+	heatProcess.join()
+	PIDProcess.join()
