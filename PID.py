@@ -177,7 +177,7 @@ class PID(object):
 			self.lastInput = latestInput
 			self.lastRun = now
 
-	def autoTune(self,outputStartValue,outputChange,expectedNoiseAmplitude,lookBackTime):
+	def autoTune(self,outputStartValue,outputChange,expectedNoiseAmplitude,movingAverageTime):
 		#Autotunes the PID
 		#Starts by setting the output to a single value, and getting the system to a steady state
 		#Then introduces a known perterbance, and measures the response
@@ -187,7 +187,12 @@ class PID(object):
 		#expected noise amplitude and lookBackTime are smoothing parameters
 
 		#sets the output to the outputStartValue
-		return
+		self.outputPipeConn.send((self.outputAttributeName,self.outputStartValue))
+
+		#waits until the temperature has reached a steady state
+		steady = False
+		while steady = False:
+
 
 
 

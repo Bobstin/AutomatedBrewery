@@ -194,19 +194,25 @@ class HeatController(object):
         
 
     def run(self):
+        #if onTime or offTime = 0, then does not switch the relay. This reduces the number of
+        #switches, as well as any delay due to code execution
         while (self.kettle != "None"):
             if self.kettle == "MLT":
-                self.SSR1 = 1
-                time.sleep(self.onTime/1000)
-                self.SSR1 = 0
-                time.sleep(self.offTime/1000)
+                if self.onTime!=0:
+                    self.SSR1 = 1
+                    time.sleep(self.onTime/1000)
+                if self.offTime !=0:
+                    self.SSR1 = 0
+                    time.sleep(self.offTime/1000)
                 if self.pipeConn != None: self.checkPipe()
                 if self.heatGraphSignal != None: self.sendGraphPoint()
             elif self.kettle == "BLK":
-                self.SSR2 = 1
-                time.sleep(self.onTime/1000)
-                self.SSR2 = 0
-                time.sleep(self.offTime/1000)
+                if self.onTime!=0:
+                    self.SSR1 = 1
+                    time.sleep(self.onTime/1000)
+                if self.offTime !=0:
+                    self.SSR1 = 0
+                    time.sleep(self.offTime/1000)
                 if self.pipeConn != None: self.checkPipe()
                 if self.heatGraphSignal != None: self.sendGraphPoint()
         
