@@ -66,7 +66,17 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 		pid.outputAttributeName = 'heatSetting'
 		pid.mode = 'SemiAuto'
 		pid.tempGraphSignal = tempGraphSignal
-		pid.run()
+		#pid.run()
+
+		outputStartValue = 50
+		outputChange = 50
+		expectedNoiseAmplitude = 1
+		steadyRequirementTime = 30*1000
+		triggerDelta = 2
+		lookBackTime = 10000
+		requiredAccuracy=0.05
+		pid.autoTune(outputStartValue,outputChange,expectedNoiseAmplitude, steadyRequirementTime, triggerDelta, lookBackTime, requiredAccuracy)
+				
 
 	def tempGraph(self, x, y):
 		self.tempx.append(x)

@@ -1,5 +1,5 @@
-#import RPi.GPIO as GPIO
-from EmulatorGUI import GPIO
+import RPi.GPIO as GPIO
+#from EmulatorGUI import GPIO
 import time
 import sys
 

@@ -25,8 +25,8 @@ __date__  = '05-Jan-2016'
 __maintainer__ = 'Alexey Tikhomirov'
 __status__ = 'Production'
 
-#import RPi.GPIO as GPIO
-from EmulatorGUI import GPIO
+import RPi.GPIO as GPIO
+#from EmulatorGUI import GPIO
 import time
 
 class MAX31865(object):
@@ -210,6 +210,7 @@ class MAX31865(object):
         temperature_data = '\t'.join(temperature_data)                   
         #return raw, R0, t
         #tempurature_data[3]=self.to_f(temperature_data[3])
+        print (temperature_data)
         return temperature_data
 
     def get_temp(self):

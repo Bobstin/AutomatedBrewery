@@ -25,8 +25,8 @@ __date__  = '05-Jan-2016'
 __maintainer__ = 'Alexey Tikhomirov'
 __status__ = 'Production'
 
-#import RPi.GPIO as GPIO
-from EmulatorGUI import GPIO
+import RPi.GPIO as GPIO
+#from EmulatorGUI import GPIO
 import time
 
 class MAX31865(object):
