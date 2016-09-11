@@ -326,8 +326,8 @@ class PID(object):
 								Kp = 0.6*Ku
 								Ki = 1.2*Ku/float(Pu)
 								Kd = 0.075*Ku*Pu
-								print("Ku")
-								print(Ku)
+								print("Kp")
+								print(Kp)
 								print("Ki")
 								print(Ki)
 								print("Kd")

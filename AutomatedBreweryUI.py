@@ -41,8 +41,6 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
 	def startHeatControl(self,heatConn,heatGraphSignal):
 		HeatCtrl = HeatControl.HeatController(pipeConn=heatConn, heatGraphSignal=heatGraphSignal)
-		time.sleep(2)
-		HeatCtrl.heatSetting = 50
 		HeatCtrl.kettle = "MLT"    	
 
 	def startPID(self,PIDConn,tempGraphSignal):
@@ -74,7 +72,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 		steadyRequirementTime = 30*1000
 		triggerDelta = 2
 		lookBackTime = 10000
-		requiredAccuracy=0.05
+		requiredAccuracy=0.02
 		pid.autoTune(outputStartValue,outputChange,expectedNoiseAmplitude, steadyRequirementTime, triggerDelta, lookBackTime, requiredAccuracy)
 				
 
