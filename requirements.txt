@@ -1,0 +1,6 @@
+The following components are required to run the automated brewery code:
+Python 3
+QT
+Adafruit Python ADS1X15 (LINK NEEDED)
+SMBUS for python3 (LINK NEEDED)
+
