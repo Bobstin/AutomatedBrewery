@@ -5,7 +5,7 @@ from MCP23017 import MCP23017
 
 import time
 
-mcp = MCP23017(address = 0x21, num_gpios = 16) # MCP23017
+mcp = MCP23017(address = 0x22, num_gpios = 16) # MCP23017
 
 inpin=15
 mcp.pinMode(inpin, mcp.INPUT)
