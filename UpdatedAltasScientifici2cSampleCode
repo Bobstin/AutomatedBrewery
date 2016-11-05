@@ -74,20 +74,6 @@ class AtlasI2C:
         self.file_read.close()
         self.file_write.close()
 
-    def continuouspolling(self,delaytime):
-        # check for polling time being too short, change it to the minimum timeout if too short
-        if delaytime < AtlasI2C.long_timeout:
-            print("Polling time is shorter than timeout, setting polling time to %0.2f" % AtlasI2C.long_timeout)
-            delaytime = AtlasI2C.long_timeout
-
-        print("Polling sensor every %0.2f seconds, press ctrl-c to stop polling" % (delaytime))
-
-        try:
-            while True:
-                print(self.query("R"))
-                time.sleep(delaytime - self.long_timeout)
-        except KeyboardInterrupt:
-            print("\nContinuous polling stopped")
 
 def main():
     import sys
@@ -98,15 +84,56 @@ def main():
     else:
         print("Error: sensor inputted was not valid")
         sys.exit()
-
-
     
     device = AtlasI2C(address = Address) 	# creates the I2C port object, specify the address or bus if necessary
 
-    print("Pulling device information")
-    print(device.query("I"))
-    print("\n")
-    device.continuouspolling(2)
+    print(">> Atlas Scientific sample code")
+    print(">> Any commands entered are passed to the board via I2C except:")
+    print(">> Address,xx changes the I2C address the Raspberry Pi communicates with.")
+    print(">> Poll,xx.x command continuously polls the board every xx.x seconds")
+    print(" where xx.x is longer than the %0.2f second timeout." % AtlasI2C.long_timeout)
+    print(" Pressing ctrl-c will stop the polling")
+
+    # main loop
+    while True:
+        userinput = input("Enter command: ")
+
+        # address command lets you change which address the Raspberry Pi will poll
+        if userinput.upper().startswith("ADDRESS"):
+            addr = int(string.split(userinput, ',')[1])
+            device.set_i2c_address(addr)
+            print("I2C address set to " + str(addr))
+
+        # continuous polling command automatically polls the board
+        elif userinput.upper().startswith("POLL"):
+            delaytime = float(userinput.split(',')[1])
+
+            # check for polling time being too short, change it to the minimum timeout if too short
+            if delaytime < AtlasI2C.long_timeout:
+                print("Polling time is shorter than timeout, setting polling time to %0.2f" % AtlasI2C.long_timeout)
+                delaytime = AtlasI2C.long_timeout
+
+            # get the information of the board you're polling
+            info = device.query("I").split(",")[1]
+            print("Polling %s sensor every %0.2f seconds, press ctrl-c to stop polling" % (info, delaytime))
+
+            try:
+                while True:
+                    print(device.query("R"))
+                    time.sleep(delaytime - AtlasI2C.long_timeout)
+            except KeyboardInterrupt: 		# catches the ctrl-c command, which breaks the loop above
+                print("Continuous polling stopped")
+
+        # if not a special keyword, pass commands straight to board
+        else:
+            if len(userinput) == 0:
+                print ("Please input valid command.")
+            else:
+                try:
+                    print(device.query(userinput))
+                except IOError:
+                    print("Query failed")
+
 
 if __name__ == '__main__':
     main()
