@@ -235,10 +235,10 @@ if __name__ == "__main__":
 	#misoPin = 3
 	#mosiPin = 0
 	#clkPin = 1
-	csPin = 12
-	misoPin = 11
-	mosiPin = 8
-	clkPin = 9
+	csPin = 2
+	misoPin = 3
+	mosiPin = 0
+	clkPin = 1
 	mcpaddress = 0x21
 	max = max31865.max31865(csPin,misoPin,mosiPin,clkPin,mcpaddress)
 	tempC = max.readTemp()
