@@ -1,15 +1,20 @@
 import RPi.GPIO as GPIO
 import time, sys
 
-FLOW_SENSOR = 12
+Sensor = input(">> Enter flow sensor to test (i.e. HLT IN): ")
+
+if Sensor.lower() == "hlt in":FLOW_SENSOR = 8
+elif Sensor.lower() == "hlt out":FLOW_SENSOR = 7
+elif Sensor.lower() == "mlt in":FLOW_SENSOR = 12
+elif Sensor.lower() == "mlt out":FLOW_SENSOR = 16
+elif Sensor.lower() == "blk in":FLOW_SENSOR = 20
+elif Sensor.lower() == "blk out":FLOW_SENSOR = 21
+else:
+   print("Error: flow sensor inputted was not valid")
+   sys.exit()
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(8, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-GPIO.setup(7, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-GPIO.setup(12, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-GPIO.setup(16, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-GPIO.setup(20, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-GPIO.setup(21, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+GPIO.setup(FLOW_SENSOR, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 
 global count
 count = 0
@@ -19,17 +24,12 @@ def countPulse(channel):
    count = count+1
    print(count)
 
-GPIO.add_event_detect(8, GPIO.FALLING, callback=countPulse)
-GPIO.add_event_detect(7, GPIO.FALLING, callback=countPulse)
-GPIO.add_event_detect(12, GPIO.FALLING, callback=countPulse)
-GPIO.add_event_detect(16, GPIO.FALLING, callback=countPulse)
-GPIO.add_event_detect(20, GPIO.FALLING, callback=countPulse)
-GPIO.add_event_detect(21, GPIO.FALLING, callback=countPulse)
+GPIO.add_event_detect(FLOW_SENSOR, GPIO.FALLING, callback=countPulse)
 
 while True:
     try:
         time.sleep(1)
     except KeyboardInterrupt:
-        print('\ncaught keyboard interrupt!, bye')
+        print('\nEnding flow sensor test')
         GPIO.cleanup()
         sys.exit()
