@@ -91,7 +91,7 @@ class AtlasI2C:
 
 def main():
     import sys
-    Sensor = input("Enter sensor to test (pH or DO)")
+    Sensor = input(">>Enter sensor to test (pH or DO)")
 
     if Sensor == "pH":Address = 99
     elif Sensor == "DO":Address = 97
@@ -104,8 +104,7 @@ def main():
     device = AtlasI2C(address = Address) 	# creates the I2C port object, specify the address or bus if necessary
 
     print("Pulling device information")
-    print(device.query("I"))
-    print("\n")
+    print(device.query("I")+"\n")
     device.continuouspolling(2)
 
 if __name__ == '__main__':
