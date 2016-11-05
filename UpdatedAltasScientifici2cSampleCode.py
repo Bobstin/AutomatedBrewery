@@ -76,16 +76,8 @@ class AtlasI2C:
 
 
 def main():
-    import sys
-    Sensor = input("Enter sensor to test (pH or DO)")
-
-    if Sensor == "pH":Address = 99
-    elif Sensor == "DO":Address = 97
-    else:
-        print("Error: sensor inputted was not valid")
-        sys.exit()
-    
-    device = AtlasI2C(address = Address) 	# creates the I2C port object, specify the address or bus if necessary
+   
+    device = AtlasI2C() 	# creates the I2C port object, specify the address or bus if necessary
 
     print(">> Atlas Scientific sample code")
     print(">> Any commands entered are passed to the board via I2C except:")
