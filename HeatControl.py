@@ -135,7 +135,7 @@ class HeatController(object):
             self._cycleTime = value
             self.calcOnOffTime()
 
-    def __init__(self, relay1Pin = 2, relay2Pin = 14, SSR1Pin = 3, SSR2Pin=15, heatSetting=0, cycleTime=2000, maxSetting=100, minSetting=0, pipeConn=None, heatGraphSignal=None):
+    def __init__(self, relay1Pin = 14, relay2Pin = 15, SSR1Pin = 18, SSR2Pin=23, heatSetting=0, cycleTime=2000, maxSetting=100, minSetting=0, pipeConn=None, heatGraphSignal=None):
         #Note that for the relays, 0 is on, but for the SSR, 1 is on, however this is handled on the backend
         #just set the relay/ssr to the right status
         self.relayOn = 0
