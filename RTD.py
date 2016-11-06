@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #The MIT License (MIT)
 #
 #Copyright (c) 2015 Stephen P. Smith
@@ -36,12 +35,15 @@ class max31865(object):
 	   3rd and 4th degree parts of the polynomial) and the straight line approx.
 	   temperature is calculated with the quadratic formula one being the most accurate.
 	"""
-	def __init__(self, csPin = 8, misoPin = 9, mosiPin = 10, clkPin = 11, mcp23017address = 0x21):
+	def __init__(self, csPin = 8, misoPin = 9, mosiPin = 10, clkPin = 11, mcp23017address = 0x21, verbose = 0,CorF="F"):
 		self.csPin = csPin
 		self.misoPin = misoPin
 		self.mosiPin = mosiPin
 		self.clkPin = clkPin
 		self.mcp23017address = mcp23017address
+		self.verbose = verbose
+		self.CorF = CorF
+		
 		self.setupGPIO()
 		
 	def setupGPIO(self):
@@ -97,7 +99,7 @@ class max31865(object):
 		out = self.readRegisters(0,8)
 
 		conf_reg = out[0]
-		print ("config register byte: %x" % conf_reg)
+		if self.verbose: print ("config register byte: %x" % conf_reg)
 
 		[rtd_msb, rtd_lsb] = [out[1], out[2]]
 		rtd_ADC_Code = (( rtd_msb << 8 ) | rtd_lsb ) >> 1
@@ -106,11 +108,11 @@ class max31865(object):
 
 		[hft_msb, hft_lsb] = [out[3], out[4]]
 		hft = (( hft_msb << 8 ) | hft_lsb ) >> 1
-		print ("high fault threshold: %d" % hft)
+		if self.verbose: print ("high fault threshold: %d" % hft)
 
 		[lft_msb, lft_lsb] = [out[5], out[6]]
 		lft = (( lft_msb << 8 ) | lft_lsb ) >> 1
-		print ("low fault threshold: %d" % lft)
+		if self.verbose: print ("low fault threshold: %d" % lft)
 
 		status = out[7]
 		#
@@ -130,7 +132,12 @@ class max31865(object):
 		if ((status & 0x40) == 1):
 			raise FaultError("Low threshold limit (Cable fault/short)")
 		if ((status & 0x04) == 1):
-			raise FaultError("Overvoltage or Undervoltage Error") 
+			raise FaultError("Overvoltage or Undervoltage Error")
+
+		if self.CorF == "C": return temp_C
+		elif self.CorF == "F":
+			temp_F = temp_C*9/5+32
+			return temp_F
 		
 	def writeRegister(self, regNum, dataByte):
 		self.mcp.output(self.csPin, 0)
@@ -198,9 +205,9 @@ class max31865(object):
 		# c = -4.18301e-12 # for -200 <= T <= 0 (degC)
 		c = -0.00000000000418301
 		# c = 0 # for 0 <= T <= 850 (degC)
-		print ("RTD ADC Code: %d" % RTD_ADC_Code)
+		if self.verbose: print ("RTD ADC Code: %d" % RTD_ADC_Code)
 		Res_RTD = (RTD_ADC_Code * R_REF) / 32768.0 # PT100 Resistance
-		print ("PT100 Resistance: %f ohms" % Res_RTD)
+		if self.verbose: print ("PT100 Resistance: %f ohms" % Res_RTD)
 		#
 		# Callendar-Van Dusen equation
 		# Res_RTD = Res0 * (1 + a*T + b*T**2 + c*(T-100)*T**3)
@@ -216,8 +223,8 @@ class max31865(object):
 		# removing numpy.roots will greatly speed things up
 		#temp_C_numpy = numpy.roots([c*Res0, -c*Res0*100, b*Res0, a*Res0, (Res0 - Res_RTD)])
 		#temp_C_numpy = abs(temp_C_numpy[-1])
-		print ("Straight Line Approx. Temp: %f degC" % temp_C_line)
-		print ("Callendar-Van Dusen Temp (degC > 0): %f degC" % temp_C)
+		if self.verbose: print ("Straight Line Approx. Temp: %f degC" % temp_C_line)
+		if self.verbose: print ("Callendar-Van Dusen Temp (degC > 0): %f degC" % temp_C)
 		#print "Solving Full Callendar-Van Dusen using numpy: %f" %  temp_C_numpy
 		if (temp_C < 0): #use straight line approximation if less than 0
 			# Can also use python lib numpy to solve cubic
@@ -230,16 +237,37 @@ class FaultError(Exception):
 
 if __name__ == "__main__":
 
-	import max31865
-	#csPin = 2
-	#misoPin = 3
-	#mosiPin = 0
-	#clkPin = 1
-	csPin = 2
-	misoPin = 3
-	mosiPin = 0
-	clkPin = 1
+	#import max31865
+	import sys
+
+	sensor = input(">>Enter temp sensor to test (HLT,MLT, or BLK): ")
+
+	if sensor == "HLT":
+		csPin = 2
+		misoPin = 3
+		mosiPin = 0
+		clkPin = 1
+	elif sensor == "MLT":
+		csPin = 12
+		misoPin = 11
+		mosiPin = 8
+		clkPin = 9
+	elif sensor == "BLK":
+		csPin = 10
+		misoPin = 11
+		mosiPin = 8
+		clkPin = 9
+	else:
+		print("Error: temp sensor was not valid")
+		sys.exit()
+
 	mcpaddress = 0x21
-	max = max31865.max31865(csPin,misoPin,mosiPin,clkPin,mcpaddress)
-	tempC = max.readTemp()
-	#GPIO.cleanup()
+	tempSensor = max31865(csPin,misoPin,mosiPin,clkPin,mcpaddress)
+	try:
+		while True:
+			tempC = tempSensor.readTemp()
+			print(tempC)
+			time.sleep(2)
+	except KeyboardInterrupt:
+		print("\nEnding temperature sensor test")
+
