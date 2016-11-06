@@ -243,10 +243,10 @@ if __name__ == "__main__":
 	sensor = input(">>Enter temp sensor to test (HLT,MLT, or BLK): ")
 
 	if sensor == "HLT":
-		csPin = 2
-		misoPin = 3
-		mosiPin = 0
-		clkPin = 1
+		csPin = 6
+		misoPin = 7
+		mosiPin = 4
+		clkPin = 5
 	elif sensor == "MLT":
 		csPin = 12
 		misoPin = 11
@@ -261,7 +261,7 @@ if __name__ == "__main__":
 		print("Error: temp sensor was not valid")
 		sys.exit()
 
-	mcpaddress = 0x21
+	mcpaddress = 0x23
 	tempSensor = max31865(csPin,misoPin,mosiPin,clkPin,mcpaddress)
 	try:
 		while True:
