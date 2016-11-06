@@ -84,7 +84,7 @@ class HeatController(object):
             self.relay2 = 0
             self.SSR1 = 0
             self.SSR2 = 0
-        elif value == "MLT":
+        elif value == "HLT":
             #note that this turns off the other relay before opening the correct relay. It should be impossible
             #to heat both kettles simultaniously (relays are in series), but this is precautionary
             #(as is turning off the other SSR)
@@ -107,7 +107,7 @@ class HeatController(object):
             self.relay2 = 0
             self.SSR1 = 0
             self.SSR2 = 0
-            print("Error: kettle must be set to either MLT or BLK. Turning off the heat")
+            print("Error: kettle must be set to either HLT or BLK. Turning off the heat")
 
     @property
     def heatSetting(self):
@@ -197,7 +197,7 @@ class HeatController(object):
         #if onTime or offTime = 0, then does not switch the relay. This reduces the number of
         #switches, as well as any delay due to code execution
         while (self.kettle != "None"):
-            if self.kettle == "MLT":
+            if self.kettle == "HLT":
                 if self.onTime!=0:
                     self.SSR1 = 1
                     time.sleep(self.onTime/1000)
