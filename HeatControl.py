@@ -208,10 +208,10 @@ class HeatController(object):
                 if self.heatGraphSignal != None: self.sendGraphPoint()
             elif self.kettle == "BLK":
                 if self.onTime!=0:
-                    self.SSR1 = 1
+                    self.SSR2 = 1
                     time.sleep(self.onTime/1000)
                 if self.offTime !=0:
-                    self.SSR1 = 0
+                    self.SSR2 = 0
                     time.sleep(self.offTime/1000)
                 if self.pipeConn != None: self.checkPipe()
                 if self.heatGraphSignal != None: self.sendGraphPoint()
