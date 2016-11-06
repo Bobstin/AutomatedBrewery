@@ -1,7 +1,7 @@
 import time
 from MCP23017 import MCP23017
 
-class ValveController(object):
+class PumpAerationValveController(object):
     @property
     def valveStates(self):
         return self._valveStates
@@ -141,6 +141,21 @@ class ValveController(object):
             self.valveStates = newStates
         else: print("Error: Valve {} must be set to either  1 (open) or 0 (closed)".format(10))
 
+    @property
+    def wortPump(self):
+        return self._wortPump
+
+    @wortPump.setter
+    def wortPump(self,value):
+        if value==1:
+            self.mcp.output(self.wortPin,0)
+            self._wortPump = value
+        elif value==0:
+            self.mcp.output(self.wortPin,1)
+            self._wortPump = value
+        else: print("Error: Wort pump must be set to either  1 (on) or 0 (off)")
+            
+
     def partialOpenClose(self,valve,amount):
         if self.valveNeutralPins[valve-1] != None:
             if amount>=0:
@@ -200,12 +215,22 @@ class ValveController(object):
             
             
 
-    def __init__(self,valvePositivePins = [8,9,10,11,12,13,14,15,7,6],valveNeutralPins = [None,None,None,None,5,None,None,None,4,None],address = 0x20,valveOpenTime=5):
+    def __init__(self,valvePositivePins = [8,9,10,11,12,13,14,15,7,6],valveNeutralPins = [None,None,None,None,5,None,None,None,4,None],address = 0x20,valveOpenTime=5,wortPin=3,waterPin=2,aerationPin=1):
         #Stores the parameters
         self.valvePositivePins = valvePositivePins
         self.valveNeutralPins = valveNeutralPins
         self.address = address
-        self.valveOpenTime = valveOpenTime        
+        self.valveOpenTime = valveOpenTime
+        self.wortPin = wortPin
+        self.waterPin = waterPin
+        self.aerationPin = aerationPin
+
+        self._valveStates =[0]*10
+        self.partiallyOpen = [0]*10
+
+        self._wortPump = 0
+        self._waterPump = 0
+        self._aeration = 0
 
         #Creates the MCP23017 object
         self.mcp = MCP23017(address = address, num_gpios = 16)
@@ -218,5 +243,14 @@ class ValveController(object):
                 self.mcp.pinMode(self.valveNeutralPins[i],self.mcp.OUTPUT)
                 self.mcp.output(self.valveNeutralPins[i],1)
 
-        self._valveStates =[0]*10
-        self.partiallyOpen = [0]*10
+        #Initalizes the pumps and aeration as off
+        self.mcp.pinMode(self.wortPin,self.mcp.OUTPUT)
+        self.mcp.output(self.wortPin,1)
+
+        self.mcp.pinMode(self.waterPin,self.mcp.OUTPUT)
+        self.mcp.output(self.waterPin,1)
+
+        self.mcp.pinMode(self.aerationPin,self.mcp.OUTPUT)
+        self.mcp.output(self.aerationPin,1)
+
+
