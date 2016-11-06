@@ -12,7 +12,7 @@ class PumpAerationValveController(object):
     def valveStates(self,states):
         if len(states)==10:
             for i in range(0,10):
-                if self.partiallyOpen[i]:print("Warning: Valve {} is partially open; to change it to open or closed, use fullyOpenClose".format(i+1))
+                if self.partiallyOpen[i]:print("Warning: Valve {} is partially open (this may be intentional); to change it to open or closed, use fullyOpenClose".format(i+1))
                 if states[i]==1 or states[i]==0:
                     self._valveStates[i]=states[i]
                     if states[i] == 1: self.mcp.output(self.valvePositivePins[i],0)
@@ -154,6 +154,36 @@ class PumpAerationValveController(object):
             self.mcp.output(self.wortPin,1)
             self._wortPump = value
         else: print("Error: Wort pump must be set to either  1 (on) or 0 (off)")
+
+
+    @property
+    def waterPump(self):
+        return self._waterPump
+
+    @waterPump.setter
+    def waterPump(self,value):
+        if value==1:
+            self.mcp.output(self.waterPin,0)
+            self._waterPump = value
+        elif value==0:
+            self.mcp.output(self.waterPin,1)
+            self._waterPump = value
+        else: print("Error: Water pump must be set to either  1 (on) or 0 (off)")
+
+
+    @property
+    def aeration(self):
+        return self._aerationPump
+
+    @aeration.setter
+    def aeration(self,value):
+        if value==1:
+            self.mcp.output(self.aerationPin,0)
+            self._aeration = value
+        elif value==0:
+            self.mcp.output(self.aerationPin,1)
+            self._aerationPump = value
+        else: print("Error: Aeration must be set to either  1 (on) or 0 (off)")
             
 
     def partialOpenClose(self,valve,amount):
@@ -213,7 +243,8 @@ class PumpAerationValveController(object):
             
         else: print("Error: Valve {} does not have neutral control, so it cannot be partially opened/closed".format(valve))
             
-            
+    def cleanup(self):
+        self.mcp.cleanup()
 
     def __init__(self,valvePositivePins = [8,9,10,11,12,13,14,15,7,6],valveNeutralPins = [None,None,None,None,5,None,None,None,4,None],address = 0x20,valveOpenTime=5,wortPin=3,waterPin=2,aerationPin=1):
         #Stores the parameters
