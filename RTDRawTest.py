@@ -1,6 +1,6 @@
 import sys
 import time
-from RTD import max31865
+from RTDSensor import max31865
 from MCP23017 import MCP23017
 
 sensor = input(">>Enter temp sensor to test (HLT,MLT, or BLK): ")

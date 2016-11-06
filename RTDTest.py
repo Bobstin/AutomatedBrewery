@@ -1,4 +1,4 @@
-from RTD import tempSensors
+from RTDSensor import tempSensors
 import time
 import sys
 
