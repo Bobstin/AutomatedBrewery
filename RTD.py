@@ -1,6 +1,8 @@
 #The MIT License (MIT)
 #
 #Copyright (c) 2015 Stephen P. Smith
+#Adapted for use in the AutomatedBrewery by Justin Kahn in 2016
+#Adaptations include use of mcp23017, and use of multiple sensors
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -35,19 +37,20 @@ class max31865(object):
 	   3rd and 4th degree parts of the polynomial) and the straight line approx.
 	   temperature is calculated with the quadratic formula one being the most accurate.
 	"""
-	def __init__(self, csPin = 8, misoPin = 9, mosiPin = 10, clkPin = 11, mcp23017address = 0x21, verbose = 0,CorF="F"):
+	def __init__(self, mcp23017, csPin = 8, misoPin = 9, mosiPin = 10, clkPin = 11, verbose = 0,CorF="F"):
+		#Note: This version of the max31865 library is bassed an mcp23017 object, instead of creating it based
+		#on an address. This is to prevent the MCP23017 from being initialized each time.
 		self.csPin = csPin
 		self.misoPin = misoPin
 		self.mosiPin = mosiPin
 		self.clkPin = clkPin
-		self.mcp23017address = mcp23017address
 		self.verbose = verbose
 		self.CorF = CorF
+		self.mcp = mcp23017
 		
 		self.setupGPIO()
 		
 	def setupGPIO(self):
-		self.mcp = MCP23017(address = self.mcp23017address, num_gpios = 16)
 		self.mcp.pinMode(self.csPin, self.mcp.OUTPUT)
 		self.mcp.pinMode(self.misoPin, self.mcp.INPUT)
 		self.mcp.pinMode(self.mosiPin, self.mcp.OUTPUT)
@@ -235,9 +238,28 @@ class max31865(object):
 class FaultError(Exception):
 	pass
 
+
+class tempSensors(object):
+	def HLTTemp(self):
+		Temp = self.HLTTempSensor.readTemp()
+		return Temp
+
+	def MLTTemp(self):
+		Temp = self.MLTTempSensor.readTemp()
+		return Temp
+
+	def BLKTemp(self):
+		Temp = self.BLKTempSensor.readTemp()
+		return Temp
+	
+	def __init__(self,csPins=[6,12,10],misoPins=[7,11,11],mosiPins=[4,8,8],clkPins=[5,9,9],address=0x23):
+		self.mcp = MCP23017(address = address, num_gpios = 16)
+		self.HLTTempSensor = max31865(self.mcp,csPins[0],misoPins[0],mosiPins[0],clkPins[0])
+		self.MLTTempSensor = max31865(self.mcp,csPins[1],misoPins[1],mosiPins[1],clkPins[1])
+		self.BLKTempSensor = max31865(self.mcp,csPins[2],misoPins[2],mosiPins[2],clkPins[2])
+
 if __name__ == "__main__":
 
-	#import max31865
 	import sys
 
 	sensor = input(">>Enter temp sensor to test (HLT,MLT, or BLK): ")
@@ -260,13 +282,13 @@ if __name__ == "__main__":
 	else:
 		print("Error: temp sensor was not valid")
 		sys.exit()
-
-	mcpaddress = 0x23
-	tempSensor = max31865(csPin,misoPin,mosiPin,clkPin,mcpaddress)
+		
+	mcp = MCP23017(address = 0x23, num_gpios = 16)
+	tempSensor = max31865(mcp,csPin,misoPin,mosiPin,clkPin)
 	try:
 		while True:
-			tempC = tempSensor.readTemp()
-			print(tempC)
+			temp = tempSensor.readTemp()
+			print(temp)
 			time.sleep(2)
 	except KeyboardInterrupt:
 		print("\nEnding temperature sensor test")
