@@ -30,8 +30,8 @@ class valveSwitchSensors(object):
         for i in range(4,8):
             self.mcp3.pinMode(i,self.mcp3.INPUT)
             self.mcp3.configPinInterrupt(i, self.mcp3.INTERRUPTON, self.mcp3.INTERRUPTCOMPAREPREVIOUS)
-            if i in In2Pins_3:
-                self.mcp3.pullUp(i,1)
+            #if i in In2Pins_3:
+            self.mcp3.pullUp(i,1)
 
     def interruptSetUp(self,callbackFunction,bounceTime=50):
         GPIO.setmode(GPIO.BCM)

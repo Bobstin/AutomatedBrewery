@@ -51,15 +51,15 @@ try:
     for i in range(0,15):
         mcp2.pinMode(i,mcp2.INPUT)
         mcp2.configPinInterrupt(i, mcp2.INTERRUPTON, mcp2.INTERRUPTCOMPAREPREVIOUS)
-        if i in In2Pins_2:
-            mcp2.pullUp(i,1)
+        #if i in In2Pins_2:
+        mcp2.pullUp(i,1)
 
     #sets up the valves on mcp3
     for i in range(4,8):
         mcp3.pinMode(i,mcp3.INPUT)
         mcp3.configPinInterrupt(i, mcp3.INTERRUPTON, mcp3.INTERRUPTCOMPAREPREVIOUS)
-        if i in In2Pins_3:
-            mcp3.pullUp(i,1)
+        #if i in In2Pins_3:
+        mcp3.pullUp(i,1)
 
 
     #GPIO.add_interrupt_callback(13, interrupted, edge='rising', pull_up_down=GPIO.PUD_DOWN, threaded_callback=Fasle, debounce_timeout_ms=5)

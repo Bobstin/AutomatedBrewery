@@ -20,7 +20,7 @@ def getstate(IGNORE):
     global j
     j=j+1
     print(j)
-    state=["ERROR"]*7
+    state=["ERROR"]*6
 
     time.sleep(0.5)
 
