@@ -24,7 +24,7 @@
 
 import time, math
 import RPi.GPIO as GPIO
-from MCP23017 import MCP23017
+from automatedbrewery.MCP23017 import MCP23017
 
 #import numpy
 

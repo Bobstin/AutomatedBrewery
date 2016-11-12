@@ -14,7 +14,7 @@ class volumeSensors(object):
         self.BLKChannel=BLKChannel
 
         #loads the calibration files
-        with open('VolumeCalibration.pk1','rb') as input:
+        with open('../calibrations/VolumeCalibration.pk1','rb') as input:
             self.HLTVolumeCalibration = pickle.load(input)
             self.MLTVolumeCalibration = pickle.load(input)
             self.BLKVolumeCalibration = pickle.load(input)

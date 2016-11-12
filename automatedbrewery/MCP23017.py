@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from Adafruit_I2C import Adafruit_I2C
+from automatedbrewery.Adafruit_I2C import Adafruit_I2C
 import smbus
 import time
 import math

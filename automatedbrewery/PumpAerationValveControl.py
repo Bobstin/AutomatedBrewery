@@ -1,5 +1,5 @@
 import time
-from MCP23017 import MCP23017
+from automatedbrewery.MCP23017 import MCP23017
 
 class PumpAerationValveController(object):
     @property

@@ -1,5 +1,5 @@
 import time
-from MCP23017 import MCP23017
+from automatedbrewery.MCP23017 import MCP23017
 import RPi.GPIO as GPIO
 
 class valveSwitchSensors(object):
