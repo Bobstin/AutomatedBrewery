@@ -1,11 +1,14 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(".."))
+
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 import pyqtgraph
 import time
-import sys
-from FlowSensor import flowSensors
+from automatedbrewery.FlowSensor import flowSensors
 import threading
 
-qtCreatorFile = "./UI/AutomatedBreweryUI/flowtestui.ui"
+qtCreatorFile = "../UI/AutomatedBreweryUI/flowtestui.ui"
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
 class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):

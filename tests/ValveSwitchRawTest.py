@@ -1,5 +1,9 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(".."))
+
 import time
-from MCP23017 import MCP23017
+from automatedbrewery.MCP23017 import MCP23017
 import RPi.GPIO as GPIO
 
 def getvalvestate(IGNORE):        

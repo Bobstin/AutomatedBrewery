@@ -1,6 +1,10 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(".."))
+
 import time
 import RPi.GPIO as GPIO
-from MCP23017 import MCP23017
+from automatedbrewery.MCP23017 import MCP23017
 
 address = 0x20
 valvePositivePins = [8,9,10,11,12,13,14,15,7,6]

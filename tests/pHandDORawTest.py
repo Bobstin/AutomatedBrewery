@@ -1,5 +1,8 @@
+import os
 import sys
-from pHandDOSensor import AtlasI2C
+sys.path.insert(0, os.path.abspath(".."))
+
+from automatedbrewery.pHandDOSensor import AtlasI2C
 Sensor = input(">>Enter sensor to test (pH or DO)")
 
 if Sensor == "pH":Address = 99

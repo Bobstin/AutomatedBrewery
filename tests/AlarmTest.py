@@ -1,10 +1,14 @@
-import AlarmControl
+import os
+import sys
+sys.path.insert(0, os.path.abspath(".."))
+
+from automatedbrewery.AlarmControl import AlarmController
 import time
 import RPi.GPIO as GPIO
 
 print("Turning the alarm off and on every 5 seconds")
 
-Alarm = AlarmControl.AlarmController()
+Alarm = AlarmController()
 time.sleep(5)
 
 try:

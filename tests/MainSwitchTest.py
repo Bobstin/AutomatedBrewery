@@ -1,4 +1,8 @@
-from MainSwitchSensor import mainSwitchSensors
+import os
+import sys
+sys.path.insert(0, os.path.abspath(".."))
+
+from automatedbrewery.MainSwitchSensor import mainSwitchSensors
 import time
 
 mainSwitchSensor = mainSwitchSensors()
@@ -15,6 +19,7 @@ def printStatus(interruptedPin):
         pinIndex = mainSwitchSensor.TwoWayInPins.index(interruptedPin)
         print("{} switch was detected as changing".format(mainSwitchSensor.TwoStateSwitches[pinIndex]))
     for i in range(0,6): print(mainSwitchSensor.Switches[i]+": "+statuses[i])
+    print("")
 
 for i in range(0,6): print("The {} switch started in the {} position".format(mainSwitchSensor.Switches[i],mainSwitchSensor.switchState(mainSwitchSensor.Switches[i])))
 

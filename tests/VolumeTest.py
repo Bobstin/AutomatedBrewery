@@ -1,4 +1,8 @@
-from VolumeSensor import volumeSensors
+import os
+import sys
+sys.path.insert(0, os.path.abspath(".."))
+
+from automatedbrewery.VolumeSensor import volumeSensors
 import time
 
 sensor = input(">>Enter temp sensor to test (HLT,MLT,BLK, or All): ")

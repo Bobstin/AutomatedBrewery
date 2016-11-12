@@ -1,7 +1,10 @@
+import os
 import sys
+sys.path.insert(0, os.path.abspath(".."))
+
 import time
-from RTDSensor import max31865
-from MCP23017 import MCP23017
+from automatedbrewery.RTDSensor import max31865
+from automatedbrewery.MCP23017 import MCP23017
 
 sensor = input(">>Enter temp sensor to test (HLT,MLT, or BLK): ")
 

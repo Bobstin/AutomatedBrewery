@@ -1,4 +1,8 @@
-from RTDSensor import tempSensors
+import os
+import sys
+sys.path.insert(0, os.path.abspath(".."))
+
+from automatedbrewery.RTDSensor import tempSensors
 import time
 import sys
 

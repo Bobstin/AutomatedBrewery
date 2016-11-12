@@ -1,11 +1,15 @@
-import HeatControl
+import os
+import sys
+sys.path.insert(0, os.path.abspath(".."))
+
+from automatedbrewery.HeatControl import HeatController
 import time
 import threading
 from multiprocessing import Pipe
 import sys
 
 def startHeatControl(heatConn,IGNORE):
-    HeatCtrl = HeatControl.HeatController(pipeConn=heatConn)
+    HeatCtrl = HeatController(pipeConn=heatConn)
     HeatCtrl.kettle = "BLK"
 
 testSelection = input("Select test to run (Alternating or Long run): ")

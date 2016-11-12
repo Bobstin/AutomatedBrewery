@@ -1,5 +1,9 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(".."))
+
 import time
-from PumpAerationValveControl import PumpAerationValveController
+from automatedbrewery.PumpAerationValveControl import PumpAerationValveController
 
 def valveTest():
     print("Testing the valves. Should start with all valve closed for 5 seconds,")
