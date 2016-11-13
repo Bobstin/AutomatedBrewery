@@ -78,8 +78,8 @@
     <property name="geometry">
      <rect>
       <x>150</x>
-      <y>170</y>
-      <width>47</width>
+      <y>100</y>
+      <width>60</width>
       <height>13</height>
      </rect>
     </property>
@@ -91,8 +91,8 @@
     <property name="geometry">
      <rect>
       <x>590</x>
-      <y>170</y>
-      <width>47</width>
+      <y>100</y>
+      <width>60</width>
       <height>13</height>
      </rect>
     </property>
@@ -104,8 +104,8 @@
     <property name="geometry">
      <rect>
       <x>160</x>
-      <y>370</y>
-      <width>47</width>
+      <y>300</y>
+      <width>60</width>
       <height>13</height>
      </rect>
     </property>
@@ -117,8 +117,8 @@
     <property name="geometry">
      <rect>
       <x>600</x>
-      <y>370</y>
-      <width>47</width>
+      <y>300</y>
+      <width>60</width>
       <height>13</height>
      </rect>
     </property>
@@ -130,8 +130,8 @@
     <property name="geometry">
      <rect>
       <x>150</x>
-      <y>570</y>
-      <width>47</width>
+      <y>500</y>
+      <width>60</width>
       <height>13</height>
      </rect>
     </property>
@@ -143,8 +143,8 @@
     <property name="geometry">
      <rect>
       <x>600</x>
-      <y>570</y>
-      <width>47</width>
+      <y>500</y>
+      <width>60</width>
       <height>13</height>
      </rect>
     </property>
@@ -152,60 +152,69 @@
      <string>BLK Out</string>
     </property>
    </widget>
-   <widget class="PlotWidget" name="HLT_In_2">
+   <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>30</x>
+      <x>350</x>
+      <y>570</y>
+      <width>70</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>BLK Total</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>170</y>
+      <width>70</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>HLT Total</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>370</y>
+      <width>70</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>MLT Total</string>
+    </property>
+   </widget>
+   <widget class="PlotWidget" name="HLT">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
       <y>100</y>
       <width>301</width>
       <height>61</height>
      </rect>
     </property>
    </widget>
-   <widget class="PlotWidget" name="HLT_Out_2">
+   <widget class="PlotWidget" name="MLT">
     <property name="geometry">
      <rect>
-      <x>460</x>
-      <y>100</y>
-      <width>301</width>
-      <height>61</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="PlotWidget" name="MLT_In_2">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
+      <x>230</x>
       <y>300</y>
       <width>301</width>
       <height>61</height>
      </rect>
     </property>
    </widget>
-   <widget class="PlotWidget" name="MLT_Out_2">
+   <widget class="PlotWidget" name="BLK">
     <property name="geometry">
      <rect>
-      <x>460</x>
-      <y>300</y>
-      <width>301</width>
-      <height>61</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="PlotWidget" name="BLK_In_2">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>500</y>
-      <width>301</width>
-      <height>61</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="PlotWidget" name="BLK_Out_2">
-    <property name="geometry">
-     <rect>
-      <x>460</x>
+      <x>230</x>
       <y>500</y>
       <width>301</width>
       <height>61</height>

@@ -3,4 +3,6 @@ Python 3
 QT
 Adafruit Python ADS1X15 (LINK NEEDED)
 SMBUS for python3 (LINK NEEDED)
+pyqtgraph
+PyGt5
 
