@@ -43,10 +43,13 @@ QProgressBar::chunk {
 }</string>
     </property>
     <property name="maximum">
-     <number>10</number>
+     <number>1000</number>
     </property>
     <property name="value">
-     <number>10</number>
+     <number>1000</number>
+    </property>
+    <property name="textVisible">
+     <bool>false</bool>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -82,10 +85,13 @@ QProgressBar::chunk {
 }</string>
     </property>
     <property name="maximum">
-     <number>10</number>
+     <number>1000</number>
     </property>
     <property name="value">
-     <number>5</number>
+     <number>500</number>
+    </property>
+    <property name="textVisible">
+     <bool>false</bool>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -121,10 +127,13 @@ QProgressBar::chunk {
 }</string>
     </property>
     <property name="maximum">
-     <number>10</number>
+     <number>1000</number>
     </property>
     <property name="value">
      <number>0</number>
+    </property>
+    <property name="textVisible">
+     <bool>false</bool>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -3713,7 +3722,7 @@ QPushButton:pressed {
      <rect>
       <x>150</x>
       <y>100</y>
-      <width>71</width>
+      <width>31</width>
       <height>21</height>
      </rect>
     </property>
@@ -3738,7 +3747,7 @@ QPushButton:pressed {
      <rect>
       <x>150</x>
       <y>120</y>
-      <width>71</width>
+      <width>31</width>
       <height>21</height>
      </rect>
     </property>
@@ -3788,7 +3797,7 @@ QPushButton:pressed {
      <rect>
       <x>420</x>
       <y>100</y>
-      <width>71</width>
+      <width>31</width>
       <height>21</height>
      </rect>
     </property>
@@ -3838,7 +3847,7 @@ QPushButton:pressed {
      <rect>
       <x>420</x>
       <y>120</y>
-      <width>71</width>
+      <width>31</width>
       <height>21</height>
      </rect>
     </property>
@@ -3953,7 +3962,7 @@ QPushButton:pressed {
       <rect>
        <x>20</x>
        <y>40</y>
-       <width>71</width>
+       <width>31</width>
        <height>21</height>
       </rect>
      </property>
@@ -4003,7 +4012,7 @@ QPushButton:pressed {
       <rect>
        <x>60</x>
        <y>40</y>
-       <width>51</width>
+       <width>61</width>
        <height>20</height>
       </rect>
      </property>
@@ -4028,7 +4037,7 @@ QPushButton:pressed {
       <rect>
        <x>20</x>
        <y>20</y>
-       <width>71</width>
+       <width>21</width>
        <height>21</height>
       </rect>
      </property>
@@ -4053,7 +4062,7 @@ QPushButton:pressed {
       <rect>
        <x>60</x>
        <y>20</y>
-       <width>51</width>
+       <width>61</width>
        <height>20</height>
       </rect>
      </property>
@@ -4073,15 +4082,6 @@ QPushButton:pressed {
       <string>7.00</string>
      </property>
     </widget>
-    <zorder>label_38</zorder>
-    <zorder>HLT_In_3</zorder>
-    <zorder>label_36</zorder>
-    <zorder>HLT_Out_3</zorder>
-    <zorder>label_38</zorder>
-    <zorder>HLT_In_3</zorder>
-    <zorder>BLK_Out</zorder>
-    <zorder>label_36</zorder>
-    <zorder>BLK_In</zorder>
    </widget>
    <widget class="QLabel" name="label_39">
     <property name="geometry">
@@ -4138,7 +4138,7 @@ QPushButton:pressed {
      <rect>
       <x>190</x>
       <y>100</y>
-      <width>51</width>
+      <width>71</width>
       <height>20</height>
      </rect>
     </property>
@@ -4163,7 +4163,7 @@ QPushButton:pressed {
      <rect>
       <x>190</x>
       <y>120</y>
-      <width>51</width>
+      <width>71</width>
       <height>20</height>
      </rect>
     </property>
@@ -4306,6 +4306,156 @@ QPushButton:pressed {
     </property>
     <property name="text">
      <string>Alarm switch:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="HLT_Vol">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>20</y>
+      <width>71</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>7.00</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_41">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>20</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color:  rgb(0, 138, 205)</string>
+    </property>
+    <property name="text">
+     <string>HLT Vol:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_42">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>20</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color:  rgb(0, 138, 205)</string>
+    </property>
+    <property name="text">
+     <string>MLT Vol:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="MLT_Vol">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>20</y>
+      <width>71</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>7.00</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="BLK_Vol">
+    <property name="geometry">
+     <rect>
+      <x>700</x>
+      <y>20</y>
+      <width>71</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>7.00</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_43">
+    <property name="geometry">
+     <rect>
+      <x>630</x>
+      <y>20</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color:  rgb(0, 138, 205)</string>
+    </property>
+    <property name="text">
+     <string>BLK Vol:</string>
     </property>
    </widget>
    <zorder>HLT</zorder>
@@ -4471,6 +4621,12 @@ QPushButton:pressed {
    <zorder>BLK_Heat_2</zorder>
    <zorder>Mash_Timer_2</zorder>
    <zorder>label_21</zorder>
+   <zorder>HLT_Vol</zorder>
+   <zorder>label_41</zorder>
+   <zorder>label_42</zorder>
+   <zorder>MLT_Vol</zorder>
+   <zorder>BLK_Vol</zorder>
+   <zorder>label_43</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
