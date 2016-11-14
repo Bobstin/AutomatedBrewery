@@ -28,7 +28,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     flowSignal = QtCore.pyqtSignal(list,list)
     volumeSignal = QtCore.pyqtSignal(list)
     tempSignal = QtCore.pyqtSignal(list)
-    pHandDOSignal = QtCore.pyqtSignal(list)
+    pHandDOSignal = QtCore.pyqtSignal(float,float)
     mainSwitchSignal = QtCore.pyqtSignal(list)
     valveSwitchSignal = QtCore.pyqtSignal(list)
 
@@ -37,6 +37,26 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     PAVControlSignal = QtCore.pyqtSignal(list)
     HLTPIDSignal = QtCore.pyqtSignal(list)
     BLKPIDSignal = QtCore.pyqtSignal(list)
+
+    redSwitchStyle = '''
+    QPushButton {
+        border-radius: 0px;
+        background-color: rgb(203,34,91);
+    }
+
+    QPushButton:pressed {
+        background-color: grey;
+    }'''
+
+    greenSwitchStyle = '''
+    QPushButton {
+        border-radius: 0px;
+        background-color: rgb(7,155,132);
+    }
+
+    QPushButton:pressed {
+        background-color: grey;
+    }'''
 
     #Creates the pipes used to talk to the control modules
     heatToHLTPIDPipe, HLTPIDToHeatPipe = Pipe()
@@ -116,19 +136,36 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         while True:
             volumes = [volumeSensor.HLTVolume(),volumeSensor.MLTVolume(),volumeSensor.BLKVolume()]
             self.volumeSignal.emit(volumes)
-            time.sleep(5)
+            time.sleep(2)
 
     def startTempSensing(self):
-        TEMP=1
+        tempSensor = tempSensors()
+        while True:
+            temps = [tempSensor.HLTTemp(),tempSensor.MLTTemp(),tempSensor.BLKTemp()]
+            self.tempSignal.emit(temps)
+            time.sleep(2)
 
     def startpHandDOSensing(self):
-        TEMP=1
+        pHandDOSensor = pHandDOSensors()
+        while True:
+            pH = pHandDOSensor.pH()
+            DO = pHandDOSensor.DO()
+            self.pHandDOSignal.emit(pH,DO)
+            time.sleep(2)
 
     def startMainSwitchSensing(self):
         TEMP=1
 
     def startValveSwitchSensing(self):
-        TEMP=1
+        valveSwitchSensor = valveSwitchSensors()
+        while True:
+            valveSwitchStates = valveSwitchSensor.allValveSwitchStates()
+            self.valveSwitchSignal.emit(valveSwitchStates)
+            time.sleep(2)
+            #self.valve1.setStyleSheet(self.greenSwitchStyle)
+            #time.sleep(2)
+            #self.valve1.setStyleSheet(self.redSwitchStyle)
+            #time.sleep(2)
 
     def flowUpdate(self, flowRateValues, flowTotalValues):
         self.HLT_In.setText("{:.2f} g/m".format(flowRateValues[0][1][-1]))
@@ -139,19 +176,57 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.BLK_Out.setText("{:.2f} g/m".format(flowRateValues[5][1][-1]))
 
     def volumeUpdate(self, volumeValues):
-        print(volumeValues)
+        self.HLT_Vol.setText("{:.2f} gal".format(volumeValues[0]))
+        self.MLT_Vol.setText("{:.2f} gal".format(volumeValues[1]))
+        self.BLK_Vol.setText("{:.2f} gal".format(volumeValues[2]))
+
+        #Floors the volume to 10 for the display of how full the kettle is
+        if volumeValues[0]>10:volumeValues[0]=10
+        if volumeValues[1]>10:volumeValues[1]=10
+        if volumeValues[2]>10:volumeValues[2]=10
+
+        #Multiplies the value by 100, since the kettle is up to 10 gallons, but
+        #the object bar requires integer values, so it goes up to 1000
+        self.HLT.setValue(int(round(volumeValues[0]*100)))
+        self.MLT.setValue(int(round(volumeValues[1]*100)))
+        self.BLK.setValue(int(round(volumeValues[2]*100)))
         
     def tempUpdate(self, tempValues):
-        TEMP=1
+        OldHLTText = self.HLT_Heat.text()
+        OldMLTText = self.MLT_Heat.text()
+        OldBLKText = self.BLK_Heat.text()
 
-    def pHandDOUpdate(self, pHandDOValues):
-        TEMP=1
+        if tempValues[0]>999:tempValues[0]=999
+        if tempValues[1]>999:tempValues[1]=999
+        if tempValues[2]>999:tempValues[2]=999
+
+        NewHLTText=OldHLTText[:14]+"{: >3d}".format(int(round(tempValues[0])))+OldHLTText[17:]
+        NewMLTText=OldMLTText[:14]+"{: >3d}".format(int(round(tempValues[1])))+OldMLTText[17:]
+        NewBLKText=OldBLKText[:14]+"{: >3d}".format(int(round(tempValues[2])))+OldBLKText[17:]
+
+        self.HLT_Heat.setText(NewHLTText)
+        self.MLT_Heat.setText(NewMLTText)
+        self.BLK_Heat.setText(NewBLKText)   
+
+    def pHandDOUpdate(self, pH, DO):
+        self.pH.setText("{:.2f}".format(pH))
+        self.DO.setText("{:.2f}".format(DO))
 
     def mainSwitchUpdate(self, mainSwitchValues):
         TEMP=1
 
-    def valveSwitchUpdate(self, valveSwitchValues):
-        TEMP=1
+    def valveSwitchUpdate(self, valveSwitchStates):
+        for i in range(1,11):
+            if i in [1,2,4,5,6,9,10]:
+                if valveSwitchStates[i-1]=="On": getattr(self,"valve"+str(i)).setStyleSheet(self.greenSwitchStyle)
+                if valveSwitchStates[i-1]=="Off": getattr(self,"valve"+str(i)).setStyleSheet(self.redSwitchStyle)
+            else:
+                if valveSwitchStates[i-1]=="On":                
+                    getattr(self,"valve"+str(i)+"u").setStyleSheet(self.greenSwitchStyle)
+                    getattr(self,"valve"+str(i)+"d").setStyleSheet(self.redSwitchStyle)
+                if valveSwitchStates[i-1]=="Off":
+                    getattr(self,"valve"+str(i)+"u").setStyleSheet(self.redSwitchStyle)
+                    getattr(self,"valve"+str(i)+"d").setStyleSheet(self.greenSwitchStyle)
 		
 if __name__ == '__main__':
 	app = QtWidgets.QApplication(sys.argv)
