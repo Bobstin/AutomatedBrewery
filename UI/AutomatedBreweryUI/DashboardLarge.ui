@@ -3795,7 +3795,7 @@ QPushButton:pressed {
    <widget class="QLabel" name="label_33">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>400</x>
       <y>100</y>
       <width>31</width>
       <height>21</height>
@@ -3845,7 +3845,7 @@ QPushButton:pressed {
    <widget class="QLabel" name="label_35">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>400</x>
       <y>120</y>
       <width>31</width>
       <height>21</height>
@@ -3960,7 +3960,7 @@ QPushButton:pressed {
     <widget class="QLabel" name="label_38">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>10</x>
        <y>40</y>
        <width>31</width>
        <height>21</height>
@@ -4010,7 +4010,7 @@ QPushButton:pressed {
     <widget class="QLabel" name="BLK_Out">
      <property name="geometry">
       <rect>
-       <x>60</x>
+       <x>50</x>
        <y>40</y>
        <width>61</width>
        <height>20</height>
@@ -4035,7 +4035,7 @@ QPushButton:pressed {
     <widget class="QLabel" name="label_36">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>10</x>
        <y>20</y>
        <width>21</width>
        <height>21</height>
@@ -4060,7 +4060,7 @@ QPushButton:pressed {
     <widget class="QLabel" name="BLK_In">
      <property name="geometry">
       <rect>
-       <x>60</x>
+       <x>50</x>
        <y>20</y>
        <width>61</width>
        <height>20</height>
@@ -4186,9 +4186,9 @@ QPushButton:pressed {
    <widget class="QLabel" name="MLT_In">
     <property name="geometry">
      <rect>
-      <x>460</x>
+      <x>440</x>
       <y>100</y>
-      <width>51</width>
+      <width>61</width>
       <height>20</height>
      </rect>
     </property>
@@ -4211,9 +4211,9 @@ QPushButton:pressed {
    <widget class="QLabel" name="MLT_Out">
     <property name="geometry">
      <rect>
-      <x>460</x>
+      <x>440</x>
       <y>120</y>
-      <width>51</width>
+      <width>61</width>
       <height>20</height>
      </rect>
     </property>
