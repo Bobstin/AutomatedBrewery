@@ -4012,7 +4012,7 @@ QPushButton:pressed {
       <rect>
        <x>50</x>
        <y>40</y>
-       <width>61</width>
+       <width>71</width>
        <height>20</height>
       </rect>
      </property>
@@ -4062,7 +4062,7 @@ QPushButton:pressed {
       <rect>
        <x>50</x>
        <y>20</y>
-       <width>61</width>
+       <width>71</width>
        <height>20</height>
       </rect>
      </property>
@@ -4188,7 +4188,7 @@ QPushButton:pressed {
      <rect>
       <x>440</x>
       <y>100</y>
-      <width>61</width>
+      <width>71</width>
       <height>20</height>
      </rect>
     </property>
@@ -4213,7 +4213,7 @@ QPushButton:pressed {
      <rect>
       <x>440</x>
       <y>120</y>
-      <width>61</width>
+      <width>71</width>
       <height>20</height>
      </rect>
     </property>
@@ -4605,12 +4605,8 @@ QPushButton:pressed {
    <zorder>label_27</zorder>
    <zorder>Pause</zorder>
    <zorder>E_Stop</zorder>
-   <zorder>label_28</zorder>
-   <zorder>label_31</zorder>
    <zorder>label_32</zorder>
-   <zorder>label_33</zorder>
    <zorder>label_34</zorder>
-   <zorder>label_35</zorder>
    <zorder>label_37</zorder>
    <zorder>label_39</zorder>
    <zorder>label_40</zorder>
@@ -4627,6 +4623,10 @@ QPushButton:pressed {
    <zorder>MLT_Vol</zorder>
    <zorder>BLK_Vol</zorder>
    <zorder>label_43</zorder>
+   <zorder>label_28</zorder>
+   <zorder>label_31</zorder>
+   <zorder>label_33</zorder>
+   <zorder>label_35</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
