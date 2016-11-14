@@ -3,11 +3,12 @@ import time
 import sys
 
 class flowSensors(object):
-    def __init__(self,graphSignal,flowPins = [8,7,12,16,20,21],flowNames = ["HLT In","HLT Out","MLT In","MLT Out","BLK In","BLK Out"]):
+    def __init__(self,graphSignal,flowPins = [8,7,12,16,20,21],flowNames = ["HLT In","HLT Out","MLT In","MLT Out","BLK In","BLK Out"],sendSeries=True):
         #stores the parameters
         self.flowPins = flowPins
         self.flowNames = flowNames
         self.graphSignal = graphSignal
+        self.sendSeries = sendSeries
         
         #Sets up the pins as inputs with detection events
         GPIO.setmode(GPIO.BCM)        
