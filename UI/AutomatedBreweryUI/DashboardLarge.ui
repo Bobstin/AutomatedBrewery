@@ -4233,7 +4233,7 @@ QPushButton:pressed {
      <string>7.00</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="BLK_Heat_2">
+   <widget class="QPushButton" name="MLT_Heat">
     <property name="geometry">
      <rect>
       <x>380</x>
@@ -4614,7 +4614,7 @@ QPushButton:pressed {
    <zorder>HLT_Out</zorder>
    <zorder>MLT_In</zorder>
    <zorder>MLT_Out</zorder>
-   <zorder>BLK_Heat_2</zorder>
+   <zorder>MLT_Heat</zorder>
    <zorder>Mash_Timer_2</zorder>
    <zorder>label_21</zorder>
    <zorder>HLT_Vol</zorder>
