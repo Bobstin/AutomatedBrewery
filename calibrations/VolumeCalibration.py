@@ -3,9 +3,9 @@ import Adafruit_ADS1x15
 import pickle
 
 adcValues = [1600,10000,20000,30000]
-volumeValues1 = [0,10,20,30]
-volumeValues2 = [0,100,200,300]
-volumeValues3 = [0,1000,2000,3000]
+volumeValues1 = [0,3,6,9]
+volumeValues2 = [0,3,6,9]
+volumeValues3 = [0,3,6,9]
 
 HLTVolumeCalibration=[adcValues,volumeValues1]
 MLTVolumeCalibration=[adcValues,volumeValues2]
