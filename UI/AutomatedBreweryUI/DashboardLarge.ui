@@ -1604,7 +1604,7 @@ QPushButton:pressed {
    <widget class="QFrame" name="frame_46">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>50</x>
       <y>453</y>
       <width>20</width>
       <height>67</height>
@@ -1627,9 +1627,9 @@ QPushButton:pressed {
    <widget class="QFrame" name="frame_42">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>50</x>
       <y>447</y>
-      <width>47</width>
+      <width>57</width>
       <height>20</height>
      </rect>
     </property>
@@ -1638,27 +1638,6 @@ QPushButton:pressed {
 	border-width: 6px;
 	border-style: solid none none none;
 	border-color: blue;
-}</string>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
-    </property>
-   </widget>
-   <widget class="QFrame" name="water_3">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>520</y>
-      <width>40</width>
-      <height>40</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QFrame {
-	background:rgb(0, 138, 205)
 }</string>
     </property>
     <property name="frameShape">
@@ -4485,6 +4464,29 @@ QPushButton:pressed {
 heat</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="aeration">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>520</y>
+      <width>60</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+    border-radius: 0px;
+    background-color: rgb(203, 34, 91);
+}
+
+QPushButton:pressed {
+    background-color: grey;
+}</string>
+    </property>
+    <property name="text">
+     <string>Aeration</string>
+    </property>
+   </widget>
    <zorder>HLT</zorder>
    <zorder>valve3_2</zorder>
    <zorder>BLK</zorder>
@@ -4556,7 +4558,6 @@ heat</string>
    <zorder>frame_45</zorder>
    <zorder>frame_46</zorder>
    <zorder>frame_42</zorder>
-   <zorder>water_3</zorder>
    <zorder>water_4</zorder>
    <zorder>valve9</zorder>
    <zorder>graph1</zorder>
@@ -4655,6 +4656,7 @@ heat</string>
    <zorder>label_33</zorder>
    <zorder>label_35</zorder>
    <zorder>HLT_Heat_2</zorder>
+   <zorder>aeration</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
