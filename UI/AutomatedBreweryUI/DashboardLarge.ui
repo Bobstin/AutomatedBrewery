@@ -4237,7 +4237,7 @@ QPushButton:pressed {
      <string>Current temp: XXX</string>
     </property>
    </widget>
-   <widget class="QLabel" name="Mash_Timer_2">
+   <widget class="QLabel" name="alarm_Text">
     <property name="geometry">
      <rect>
       <x>1420</x>
@@ -4643,7 +4643,7 @@ QPushButton:pressed {
    <zorder>MLT_In</zorder>
    <zorder>MLT_Out</zorder>
    <zorder>MLT_Heat</zorder>
-   <zorder>Mash_Timer_2</zorder>
+   <zorder>alarm_Text</zorder>
    <zorder>label_21</zorder>
    <zorder>HLT_Vol</zorder>
    <zorder>label_41</zorder>
