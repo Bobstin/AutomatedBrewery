@@ -57,6 +57,104 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     QPushButton:pressed {
         background-color: grey;
     }'''
+    
+    autoGreenSwitchStyle = '''
+    QPushButton {
+        border: 4px solid rgb(0,138,205);
+        border-radius: 0px;
+        background-color: rgb(7,155,132);
+    }
+
+    QPushButton:pressed {
+        background-color: grey;
+    }'''
+
+    autoRedSwitchStyle = '''
+    QPushButton {
+        border: 4px solid rgb(0,138,205);
+        border-radius: 0px;
+        background-color: rgb(203,34,91);
+    }
+
+    QPushButton:pressed {
+        background-color: grey;
+    }'''
+
+    pumpAerationOnStyle = '''
+    QPushButton {
+        border-radius: 20px;
+        background-color: rgb(7,155,132);
+    }
+
+    QPushButton:pressed {
+        background-color: grey;
+    }'''
+
+    pumpAerationOffStyle = '''
+    QPushButton {
+        border-radius: 20px;
+        background-color: rgb(203,34,91);
+    }
+
+    QPushButton:pressed {
+        background-color: grey;
+    }'''
+
+    heatOffStyle = '''
+    QPushButton {
+        border-radius: 0px;
+        background-color: white;
+        font: 12pt "Arial";
+        border: 2px solid black;
+    }
+
+    QPushButton:pressed {
+        background-color: grey;
+    }'''
+
+    heatOnStyle = '''
+    QPushButton {
+        border-radius: 0px;
+        background-color: rgb(226,152,21);
+        font: 12pt "Arial";
+        color:white;
+        border: 2px solid black;
+    }
+
+    QPushButton:pressed {
+        background-color: grey;
+    }'''
+
+    heatAutoOnStyle = '''
+    QPushButton {
+        border: 4px solid rgb(0,138,205);
+        border-radius: 0px;
+        background-color: rgb(226,152,21);
+        font: 12pt "Arial";
+        color:white;
+        border: 2px solid black;
+    }
+
+    QPushButton:pressed {
+        background-color: grey;
+    }'''
+
+    heatAutoOffStyle = '''
+    QPushButton {
+        border: 4px solid rgb(0,138,205);
+        border-radius: 0px;
+        background-color: white;
+        font: 12pt "Arial";
+        border: 2px solid black;
+    }
+
+    QPushButton:pressed {
+        background-color: grey;
+    }'''
+
+    alarmSwitchOffStyle = "color:rgb(203,34,91)"
+
+    alarmSwitchOnStyle = "color:rgb(7,155,132)"
 
     #Creates the pipes used to talk to the control modules
     heatToHLTPIDPipe, HLTPIDToHeatPipe = Pipe()
@@ -154,18 +252,20 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             time.sleep(2)
 
     def startMainSwitchSensing(self):
-        TEMP=1
+        self.mainSwitchSensor = mainSwitchSensors()
+        self.mainSwitchSensor.interruptSetUp(self.interruptedMainSwitch)
+        while True:
+            mainSwitchStates = self.mainSwitchSensor.allMainSwitchStates()
+            self.mainSwitchSignal.emit(mainSwitchStates)
+            time.sleep(10)
 
     def startValveSwitchSensing(self):
-        valveSwitchSensor = valveSwitchSensors()
+        self.valveSwitchSensor = valveSwitchSensors()
+        self.valveSwitchSensor.interruptSetUp(self.interruptedValveSwitch)
         while True:
-            valveSwitchStates = valveSwitchSensor.allValveSwitchStates()
+            valveSwitchStates = self.valveSwitchSensor.allValveSwitchStates()
             self.valveSwitchSignal.emit(valveSwitchStates)
-            time.sleep(2)
-            #self.valve1.setStyleSheet(self.greenSwitchStyle)
-            #time.sleep(2)
-            #self.valve1.setStyleSheet(self.redSwitchStyle)
-            #time.sleep(2)
+            time.sleep(10)
 
     def flowUpdate(self, flowRateValues, flowTotalValues):
         self.HLT_In.setText("{:.2f} g/m".format(flowRateValues[0][1][-1]))
@@ -213,13 +313,46 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.DO.setText("{:.2f}".format(DO))
 
     def mainSwitchUpdate(self, mainSwitchValues):
-        TEMP=1
+        #Updates the heat select
+        if mainSwitchValues[0]=="Auto": TEMP=1
+        if mainSwitchValues[0]=="BLK":
+            self.BLK_Heat.setStyleSheet(self.heatOnStyle)
+            self.HLT_Heat.setStyleSheet(self.heatOffStyle)
+        if mainSwitchValues[0]=="HLT":
+            self.BLK_Heat.setStyleSheet(self.heatOffStyle)
+            self.HLT_Heat.setStyleSheet(self.heatOnStyle)
+
+        #Updates the pumps and aeration
+        if mainSwitchValues[1]=="Off":self.waterPump.setStyleSheet(self.pumpAerationOffStyle)
+        if mainSwitchValues[1]=="On":self.waterPump.setStyleSheet(self.pumpAerationOnStyle)
+        if mainSwitchValues[1]=="Auto":TEMP = 1
+
+        if mainSwitchValues[2]=="Off":self.wortPump.setStyleSheet(self.pumpAerationOffStyle)
+        if mainSwitchValues[2]=="On":self.wortPump.setStyleSheet(self.pumpAerationOnStyle)
+        if mainSwitchValues[2]=="Auto":TEMP = 1
+
+        if mainSwitchValues[3]=="Off":self.aeration.setStyleSheet(self.redSwitchStyle)
+        if mainSwitchValues[3]=="On":self.aeration.setStyleSheet(self.greenSwitchStyle)
+        if mainSwitchValues[3]=="Auto":TEMP = 1
+
+        #Updates the master heat switch
+        if mainSwitchValues[4] == "Off":self.master_Heat.setStyleSheet(self.heatOffStyle)
+        if mainSwitchValues[4] == "On":self.master_Heat.setStyleSheet(self.heatOnStyle)
+
+        #Updates the alarm switch
+        if mainSwitchValues[5] == "Off":
+            self.alarm_Text.setStyleSheet(self.alarmSwitchOffStyle)
+            self.alarm_Text.setText("Off")
+        if mainSwitchValues[5] == "On":
+            self.alarm_Text.setStyleSheet(self.alarmSwitchOnStyle)
+            self.alarm_Text.setText("On")
 
     def valveSwitchUpdate(self, valveSwitchStates):
         for i in range(1,11):
             if i in [1,2,4,5,6,9,10]:
                 if valveSwitchStates[i-1]=="On": getattr(self,"valve"+str(i)).setStyleSheet(self.greenSwitchStyle)
                 if valveSwitchStates[i-1]=="Off": getattr(self,"valve"+str(i)).setStyleSheet(self.redSwitchStyle)
+                if valveSwitchStates[i-1]=="Auto": getattr(self,"valve"+str(i)).setStyleSheet(self.autoRedSwitchStyle)
             else:
                 if valveSwitchStates[i-1]=="On":                
                     getattr(self,"valve"+str(i)+"u").setStyleSheet(self.greenSwitchStyle)
@@ -227,6 +360,14 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 if valveSwitchStates[i-1]=="Off":
                     getattr(self,"valve"+str(i)+"u").setStyleSheet(self.redSwitchStyle)
                     getattr(self,"valve"+str(i)+"d").setStyleSheet(self.greenSwitchStyle)
+
+    def interruptedMainSwitch(self,pin):
+        mainSwitchStates = self.mainSwitchSensor.allMainSwitchStates()
+        self.mainSwitchSignal.emit(mainSwitchStates)
+
+    def interruptedValveSwitch(self,pin):
+        valveSwitchStates = self.valveSwitchSensor.allValveSwitchStates()
+        self.valveSwitchSignal.emit(valveSwitchStates)
 		
 if __name__ == '__main__':
 	app = QtWidgets.QApplication(sys.argv)
