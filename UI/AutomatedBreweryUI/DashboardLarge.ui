@@ -4437,7 +4437,7 @@ QPushButton:pressed {
      <string>BLK Vol:</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="Master_Heat">
+   <widget class="QPushButton" name="master_Heat">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -4655,7 +4655,7 @@ QPushButton:pressed {
    <zorder>label_31</zorder>
    <zorder>label_33</zorder>
    <zorder>label_35</zorder>
-   <zorder>Master_Heat</zorder>
+   <zorder>master_Heat</zorder>
    <zorder>aeration</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
