@@ -186,10 +186,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         #Creates threads for each of the sensors and controllers
         HLTPIDThread = threading.Thread(target = self.startHLTPID)
         BLKPIDThread = threading.Thread(target = self.startBLKPID)
-        heatThread = threading.Thread(target = self.startHeatControl)
-        alarmThread = threading.Thread(target = self.startAlarmControl)
-        PAVThread = threading.Thread(target = self.startPAVControl)
-
+        
         flowThread = threading.Thread(target = self.startFlowSensing)
         volumeThread  = threading.Thread(target = self.startVolumeSensing)
         tempThread = threading.Thread(target = self.startTempSensing)
@@ -197,12 +194,26 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         mainSwitchThread = threading.Thread(target = self.startMainSwitchSensing)
         valveSwitchThread = threading.Thread(target = self.startValveSwitchSensing)
 
+        #Connects the valve buttons to the valve control
+        self.valve1.clicked.connect(lambda: self.changeValve(1))
+        self.valve2.clicked.connect(lambda: self.changeValve(2))
+        self.valve4.clicked.connect(lambda: self.changeValve(4))
+        self.valve5.clicked.connect(lambda: self.changeValve(5))
+        self.valve6.clicked.connect(lambda: self.changeValve(6))
+        self.valve9.clicked.connect(lambda: self.changeValve(9))
+        self.valve10.clicked.connect(lambda: self.changeValve(10))
+
+        self.valve3u.clicked.connect(lambda: self.changeValve(3))
+        self.valve3d.clicked.connect(lambda: self.changeValve(3))
+        self.valve7u.clicked.connect(lambda: self.changeValve(7))
+        self.valve7d.clicked.connect(lambda: self.changeValve(7))
+        self.valve8u.clicked.connect(lambda: self.changeValve(8))
+        self.valve8d.clicked.connect(lambda: self.changeValve(8))
+        
+
         #Starts the above threads
         HLTPIDThread.start()
         BLKPIDThread.start()
-        heatThread.start()
-        alarmThread.start()
-        PAVThread.start()
 
         flowThread.start()
         volumeThread.start()
@@ -210,6 +221,10 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         pHandDOThread.start()
         mainSwitchThread.start()
         valveSwitchThread.start()
+
+        self.startHeatControl()
+        self.startAlarmControl()
+        self.startPAVControl()
 
     def startHLTPID(self):
         TEMP=1
@@ -224,7 +239,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         TEMP=1
 
     def startPAVControl(self):
-        TEMP=1
+        self.PAVControl = PumpAerationValveController()
 
     def startFlowSensing(self):
         flowSensor = flowSensors(self.flowSignal)
@@ -348,11 +363,14 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             self.alarm_Text.setText("On")
 
     def valveSwitchUpdate(self, valveSwitchStates):
+        autoValveStates = self.PAVControl.valveStates
         for i in range(1,11):
             if i in [1,2,4,5,6,9,10]:
                 if valveSwitchStates[i-1]=="On": getattr(self,"valve"+str(i)).setStyleSheet(self.greenSwitchStyle)
                 if valveSwitchStates[i-1]=="Off": getattr(self,"valve"+str(i)).setStyleSheet(self.redSwitchStyle)
-                if valveSwitchStates[i-1]=="Auto": getattr(self,"valve"+str(i)).setStyleSheet(self.autoRedSwitchStyle)
+                if valveSwitchStates[i-1]=="Auto":
+                    if autoValveStates[i-1] == 0: getattr(self,"valve"+str(i)).setStyleSheet(self.autoRedSwitchStyle)
+                    if autoValveStates[i-1] == 1: getattr(self,"valve"+str(i)).setStyleSheet(self.autoGreenSwitchStyle)
             else:
                 if valveSwitchStates[i-1]=="On":                
                     getattr(self,"valve"+str(i)+"u").setStyleSheet(self.greenSwitchStyle)
@@ -360,6 +378,13 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 if valveSwitchStates[i-1]=="Off":
                     getattr(self,"valve"+str(i)+"u").setStyleSheet(self.redSwitchStyle)
                     getattr(self,"valve"+str(i)+"d").setStyleSheet(self.greenSwitchStyle)
+                if valveSwitchStates[i-1]=="Auto":
+                    if autoValveStates[i-1] == 0:
+                        getattr(self,"valve"+str(i)+"u").setStyleSheet(self.autoRedSwitchStyle)
+                        getattr(self,"valve"+str(i)+"d").setStyleSheet(self.autoGreenSwitchStyle)
+                    if autoValveStates[i-1] == 1:
+                        getattr(self,"valve"+str(i)+"u").setStyleSheet(self.autoGreenSwitchStyle)
+                        getattr(self,"valve"+str(i)+"d").setStyleSheet(self.autoRedSwitchStyle)
 
     def interruptedMainSwitch(self,pin):
         mainSwitchStates = self.mainSwitchSensor.allMainSwitchStates()
@@ -368,7 +393,20 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     def interruptedValveSwitch(self,pin):
         valveSwitchStates = self.valveSwitchSensor.allValveSwitchStates()
         self.valveSwitchSignal.emit(valveSwitchStates)
-		
+
+    def changeValve(self,valve):
+        #Pulls the current state of the valve
+        currentState = self.PAVControl.valveStates[valve-1]
+        if currentState == 0: newState = 1
+        if currentState == 1: newState = 0
+
+        #Sets the valve to the new state
+        setattr(self.PAVControl,"valve"+str(valve),newState)
+
+        #Updates the dashboard
+        self.valveSwitchUpdate(self.valveSwitchSensor.allValveSwitchStates())
+        
+    
 if __name__ == '__main__':
 	app = QtWidgets.QApplication(sys.argv)
 	window = dashboard()
