@@ -23,6 +23,29 @@ from PID import PID
 qtCreatorFile = "../UI/AutomatedBreweryUI/DashboardLarge.ui"
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
+tempPopupQtCreatorFile = "../UI/AutomatedBreweryUI/TempPopup.ui"
+Ui_TempPopup,TempPopupQtBaseClass = uic.loadUiType(tempPopupQtCreatorFile)
+
+class tempPopup(QtWidgets.QMainWindow, Ui_TempPopup):
+    def __init__(self,setHeatSignal,kettle):
+        super(tempPopup, self).__init__()
+
+        self.setupUi(self)
+        self.show()
+        
+        self.setHeatSignal = setHeatSignal
+        self.kettle = kettle
+        self.HeatLabel.setText("Please enter mode and setting to turn on "+kettle)
+        self.StartHeat.clicked.connect(self.setHeat)
+        self.Cancel.clicked.connect(self.cancel)
+
+    def setHeat(self):
+        self.setHeatSignal.emit(self.kettle,self.HeatMode.currentText(),int(self.Heat_Setting.text()))
+        self.close()
+
+    def cancel(self): self.close()
+    
+
 class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     #Creates the signals used to pull data from sensors and controllers
     flowSignal = QtCore.pyqtSignal(list,list)
@@ -37,6 +60,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     PAVControlSignal = QtCore.pyqtSignal(list)
     HLTPIDSignal = QtCore.pyqtSignal(list)
     BLKPIDSignal = QtCore.pyqtSignal(list)
+    setHeatSignal = QtCore.pyqtSignal(str,str,int)
 
     redSwitchStyle = '''
     QPushButton {
@@ -247,22 +271,24 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pHandDOSignal.connect(self.pHandDOUpdate)
         self.mainSwitchSignal.connect(self.mainSwitchUpdate)
         self.valveSwitchSignal.connect(self.valveSwitchUpdate)
+        self.setHeatSignal.connect(self.setHeat)
+        
 
         #Starts up the UI
         self.setupUi(self)
         self.show()
 
         #Creates threads for each of the sensors and controllers
-        HLTPIDThread = threading.Thread(target = self.startHLTPID)
-        BLKPIDThread = threading.Thread(target = self.startBLKPID)
-        heatThread = threading.Thread(target = self.startHeatControl)
+        self.HLTPIDThread = threading.Thread(target = self.startHLTPID)
+        self.BLKPIDThread = threading.Thread(target = self.startBLKPID)
+        self.heatThread = threading.Thread(target = self.startHeatControl)
         
-        flowThread = threading.Thread(target = self.startFlowSensing)
-        volumeThread  = threading.Thread(target = self.startVolumeSensing)
-        tempThread = threading.Thread(target = self.startTempSensing)
-        pHandDOThread = threading.Thread(target = self.startpHandDOSensing)
-        mainSwitchThread = threading.Thread(target = self.startMainSwitchSensing)
-        valveSwitchThread = threading.Thread(target = self.startValveSwitchSensing)
+        self.flowThread = threading.Thread(target = self.startFlowSensing)
+        self.volumeThread  = threading.Thread(target = self.startVolumeSensing)
+        self.tempThread = threading.Thread(target = self.startTempSensing)
+        self.pHandDOThread = threading.Thread(target = self.startpHandDOSensing)
+        self.mainSwitchThread = threading.Thread(target = self.startMainSwitchSensing)
+        self.valveSwitchThread = threading.Thread(target = self.startValveSwitchSensing)
 
         #Connects the valve buttons to the valve control
         self.valve1.clicked.connect(lambda: self.changeValve(1))
@@ -286,24 +312,24 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.aeration.clicked.connect(lambda: self.changePumpAeration("aeration"))
 
         #Connects the heat buttons
-        self.HLT_Heat.clicked.connect(lambda: self.setHeat("HLT","SemiAuto",semiAutoValue=50))
-        self.BLK_Heat.clicked.connect(lambda: self.setHeat("BLK","SemiAuto",semiAutoValue=50))
+        self.HLT_Heat.clicked.connect(lambda: self.setHeatPopup("HLT"))
+        self.BLK_Heat.clicked.connect(lambda: self.setHeatPopup("BLK"))
         
 
         #Starts the above threads
-        flowThread.start()
-        volumeThread.start()
-        tempThread.start()
-        pHandDOThread.start()
-        mainSwitchThread.start()
-        valveSwitchThread.start()
-        heatThread.start()
+        self.flowThread.start()
+        self.volumeThread.start()
+        self.tempThread.start()
+        self.pHandDOThread.start()
+        self.mainSwitchThread.start()
+        self.valveSwitchThread.start()
+        self.heatThread.start()
 
         self.startAlarmControl()
         self.startPAVControl()
 
-        HLTPIDThread.start()
-        BLKPIDThread.start()
+        self.HLTPIDThread.start()
+        self.BLKPIDThread.start()
 
     def startHLTPID(self):
         self.HLTPID = PID(self.tempSensor,"HLTTemp")
@@ -531,8 +557,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         #Updates the dashboard
         self.mainSwitchUpdate(self.mainSwitchSensor.allMainSwitchStates())
 
-    def setHeat(self,kettle,autoLevel,targetTemp=None, semiAutoValue=None):
-        if kettle == "HLT":
+    def setHeatPopup(self,kettle):
+        self.tempPopup = tempPopup(self.setHeatSignal,kettle)
+        '''if kettle == "HLT":
             if autoLevel == "SemiAuto":
                 self.UIToHLTPIDPipe.send(("semiAutoValue",semiAutoValue))
                 self.UIToHLTPIDPipe.send(("mode","SemiAuto"))
@@ -541,10 +568,54 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             if autoLevel == "SemiAuto":
                 self.UIToBLKPIDPipe.send(("semiAutoValue",semiAutoValue))
                 self.UIToBLKPIDPipe.send(("mode","SemiAuto"))
+            self.UIToHeatPipe.send(("kettle","BLK"))'''
+
+    def setHeat(self, kettle, mode, setting):
+        #print(setting)
+        if kettle == "HLT":
+            if mode == "SemiAuto":
+                #Turns off the BLK, and turns on the HLT
+                self.UIToBLKPIDPipe.send(("mode","Manual"))
+                self.UIToHLTPIDPipe.send(("semiAutoValue",setting))
+                self.UIToHLTPIDPipe.send(("mode","SemiAuto"))
+            self.UIToHeatPipe.send(("kettle","HLT"))
+        if kettle == "BLK":
+            if mode == "SemiAuto":
+                #Turns off the HLT, and turns on the BLK
+                self.UIToHLTPIDPipe.send(("mode","Manual"))
+                self.UIToBLKPIDPipe.send(("semiAutoValue",setting))
+                self.UIToBLKPIDPipe.send(("mode","SemiAuto"))
             self.UIToHeatPipe.send(("kettle","BLK"))
 
+    def closeEvent(self, *args, **kwargs):
+        #Closes all valves:
+        for i in [1,11]: setattr(self.PAVControl,"valve"+str(i),0)
+
+        #turns off pumps and aeration
+        self.PAVControl.wortPump = 0
+        self.PAVControl.waterPump = 0
+        self.PAVControl.aeration = 0
+
+        #turns off heat
+        self.UIToHLTPIDPipe.send(("mode","Manual"))
+        self.UIToBLKPIDPipe.send(("mode","Manual"))
+        self.UIToHeatPipe.send(("kettle","None"))
+        self.UIToHeatPipe.send(("heatSetting",0))
+
+        self.flowThread.exit()
+        self.volumeThread.exit()
+        self.tempThread.exit()
+        self.pHandDOThread.exit()
+        self.mainSwitchThread.exit()
+        self.valveSwitchThread.exit()
+        self.heatThread.exit()
+        self.HLTPIDThread.exit()
+        self.BLKPIDThread.exit()
         
-        
+        super(dashboard, self).closeEvent
+
+        print("System exited successfully!")
+             
         
     
 if __name__ == '__main__':

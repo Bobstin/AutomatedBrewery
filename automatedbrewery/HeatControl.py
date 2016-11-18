@@ -190,17 +190,22 @@ class HeatController(object):
     def checkPipe(self):
         #print("Checking pipe")
         if self.pipeConn != None:
-            if self.pipeConn.poll():
+            while self.pipeConn.poll():
                 data = self.pipeConn.recv()
+                #print("Pipe 1:")
+                #print(data)
                 setattr(self,data[0],data[1])
         if self.pipeConn2 != None:
-            if self.pipeConn2.poll():
+            while self.pipeConn2.poll():
                 data = self.pipeConn2.recv()
+                #print("Pipe 2:")
+                #print(data)
                 setattr(self,data[0],data[1])
-
         if self.pipeConn3 != None:
-            if self.pipeConn3.poll():
+            while self.pipeConn3.poll():
                 data = self.pipeConn3.recv()
+                #print("Pipe 3:")
+                #print(data)
                 setattr(self,data[0],data[1])
 
     def sendGraphPoint(self):

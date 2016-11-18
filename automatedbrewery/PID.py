@@ -89,6 +89,7 @@ class PID(object):
                                 print('Error: outputPipeConn is not set')
                                 self.stop = 1
                         else:                           
+                                #print(self.output)
                                 if self._mode != "Manual": self.outputPipeConn.send((self.outputAttributeName,self.output))
 
                         #checks the input pipe to see if anything needs to change
