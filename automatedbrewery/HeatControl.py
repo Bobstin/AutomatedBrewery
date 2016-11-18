@@ -135,7 +135,7 @@ class HeatController(object):
             self._cycleTime = value
             self.calcOnOffTime()
 
-    def __init__(self, relay1Pin = 14, relay2Pin = 15, SSR1Pin = 18, SSR2Pin=23, heatSetting=0, cycleTime=2000, maxSetting=100, minSetting=0, pipeConn=None, heatGraphSignal=None):
+    def __init__(self, relay1Pin = 14, relay2Pin = 15, SSR1Pin = 18, SSR2Pin=23, heatSetting=0, cycleTime=2000, maxSetting=100, minSetting=0, pipeConn=None, pipeConn2=None,pipeConn3=None, heatGraphSignal=None):
         #Note that for the relays, 0 is on, but for the SSR, 1 is on, however this is handled on the backend
         #just set the relay/ssr to the right status
         self.relayOn = 0
@@ -150,7 +150,10 @@ class HeatController(object):
 
         #If you want to access the control from a different process, you can pass a pipe connection that it will
         #check during run() to adjust parameters
+        #Allows for two connections; one from the HLT and one from the BLK PID
         self.pipeConn = pipeConn
+        self.pipeConn2= pipeConn2
+        self.pipeConn3= pipeConn3
 
         #If you want to update an external graph, you can pass a signal
         self.heatGraphSignal = heatGraphSignal
@@ -185,9 +188,20 @@ class HeatController(object):
         self.offTime = (1-self.heatSetting/100)*self.cycleTime
 
     def checkPipe(self):
-        if self.pipeConn.poll():
-            data = self.pipeConn.recv()
-            setattr(self,data[0],data[1])
+        #print("Checking pipe")
+        if self.pipeConn != None:
+            if self.pipeConn.poll():
+                data = self.pipeConn.recv()
+                setattr(self,data[0],data[1])
+        if self.pipeConn2 != None:
+            if self.pipeConn2.poll():
+                data = self.pipeConn2.recv()
+                setattr(self,data[0],data[1])
+
+        if self.pipeConn3 != None:
+            if self.pipeConn3.poll():
+                data = self.pipeConn3.recv()
+                setattr(self,data[0],data[1])
 
     def sendGraphPoint(self):
         self.heatGraphSignal.emit(time.time()*1000, self.heatSetting, self.kettle)
@@ -196,7 +210,8 @@ class HeatController(object):
     def run(self):
         #if onTime or offTime = 0, then does not switch the relay. This reduces the number of
         #switches, as well as any delay due to code execution
-        while (self.kettle != "None"):
+        
+        while True:
             if self.kettle == "HLT":
                 if self.onTime!=0:
                     self.SSR1 = 1
@@ -204,7 +219,7 @@ class HeatController(object):
                 if self.offTime !=0:
                     self.SSR1 = 0
                     time.sleep(self.offTime/1000)
-                if self.pipeConn != None: self.checkPipe()
+                self.checkPipe()
                 if self.heatGraphSignal != None: self.sendGraphPoint()
             elif self.kettle == "BLK":
                 if self.onTime!=0:
@@ -213,8 +228,11 @@ class HeatController(object):
                 if self.offTime !=0:
                     self.SSR2 = 0
                     time.sleep(self.offTime/1000)
-                if self.pipeConn != None: self.checkPipe()
+                self.checkPipe()
                 if self.heatGraphSignal != None: self.sendGraphPoint()
+            elif self.kettle == "None":
+                self.checkPipe()
+                time.sleep(2)
         
 
 

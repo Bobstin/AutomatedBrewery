@@ -173,7 +173,7 @@ class PumpAerationValveController(object):
 
     @property
     def aeration(self):
-        return self._aerationPump
+        return self._aeration
 
     @aeration.setter
     def aeration(self,value):
@@ -182,7 +182,7 @@ class PumpAerationValveController(object):
             self._aeration = value
         elif value==0:
             self.mcp.output(self.aerationPin,1)
-            self._aerationPump = value
+            self._aeration = value
         else: print("Error: Aeration must be set to either  1 (on) or 0 (off)")
             
 
