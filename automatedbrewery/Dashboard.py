@@ -602,15 +602,15 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.UIToHeatPipe.send(("kettle","None"))
         self.UIToHeatPipe.send(("heatSetting",0))
 
-        self.flowThread.exit()
-        self.volumeThread.exit()
-        self.tempThread.exit()
-        self.pHandDOThread.exit()
-        self.mainSwitchThread.exit()
-        self.valveSwitchThread.exit()
-        self.heatThread.exit()
-        self.HLTPIDThread.exit()
-        self.BLKPIDThread.exit()
+        #self.flowThread.exit()
+        #self.volumeThread.exit()
+        #self.tempThread.exit()
+        #self.pHandDOThread.exit()
+        #self.mainSwitchThread.exit()
+        #self.valveSwitchThread.exit()
+        #self.heatThread.exit()
+        #self.HLTPIDThread.exit()
+        #self.BLKPIDThread.exit()
         
         super(dashboard, self).closeEvent
 
