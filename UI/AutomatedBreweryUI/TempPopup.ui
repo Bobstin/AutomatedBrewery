@@ -19,7 +19,7 @@ background: white;
 }</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="StartHeat">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -38,7 +38,7 @@ background: white;
      <string>Start heat</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="Cancel">
     <property name="geometry">
      <rect>
       <x>210</x>
@@ -57,7 +57,7 @@ background: white;
      <string>Cancel</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="HLT_Fill_1_Target">
+   <widget class="QLineEdit" name="Heat_Setting">
     <property name="geometry">
      <rect>
       <x>210</x>
@@ -73,7 +73,7 @@ background: white;
      </font>
     </property>
    </widget>
-   <widget class="QComboBox" name="comboBox">
+   <widget class="QComboBox" name="HeatMode">
     <property name="geometry">
      <rect>
       <x>20</x>
