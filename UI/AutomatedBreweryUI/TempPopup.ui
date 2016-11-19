@@ -142,7 +142,7 @@ background: white;
      <string>Setting:</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
+   <widget class="QLabel" name="HeatLabel">
     <property name="geometry">
      <rect>
       <x>20</x>
