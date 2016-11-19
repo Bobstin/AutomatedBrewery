@@ -89,7 +89,7 @@ class PID(object):
                                 print('Error: outputPipeConn is not set')
                                 self.stop = 1
                         else:                           
-                                self.outputPipeConn.send((self.outputAttributeName,self.output))
+                                if self._mode != "Manual": self.outputPipeConn.send((self.outputAttributeName,self.output))
 
                         #checks the input pipe to see if anything needs to change
                         if self.inputPipeConn != None:
@@ -175,7 +175,7 @@ class PID(object):
                         #output is limited to be no larger than outputMax and no smaller than outputMin
                         self.output = self.Kp*error + self.integralTerm - self.Kd*dInput
                         self.output = max(min(self.output,self.outputMax),self.outputMin)
-                        print(self.output)
+                        #print(self.output)
 
                         #preserves some values for the next run
                         self.lastInput = latestInput

@@ -80,8 +80,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         background-color: grey;
     }'''
 
-    pumpAerationOnStyle = '''
+    pumpOnStyle = '''
     QPushButton {
+        border: 4px solid black;
         border-radius: 20px;
         background-color: rgb(7,155,132);
     }
@@ -90,10 +91,77 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         background-color: grey;
     }'''
 
-    pumpAerationOffStyle = '''
+    pumpOffStyle = '''
     QPushButton {
+        border: 4px solid black;
         border-radius: 20px;
-        background-color: rgb(203,34,91);
+        background-color: white;
+    }
+
+    QPushButton:pressed {
+        background-color: grey;
+    }'''
+
+    pumpAutoOnStyle = '''
+    QPushButton {
+        border: 4px solid rgb(0,138,205);
+        border-radius: 20px;
+        background-color: rgb(7,155,132);
+    }
+
+    QPushButton:pressed {
+        background-color: grey;
+    }'''
+
+    pumpAutoOffStyle = '''
+    QPushButton {
+        border: 4px solid rgb(0,138,205);
+        border-radius: 20px;
+        background-color: white;
+    }
+
+    QPushButton:pressed {
+        background-color: grey;
+    }'''
+
+    aerationOnStyle = '''
+    QPushButton {
+        border: 4px solid black;
+        border-radius: 0px;
+        background-color: rgb(7,155,132);
+    }
+
+    QPushButton:pressed {
+        background-color: grey;
+    }'''
+
+    aerationOffStyle = '''
+    QPushButton {
+        border: 4px solid black;
+        border-radius: 0px;
+        background-color: white;
+    }
+
+    QPushButton:pressed {
+        background-color: grey;
+    }'''
+
+    aerationAutoOnStyle = '''
+    QPushButton {
+        border: 4px solid rgb(0,138,205);
+        border-radius: 0px;
+        background-color: rgb(7,155,132);
+    }
+
+    QPushButton:pressed {
+        background-color: grey;
+    }'''
+
+    aerationAutoOffStyle = '''
+    QPushButton {
+        border: 4px solid rgb(0,138,205);
+        border-radius: 0px;
+        background-color: white;
     }
 
     QPushButton:pressed {
@@ -219,7 +287,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #Connects the heat buttons
         self.HLT_Heat.clicked.connect(lambda: self.setHeat("HLT","SemiAuto",semiAutoValue=50))
-        self.MLT_Heat.clicked.connect(lambda: self.setHeat("MLT","SemiAuto",semiAutoValue=50))
+        self.BLK_Heat.clicked.connect(lambda: self.setHeat("BLK","SemiAuto",semiAutoValue=50))
         
 
         #Starts the above threads
@@ -245,8 +313,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.HLTPID.outputMax = 100
         self.HLTPID.cycleTime = 2000
         self.HLTPID.outputAttributeName = "heatSetting"
-        self.HLTPID.semiAutoValue = 0
-        self.HLTPID.mode = "SemiAuto"
+        #self.HLTPID.semiAutoValue = 0
+        self.HLTPID.mode = "Manual"
         #self.HLTPID.tempGraphSignal = self.tempSignal
         self.HLTPID.run()
         
@@ -259,8 +327,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.BLKPID.outputMax = 100
         self.BLKPID.cycleTime = 2000
         self.BLKPID.outputAttributeName = "heatSetting"
-        self.BLKPID.semiAutoValue = 0
-        self.BLKPID.mode = "SemiAuto"
+        #self.BLKPID.semiAutoValue = 0
+        self.BLKPID.mode = "Manual"
         #self.BLKPID.tempGraphSignal = self.tempSignal
         self.BLKPID.run()
 
@@ -375,17 +443,23 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             self.HLT_Heat.setStyleSheet(self.heatOnStyle)
 
         #Updates the pumps and aeration
-        if mainSwitchValues[1]=="Off":self.waterPump.setStyleSheet(self.pumpAerationOffStyle)
-        if mainSwitchValues[1]=="On":self.waterPump.setStyleSheet(self.pumpAerationOnStyle)
-        if mainSwitchValues[1]=="Auto":TEMP = 1
+        if mainSwitchValues[1]=="Off":self.waterPump.setStyleSheet(self.pumpOffStyle)
+        if mainSwitchValues[1]=="On":self.waterPump.setStyleSheet(self.pumpOnStyle)
+        if mainSwitchValues[1]=="Auto":
+            if self.PAVControl.waterPump == 1:self.waterPump.setStyleSheet(self.pumpAutoOnStyle)
+            if self.PAVControl.waterPump == 0:self.waterPump.setStyleSheet(self.pumpAutoOffStyle)
 
-        if mainSwitchValues[2]=="Off":self.wortPump.setStyleSheet(self.pumpAerationOffStyle)
-        if mainSwitchValues[2]=="On":self.wortPump.setStyleSheet(self.pumpAerationOnStyle)
-        if mainSwitchValues[2]=="Auto":TEMP = 1
+        if mainSwitchValues[2]=="Off":self.wortPump.setStyleSheet(self.pumpOffStyle)
+        if mainSwitchValues[2]=="On":self.wortPump.setStyleSheet(self.pumpOnStyle)
+        if mainSwitchValues[2]=="Auto":
+            if self.PAVControl.wortPump == 1:self.wortPump.setStyleSheet(self.pumpAutoOnStyle)
+            if self.PAVControl.wortPump == 0:self.wortPump.setStyleSheet(self.pumpAutoOffStyle)
 
-        if mainSwitchValues[3]=="Off":self.aeration.setStyleSheet(self.redSwitchStyle)
-        if mainSwitchValues[3]=="On":self.aeration.setStyleSheet(self.greenSwitchStyle)
-        if mainSwitchValues[3]=="Auto":TEMP = 1
+        if mainSwitchValues[3]=="Off":self.aeration.setStyleSheet(self.aerationOffStyle)
+        if mainSwitchValues[3]=="On":self.aeration.setStyleSheet(self.aerationOnStyle)
+        if mainSwitchValues[3]=="Auto":
+            if self.PAVControl.aeration == 1:self.aeration.setStyleSheet(self.aerationAutoOnStyle)
+            if self.PAVControl.aeration == 0:self.aeration.setStyleSheet(self.aerationAutoOffStyle)
 
         #Updates the master heat switch
         if mainSwitchValues[4] == "Off":self.master_Heat.setStyleSheet(self.heatOffStyle)
@@ -446,12 +520,13 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     def changePumpAeration(self,item):
         #Pulls the current state of the item
         currentState = getattr(self.PAVControl,item)
+        #print(currentState)
         if currentState == 0: newState = 1
         if currentState == 1: newState = 0
+        #print(newState)
 
         #Sets the item to the new state
         setattr(self.PAVControl,item,newState)
-
 
         #Updates the dashboard
         self.mainSwitchUpdate(self.mainSwitchSensor.allMainSwitchStates())
@@ -464,8 +539,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             self.UIToHeatPipe.send(("kettle","HLT"))
         if kettle == "BLK":
             if autoLevel == "SemiAuto":
-                self.UIToHLTPIDPipe.send(("semiAutoValue",semiAutoValue))
-                self.UIToHLTPIDPipe.send(("mode","SemiAuto"))
+                self.UIToBLKPIDPipe.send(("semiAutoValue",semiAutoValue))
+                self.UIToBLKPIDPipe.send(("mode","SemiAuto"))
             self.UIToHeatPipe.send(("kettle","BLK"))
 
         
