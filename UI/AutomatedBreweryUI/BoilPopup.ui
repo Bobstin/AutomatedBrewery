@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>TempPopup</class>
- <widget class="QMainWindow" name="TempPopup">
+ <class>BoilPopup</class>
+ <widget class="QMainWindow" name="BoilPopup">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>395</width>
-    <height>268</height>
+    <width>445</width>
+    <height>264</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Turning on heat</string>
+   <string>Adding boil step</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QMainWindow {
@@ -19,11 +19,11 @@ background: white;
 }</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="StartHeat">
+   <widget class="QPushButton" name="Add_Step">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>150</y>
+      <x>50</x>
+      <y>160</y>
       <width>161</width>
       <height>41</height>
      </rect>
@@ -35,14 +35,14 @@ background: white;
      </font>
     </property>
     <property name="text">
-     <string>Start heat</string>
+     <string>Add step</string>
     </property>
    </widget>
    <widget class="QPushButton" name="Cancel">
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>150</y>
+      <x>240</x>
+      <y>160</y>
       <width>161</width>
       <height>41</height>
      </rect>
@@ -57,97 +57,12 @@ background: white;
      <string>Cancel</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="Heat_Setting">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>90</y>
-      <width>161</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="HeatMode">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>90</y>
-      <width>161</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <item>
-     <property name="text">
-      <string>Off</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Auto</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>SemiAuto</string>
-     </property>
-    </item>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>70</y>
-      <width>47</width>
-      <height>13</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Mode:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>65</y>
-      <width>71</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Setting:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="HeatLabel">
+   <widget class="QLabel" name="Label">
     <property name="geometry">
      <rect>
       <x>20</x>
       <y>20</y>
-      <width>361</width>
+      <width>401</width>
       <height>21</height>
      </rect>
     </property>
@@ -163,7 +78,131 @@ background: white;
      <string notr="true">color: rgb(0, 138, 179)</string>
     </property>
     <property name="text">
-     <string>Please enter mode and setting to turn on heat</string>
+     <string>Please enter information on boil step to be added:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Time">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>90</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>70</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Time:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>70</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Amount:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Amount">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>90</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>70</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Ingredient:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Ingredient">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>90</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>120</y>
+      <width>121</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>(blank if dry hop)</string>
     </property>
    </widget>
   </widget>
@@ -172,7 +211,7 @@ background: white;
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>395</width>
+     <width>445</width>
      <height>21</height>
     </rect>
    </property>
@@ -189,9 +228,10 @@ background: white;
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
-  <tabstop>HeatMode</tabstop>
-  <tabstop>Heat_Setting</tabstop>
-  <tabstop>StartHeat</tabstop>
+  <tabstop>Time</tabstop>
+  <tabstop>Ingredient</tabstop>
+  <tabstop>Amount</tabstop>
+  <tabstop>Add_Step</tabstop>
   <tabstop>Cancel</tabstop>
  </tabstops>
  <resources/>

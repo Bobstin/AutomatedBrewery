@@ -6,3 +6,5 @@ TypeChecker.py
 test.py
 .old
 ~$*
+RPi
+fcntl.py

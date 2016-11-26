@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Automated Brewery Dashboard</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QMainWindow {
@@ -3424,7 +3424,7 @@ QPushButton:pressed {
     <property name="geometry">
      <rect>
       <x>630</x>
-      <y>250</y>
+      <y>330</y>
       <width>141</width>
       <height>61</height>
      </rect>
@@ -3443,7 +3443,7 @@ QPushButton:pressed {
     <property name="geometry">
      <rect>
       <x>630</x>
-      <y>330</y>
+      <y>410</y>
       <width>141</width>
       <height>61</height>
      </rect>
@@ -4617,6 +4617,26 @@ QPushButton:pressed {
      </property>
     </widget>
    </widget>
+   <widget class="QPushButton" name="Beersmith_Import">
+    <property name="geometry">
+     <rect>
+      <x>630</x>
+      <y>250</y>
+      <width>141</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Import
+BeerSmith File</string>
+    </property>
+   </widget>
    <zorder>HLT</zorder>
    <zorder>BLK</zorder>
    <zorder>MLT</zorder>
@@ -4776,6 +4796,7 @@ QPushButton:pressed {
    <zorder>valve3_7</zorder>
    <zorder>frame_40</zorder>
    <zorder>frame_16</zorder>
+   <zorder>Beersmith_Import</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
