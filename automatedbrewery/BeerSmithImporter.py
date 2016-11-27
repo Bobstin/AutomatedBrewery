@@ -53,7 +53,7 @@ class importDialog(QtWidgets.QMainWindow, Ui_ImportDialog):
     addMashSignal = QtCore.pyqtSignal(str,str,str,str,str,str)
     addBoilSignal = QtCore.pyqtSignal(str,str,str)
 
-    def __init__(self):
+    def __init__(self,importSignal):
         super(importDialog, self).__init__()
         self.setupUi(self)
         self.show()
@@ -65,11 +65,14 @@ class importDialog(QtWidgets.QMainWindow, Ui_ImportDialog):
         self.ResetButton.clicked.connect(self.clearData)
         self.Add_Mash_Step.clicked.connect(self.openMashPopup)
         self.Add_Boil_Step.clicked.connect(self.openBoilPopup)
+        self.ContinueButton.clicked.connect(self.sendToDashboard)
 
         self.addMashSignal.connect(self.addMashStep)
-        self.addBoilSignal.connect(self.addBoilStep)
+        self.addBoilSignal.connect(self.addBoilStep)        
 
         self.clearData()
+
+        self.importSignal = importSignal
 
     def importFromBeerSmith(self):
         beerSmithFilePath = QFileDialog.getOpenFileName(self, 'Open file', '/home',"BeerSmith Files (*.bsmx)")
@@ -186,16 +189,8 @@ class importDialog(QtWidgets.QMainWindow, Ui_ImportDialog):
         self.boilSchedule.insert(rowPosition,(ingredient,float(time),amount))
         print(self.boilSchedule)
 
-
-
-
-
-
-
-
-
-
-
+    def sendToDashboard(self):
+        self.importSignal.emit(volumeValues,tempValues,boilSchedule,dryHopSchedule,mashSchedule)
 
 
     def loadBeerSmithFileData(self,beerSmithFilePath):

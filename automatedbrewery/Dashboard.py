@@ -19,12 +19,16 @@ from HeatControl import HeatController
 from PumpAerationValveControl import PumpAerationValveController
 from PID import PID
 
+#Imports other dialogs
+from BeerSmithImporter import importDialog
+
 #Loads the qtCreator file
 qtCreatorFile = "../UI/AutomatedBreweryUI/DashboardLarge.ui"
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
 tempPopupQtCreatorFile = "../UI/AutomatedBreweryUI/TempPopup.ui"
 Ui_TempPopup,TempPopupQtBaseClass = uic.loadUiType(tempPopupQtCreatorFile)
+
 
 class tempPopup(QtWidgets.QMainWindow, Ui_TempPopup):
     def __init__(self,setHeatSignal,kettle):
@@ -61,6 +65,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     HLTPIDSignal = QtCore.pyqtSignal(list)
     BLKPIDSignal = QtCore.pyqtSignal(list)
     setHeatSignal = QtCore.pyqtSignal(str,str,int)
+
+    importSignal = QtCore.pyqtSignal(list,list,list,list,list)
 
     redSwitchStyle = '''
     QPushButton {
@@ -272,6 +278,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.mainSwitchSignal.connect(self.mainSwitchUpdate)
         self.valveSwitchSignal.connect(self.valveSwitchUpdate)
         self.setHeatSignal.connect(self.setHeat)
+        self.importSignal.connect(self.beerSmithImport)
         
 
         #Starts up the UI
@@ -314,6 +321,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         #Connects the heat buttons
         self.HLT_Heat.clicked.connect(lambda: self.setHeatPopup("HLT"))
         self.BLK_Heat.clicked.connect(lambda: self.setHeatPopup("BLK"))
+
+        #Connects the import button
+        self.Beersmith_Import.clicked.connect(self.beerSmithImportDialog)
         
 
         #Starts the above threads
@@ -559,16 +569,6 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def setHeatPopup(self,kettle):
         self.tempPopup = tempPopup(self.setHeatSignal,kettle)
-        '''if kettle == "HLT":
-            if autoLevel == "SemiAuto":
-                self.UIToHLTPIDPipe.send(("semiAutoValue",semiAutoValue))
-                self.UIToHLTPIDPipe.send(("mode","SemiAuto"))
-            self.UIToHeatPipe.send(("kettle","HLT"))
-        if kettle == "BLK":
-            if autoLevel == "SemiAuto":
-                self.UIToBLKPIDPipe.send(("semiAutoValue",semiAutoValue))
-                self.UIToBLKPIDPipe.send(("mode","SemiAuto"))
-            self.UIToHeatPipe.send(("kettle","BLK"))'''
 
     def setHeat(self, kettle, mode, setting):
         #print(setting)
@@ -615,6 +615,76 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         super(dashboard, self).closeEvent
 
         print("System exited successfully!")
+
+    def beerSmithImportDialog(self):
+        self.beerSmithImportDialog = importDialog(self.importSignal)
+
+    def beerSmithImport(self,volumeValues,tempValues,boilSchedule,dryHopSchedule,mashSchedule):
+        self.clearData()
+        
+        self.volumeValues = volumeValues
+        self.tempValues = tempValues
+        self.boilSchedule = boilSchedule
+        self.dryHopSchedule = dryHopSchedule
+        self.mashSchedule = mashSchedule
+
+        #Updates the volumes
+        self.HLT_Fill_1_Target.setText("{:.2f} gal".format(self.volumeValues[0]))
+        self.Strike_Target.setText("{:.2f} gal".format(self.volumeValues[1]))
+        self.HLT_Fill_2_Target.setText("{:.2f} gal".format(self.volumeValues[2]))
+        self.Sparge_Target.setText("{:.2f} gal".format(self.volumeValues[3]))
+        self.Pre_Boil_Target.setText("{:.2f} gal".format(self.volumeValues[4]))
+        self.Post_Boil_Target.setText("{:.2f} gal".format(self.volumeValues[5]))
+        self.Fermenter_Target.setText("{:.2f} gal".format(self.volumeValues[6]))
+
+        #updates the temps
+        self.Strike_Temp.setText("{:.0f} F".format(self.tempValues[0]))
+        self.HLT_Fill_2_Temp.setText("{:.0f} F".format(self.tempValues[1]))
+        self.Sparge_Temp.setText("{:.0f} F".format(self.tempValues[2]))
+                  
+
+        #adds the boil schedule
+        #print(boilSchedule)
+        for i in range(0,len(self.boilSchedule)):
+            rowPosition = self.Boil_Steps.rowCount()
+            #print(rowPosition)
+            
+            #Adds a row and the required information
+            self.Boil_Steps.insertRow(rowPosition)
+            self.Boil_Steps.setItem(rowPosition,1,QtWidgets.QTableWidgetItem(str(self.boilSchedule[i][0])))
+            self.Boil_Steps.setItem(rowPosition,0,QtWidgets.QTableWidgetItem("{:.0f} min".format(self.boilSchedule[i][1])))
+            self.Boil_Steps.setItem(rowPosition,2,QtWidgets.QTableWidgetItem(str(self.boilSchedule[i][2])))
+
+
+        #adds mash schedule
+        for i in range(0,len(self.mashSchedule)):
+            rowPosition = self.Mash_Steps.rowCount()
+            self.Mash_Steps.insertRow(rowPosition)
+            self.Mash_Steps.setItem(rowPosition,0,QtWidgets.QTableWidgetItem("{:.0f} F".format(self.mashSchedule[i][3])))
+            self.Mash_Steps.setItem(rowPosition,1,QtWidgets.QTableWidgetItem("{:.2f} gal".format(self.mashSchedule[i][1])))
+            self.Mash_Steps.setItem(rowPosition,2,QtWidgets.QTableWidgetItem("{:.0f} F".format(self.mashSchedule[i][2])))
+            self.Mash_Steps.setItem(rowPosition,3,QtWidgets.QTableWidgetItem("{:.0f} min".format(self.mashSchedule[i][4])))
+            self.Mash_Steps.setItem(rowPosition,4,QtWidgets.QTableWidgetItem("{:.0f} min".format(self.mashSchedule[i][5])))
+
+    def clearData(self):
+        for i in range(0,self.Boil_Steps.rowCount()+1): self.Boil_Steps.removeRow(0)
+        for i in range(0,self.Mash_Steps.rowCount()+1): self.Mash_Steps.removeRow(0)
+
+        #clears the volumes
+        self.HLT_Fill_1_Target.setText("")
+        self.Strike_Target.setText("")
+        self.HLT_Fill_2_Target.setText("")
+        self.Sparge_Target.setText("")
+        self.Pre_Boil_Target.setText("")
+        self.Post_Boil_Target.setText("")
+        self.Fermenter_Target.setText("")
+
+        #clears the temps
+        self.Strike_Temp.setText("")
+        self.HLT_Fill_2_Temp.setText("")
+        self.Sparge_Temp.setText("")
+
+       
              
         
     
