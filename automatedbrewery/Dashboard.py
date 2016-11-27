@@ -70,6 +70,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
     importSignal = QtCore.pyqtSignal(list,list,list,list,list)
 
+    heatGraphSignal = QtCore.pyqtSignal(float,float,str)
+
     redSwitchStyle = '''
     QPushButton {
         border-radius: 0px;
@@ -279,7 +281,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.valveSwitchSignal.connect(self.valveSwitchUpdate)
         self.setHeatSignal.connect(self.setHeat)
         self.importSignal.connect(self.beerSmithImport)
-        
+        self.heatGraphSignal.connect(self.updateHeatGraph)        
 
         #Starts up the UI
         self.setupUi(self)
@@ -327,6 +329,18 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #defaults the kettle setting to none
         self.kettleSetting = "None"
+
+        #creates the initial graph series and pens
+        self.tempx=[[],[],[]]
+        self.tempy=[[],[],[]]
+        self.heatx=[[],[]]
+        self.heaty=[[],[]]
+
+        self.HLTPen = pyqtgraph.mkPen(color = (157,224,234), width = 3)
+        self.MLTPen = pyqtgraph.mkPen(color = (0,138,179), width = 3)
+        self.BLKPen = pyqtgraph.mkPen(color = (0,44,119), width = 3)
+
+        self.startTime = time.time()
       
 
         #Starts the above threads
@@ -372,7 +386,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.BLKPID.run()
 
     def startHeatControl(self):
-        heatCtrl = HeatController(pipeConn = self.heatToHLTPIDPipe,pipeConn2 = self.heatToBLKPIDPipe,pipeConn3 = self.heatToUIPipe)
+        heatCtrl = HeatController(pipeConn = self.heatToHLTPIDPipe,pipeConn2 = self.heatToBLKPIDPipe,pipeConn3 = self.heatToUIPipe, heatGraphSignal = self.heatGraphSignal)
         heatCtrl.run()
 
     def startAlarmControl(self):
@@ -465,7 +479,23 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.HLT_Heat.setText(NewHLTText)
         self.MLT_Heat.setText(NewMLTText)
-        self.BLK_Heat.setText(NewBLKText)   
+        self.BLK_Heat.setText(NewBLKText)
+
+        currTime = (time.time() - self.startTime)/60
+        if tempValues[0] != 999 and tempValues[0] != 0:
+            self.tempy[0].append(tempValues[0])
+            self.tempx[0].append(currTime)
+        if tempValues[1] != 999 and tempValues[1] != 0:
+            self.tempy[1].append(tempValues[1])
+            self.tempx[1].append(currTime)
+        if tempValues[2] != 999 and tempValues[2] != 0:
+            self.tempy[2].append(tempValues[2])
+            self.tempx[2].append(currTime)
+
+        self.graph1.clear()
+        self.graph1.plot(self.tempx[0],self.tempy[0], pen=self.HLTPen)
+        self.graph1.plot(self.tempx[1],self.tempy[1], pen=self.MLTPen)
+        self.graph1.plot(self.tempx[2],self.tempy[2], pen=self.BLKPen)
 
     def pHandDOUpdate(self, pH, DO):
         self.pH.setText("{:.2f}".format(pH))
@@ -597,6 +627,11 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 OldHLTText = self.HLT_Heat.text()
                 NewHLTText=OldHLTText[:17]+"\nSetting: {:.0f}%".format(setting)
                 self.HLT_Heat.setText(NewHLTText)
+
+                OldBLKText = self.BLK_Heat.text()
+                NewBLKText=OldBLKText[:17]
+                self.BLK_Heat.setText(NewBLKText)
+                
             if mode == "Off":
                 self.UIToHLTPIDPipe.send(("mode","Off"))
 
@@ -621,6 +656,10 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 OldBLKText = self.BLK_Heat.text()
                 NewBLKText=OldBLKText[:17]+"\nSetting: {:.0f}%".format(setting)
                 self.BLK_Heat.setText(NewBLKText)
+
+                OldHLTText = self.HLT_Heat.text()
+                NewHLTText=OldHLTText[:17]
+                self.HLT_Heat.setText(NewHLTText)
             if mode == "Off":
                 self.UIToBLKPIDPipe.send(("mode","Off"))
 
@@ -735,6 +774,28 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.HLT_Fill_2_Temp.setText("")
         self.Sparge_Temp.setText("")
 
+    def updateHeatGraph(self,time,heatSetting,kettle):
+        currTime = (time/1000 - self.startTime)/60
+        if kettle == "HLT":
+            self.heaty[0].append(heatSetting)
+            self.heatx[0].append(currTime)
+            self.heaty[1].append(0)
+            self.heatx[1].append(currTime)
+        elif kettle == "BLK":
+            self.heaty[1].append(heatSetting)
+            self.heatx[1].append(currTime)
+            self.heaty[0].append(0)
+            self.heatx[0].append(currTime)
+        else:
+            self.heaty[0].append(0)
+            self.heatx[0].append(currTime)
+            self.heaty[1].append(0)
+            self.heatx[1].append(currTime)
+            
+
+        self.graph2.clear()
+        self.graph2.plot(self.heatx[0],self.heaty[0], pen=self.HLTPen)
+        self.graph2.plot(self.heatx[1],self.heaty[1], pen=self.BLKPen)
        
              
         

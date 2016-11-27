@@ -238,6 +238,7 @@ class HeatController(object):
             elif self.kettle == "None":
                 self.checkPipe()
                 time.sleep(2)
+                if self.heatGraphSignal != None: self.sendGraphPoint()
         
 
 

@@ -10,13 +10,19 @@ class PumpAerationValveController(object):
     #Note that the pins are set to low for open, so it is the opposite value
     @valveStates.setter
     def valveStates(self,states):
+        #print("Setting valves")
         if len(states)==10:
             for i in range(0,10):
+                #print(str(i)+": "+str(states[i]))
                 if self.partiallyOpen[i]:print("Warning: Valve {} is partially open (this may be intentional); to change it to open or closed, use fullyOpenClose".format(i+1))
                 if states[i]==1 or states[i]==0:
                     self._valveStates[i]=states[i]
-                    if states[i] == 1: self.mcp.output(self.valvePositivePins[i],0)
-                    elif states[i] == 0: self.mcp.output(self.valvePositivePins[i],1)
+                    if states[i] == 1:
+                        #if i==0: print("Setting pin low")
+                        self.mcp.output(self.valvePositivePins[i],0)
+                    elif states[i] == 0:
+                        #if i==0: print("Setting pin high")
+                        self.mcp.output(self.valvePositivePins[i],1)
                 else:
                     print("Error: Valve {} must be set to either  1 (open) or 0 (closed)".format(i+1))
         else: print("Error: valveStates is not 10 elements; not updating valve states")
