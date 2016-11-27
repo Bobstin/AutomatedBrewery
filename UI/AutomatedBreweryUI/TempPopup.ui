@@ -35,7 +35,7 @@ background: white;
      </font>
     </property>
     <property name="text">
-     <string>Start heat</string>
+     <string>Set heat</string>
     </property>
    </widget>
    <widget class="QPushButton" name="Cancel">
