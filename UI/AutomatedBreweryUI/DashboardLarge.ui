@@ -1758,8 +1758,7 @@ QPushButton:pressed {
 }</string>
     </property>
     <property name="text">
-     <string>Current temp: XXX 
-Target temp: XXX</string>
+     <string>Current temp: XXX</string>
     </property>
    </widget>
    <widget class="QPushButton" name="BLK_Heat">
