@@ -1719,7 +1719,7 @@ QPushButton:pressed {
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>650</y>
+      <y>630</y>
       <width>731</width>
       <height>151</height>
      </rect>
@@ -1729,7 +1729,7 @@ QPushButton:pressed {
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>860</y>
+      <y>840</y>
       <width>731</width>
       <height>151</height>
      </rect>
@@ -3569,7 +3569,7 @@ QPushButton:pressed {
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>620</y>
+      <y>600</y>
       <width>111</width>
       <height>21</height>
      </rect>
@@ -3594,7 +3594,7 @@ QPushButton:pressed {
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>830</y>
+      <y>810</y>
       <width>111</width>
       <height>21</height>
      </rect>
@@ -4623,6 +4623,175 @@ BeerSmith File</string>
      </property>
     </column>
    </widget>
+   <widget class="QFrame" name="frame_43">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>607</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame {
+	border-width: 6px;
+	border-style: solid none none none;
+	border-color: rgb(157,224,234);
+}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_47">
+    <property name="geometry">
+     <rect>
+      <x>550</x>
+      <y>607</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame {
+	border-width: 6px;
+	border-style: solid none none none;
+	border-color: rgb(0,138,179);
+}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_48">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>607</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame {
+	border-width: 6px;
+	border-style: solid none none none;
+	border-color: rgb(0,44,119);
+}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_22">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>600</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>HLT</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_28">
+    <property name="geometry">
+     <rect>
+      <x>600</x>
+      <y>600</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>MLK</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_31">
+    <property name="geometry">
+     <rect>
+      <x>730</x>
+      <y>600</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>BLK</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_49">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>1000</y>
+      <width>171</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(0, 138, 179)</string>
+    </property>
+    <property name="text">
+     <string>Minutes since startup</string>
+    </property>
+   </widget>
    <zorder>HLT</zorder>
    <zorder>BLK</zorder>
    <zorder>MLT</zorder>
@@ -4781,6 +4950,13 @@ BeerSmith File</string>
    <zorder>Beersmith_Import</zorder>
    <zorder>Boil_Steps</zorder>
    <zorder>Mash_Steps</zorder>
+   <zorder>frame_43</zorder>
+   <zorder>frame_47</zorder>
+   <zorder>frame_48</zorder>
+   <zorder>label_22</zorder>
+   <zorder>label_28</zorder>
+   <zorder>label_31</zorder>
+   <zorder>label_49</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
