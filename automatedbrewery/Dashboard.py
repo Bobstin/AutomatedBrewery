@@ -44,7 +44,9 @@ class tempPopup(QtWidgets.QMainWindow, Ui_TempPopup):
         self.Cancel.clicked.connect(self.cancel)
 
     def setHeat(self):
-        self.setHeatSignal.emit(self.kettle,self.HeatMode.currentText(),int(self.Heat_Setting.text()))
+        if self.HeatMode.currentText() == "Off":heatSetting = 0
+        else: heatSetting = int(round(float(self.Heat_Setting.text())))
+        self.setHeatSignal.emit(self.kettle,self.HeatMode.currentText(),heatSetting)
         self.close()
 
     def cancel(self): self.close()
@@ -230,7 +232,6 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         background-color: rgb(226,152,21);
         font: 12pt "Arial";
         color:white;
-        border: 2px solid black;
     }
 
     QPushButton:pressed {
@@ -243,7 +244,6 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         border-radius: 0px;
         background-color: white;
         font: 12pt "Arial";
-        border: 2px solid black;
     }
 
     QPushButton:pressed {
@@ -324,7 +324,10 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #Connects the import button
         self.Beersmith_Import.clicked.connect(self.beerSmithImportDialog)
-        
+
+        #defaults the kettle setting to none
+        self.kettleSetting = "None"
+      
 
         #Starts the above threads
         self.flowThread.start()
@@ -350,7 +353,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.HLTPID.cycleTime = 2000
         self.HLTPID.outputAttributeName = "heatSetting"
         #self.HLTPID.semiAutoValue = 0
-        self.HLTPID.mode = "Manual"
+        self.HLTPID.mode = "Off"
         #self.HLTPID.tempGraphSignal = self.tempSignal
         self.HLTPID.run()
         
@@ -364,7 +367,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.BLKPID.cycleTime = 2000
         self.BLKPID.outputAttributeName = "heatSetting"
         #self.BLKPID.semiAutoValue = 0
-        self.BLKPID.mode = "Manual"
+        self.BLKPID.mode = "Off"
         #self.BLKPID.tempGraphSignal = self.tempSignal
         self.BLKPID.run()
 
@@ -470,7 +473,17 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def mainSwitchUpdate(self, mainSwitchValues):
         #Updates the heat select
-        if mainSwitchValues[0]=="Auto": TEMP=1
+        if mainSwitchValues[0]=="Auto":
+            if self.kettleSetting == "HLT":
+                self.BLK_Heat.setStyleSheet(self.heatAutoOffStyle)
+                self.HLT_Heat.setStyleSheet(self.heatAutoOnStyle)
+            if self.kettleSetting == "BLK":
+                self.BLK_Heat.setStyleSheet(self.heatAutoOnStyle)
+                self.HLT_Heat.setStyleSheet(self.heatAutoOffStyle)
+            if self.kettleSetting == "None":
+                self.BLK_Heat.setStyleSheet(self.heatAutoOffStyle)
+                self.HLT_Heat.setStyleSheet(self.heatAutoOffStyle)
+                
         if mainSwitchValues[0]=="BLK":
             self.BLK_Heat.setStyleSheet(self.heatOnStyle)
             self.HLT_Heat.setStyleSheet(self.heatOffStyle)
@@ -572,20 +585,58 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def setHeat(self, kettle, mode, setting):
         #print(setting)
-        if kettle == "HLT":
+        if kettle == "HLT": 
             if mode == "SemiAuto":
+                self.kettleSetting = "HLT"
                 #Turns off the BLK, and turns on the HLT
-                self.UIToBLKPIDPipe.send(("mode","Manual"))
+                self.UIToBLKPIDPipe.send(("mode","Off"))
                 self.UIToHLTPIDPipe.send(("semiAutoValue",setting))
                 self.UIToHLTPIDPipe.send(("mode","SemiAuto"))
-            self.UIToHeatPipe.send(("kettle","HLT"))
-        if kettle == "BLK":
+                self.UIToHeatPipe.send(("kettle","HLT"))
+
+                OldHLTText = self.HLT_Heat.text()
+                NewHLTText=OldHLTText[:17]+"\nSetting: {:.0f}%".format(setting)
+                self.HLT_Heat.setText(NewHLTText)
+            if mode == "Off":
+                self.UIToHLTPIDPipe.send(("mode","Off"))
+
+                OldHLTText = self.HLT_Heat.text()
+                NewHLTText=OldHLTText[:17]
+                self.HLT_Heat.setText(NewHLTText)
+                
+                #If the current kettle is the one being turned off, then set the kettles to None for safety
+                if self.kettleSetting == "HLT":
+                    self.kettleSetting = "None"
+                    self.UIToHeatPipe.send(("kettle","None"))
+            
+        if kettle == "BLK": 
             if mode == "SemiAuto":
+                self.kettleSetting = "BLK"
                 #Turns off the HLT, and turns on the BLK
-                self.UIToHLTPIDPipe.send(("mode","Manual"))
+                self.UIToHLTPIDPipe.send(("mode","Off"))
                 self.UIToBLKPIDPipe.send(("semiAutoValue",setting))
                 self.UIToBLKPIDPipe.send(("mode","SemiAuto"))
-            self.UIToHeatPipe.send(("kettle","BLK"))
+                self.UIToHeatPipe.send(("kettle","BLK"))
+
+                OldBLKText = self.BLK_Heat.text()
+                NewBLKText=OldBLKText[:17]+"\nSetting: {:.0f}%".format(setting)
+                self.BLK_Heat.setText(NewBLKText)
+            if mode == "Off":
+                self.UIToBLKPIDPipe.send(("mode","Off"))
+
+                OldBLKText = self.BLK_Heat.text()
+                NewBLKText=OldBLKText[:17]
+                self.BLK_Heat.setText(NewBLKText)
+                
+                #If the current kettle is the one being turned off, then set the kettles to None for safety
+                if self.kettleSetting == "BLK":
+                    self.kettleSetting = "None"
+                    self.UIToHeatPipe.send(("kettle","None"))
+
+            #Updates the main switch states to reflect the new Auto statuses
+            mainSwitchStates = self.mainSwitchSensor.allMainSwitchStates()
+            self.mainSwitchSignal.emit(mainSwitchStates)
+            
 
     def closeEvent(self, *args, **kwargs):
         #Closes all valves:
@@ -597,8 +648,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.PAVControl.aeration = 0
 
         #turns off heat
-        self.UIToHLTPIDPipe.send(("mode","Manual"))
-        self.UIToBLKPIDPipe.send(("mode","Manual"))
+        self.UIToHLTPIDPipe.send(("mode","Off"))
+        self.UIToBLKPIDPipe.send(("mode","Off"))
         self.UIToHeatPipe.send(("kettle","None"))
         self.UIToHeatPipe.send(("heatSetting",0))
 

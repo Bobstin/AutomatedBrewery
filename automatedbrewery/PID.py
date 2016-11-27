@@ -36,6 +36,8 @@ class PID(object):
                 self._mode = 'Auto'
                 self.stop = 0
                 self.nextCycleStart =time.time()*1000
+
+                self.sentOffSignal = False
                 
 
 
@@ -45,11 +47,11 @@ class PID(object):
 
         @mode.setter
         def mode(self, value):
-                if (value == 'Auto') | (value == 'SemiAuto') | (value == 'Manual'):
+                if (value == 'Auto') | (value == 'SemiAuto') | (value == 'Off'):
                         #If switching to Auto from another mode, reset the last input value
                         #If switching from SemiAuto to Auto, set the integral term to SemiAuto so
                         #the PID maintains that value
-                        #If switching from Manual to Auto, reset the integral term so it doesn't overshoot
+                        #If switching from Off to Auto, reset the integral term so it doesn't overshoot
                         if value == 'Auto':
                                 self.lastInput = getattr(self.inputSource,self.inputAttributeName)
                                 if self._mode == 'SemiAuto': self.integralTerm = self.semiAutoValue
@@ -57,7 +59,7 @@ class PID(object):
 
                         self._mode = value
                 else:
-                        print('Error: mode must be Auto, SemiAuto, or Manual. Not changing the mode.')
+                        print('Error: mode must be Auto, SemiAuto, or Off. Not changing the mode.')
 
         def checkPipe(self):
                 if self.inputPipeConn.poll():
@@ -90,7 +92,13 @@ class PID(object):
                                 self.stop = 1
                         else:                           
                                 #print(self.output)
-                                if self._mode != "Manual": self.outputPipeConn.send((self.outputAttributeName,self.output))
+                                if self._mode != "Off": self.outputPipeConn.send((self.outputAttributeName,self.output))
+                                else:
+                                        if not(self.sentOffSignal):
+                                                self.outputPipeConn.send((self.outputAttributeName,0))
+                                                #print("Sending off signal")
+                                                self.sentOffSignal = True
+
 
                         #checks the input pipe to see if anything needs to change
                         if self.inputPipeConn != None:
@@ -122,10 +130,11 @@ class PID(object):
                                 print('Warning: Cycle time is not set. Running PID a single time')
                                 self.stop = 1
 
-                #If mode is manual, don't do anything. If it is semiauto, then produce the set output
-                if self._mode == 'Manual':
+                #If mode is Off, don't do anything. If it is semiauto, then produce the set output
+                if self._mode == 'Off':
                         return
                 elif self._mode == 'SemiAuto':
+                        self.sentOffSignal = False
                         if self.semiAutoValue == None:
                                 print ('Error: mode is set to SemiAuto, but semiAutoValue is not set')
                                 self.stop = 1
@@ -133,6 +142,7 @@ class PID(object):
                         else:
                                 self.output = self.semiAutoValue
                 elif self._mode == 'Auto':
+                        self.sentOffSignal = False
                         #checks that all parameters are set properly
                         if (self.Kp == None) | (self.Ki == None) | (self.Kd == None):
                                 print('Error: Kp, Ki, and Kd are not all set')

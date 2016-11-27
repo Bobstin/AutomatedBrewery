@@ -190,8 +190,22 @@ class importDialog(QtWidgets.QMainWindow, Ui_ImportDialog):
         print(self.boilSchedule)
 
     def sendToDashboard(self):
-        self.importSignal.emit(volumeValues,tempValues,boilSchedule,dryHopSchedule,mashSchedule)
+        #Updates the volumes and temps with whatever the latest values are
+        self.volumeValues[0] = float(self.HLT_Fill_1_Target.text()[:-4])
+        self.volumeValues[1] = float(self.Strike_Target.text()[:-4])
+        self.volumeValues[2] = float(self.HLT_Fill_2_Target.text()[:-4])
+        self.volumeValues[3] = float(self.Sparge_Target.text()[:-4])
+        self.volumeValues[4] = float(self.Pre_Boil_Target.text()[:-4])
+        self.volumeValues[5] = float(self.Post_Boil_Target.text()[:-4])
+        self.volumeValues[6] = float(self.Fermenter_Target.text()[:-4])
 
+        self.tempValues[0] = float(self.Strike_Temp.text()[:-2])
+        self.tempValues[1] = float(self.HLT_Fill_2_Temp.text()[:-2])
+        self.tempValues[2] = float(self.Sparge_Temp.text()[:-2])
+
+        self.importSignal.emit(self.volumeValues,self.tempValues,self.boilSchedule,self.dryHopSchedule,self.mashSchedule)
+
+        self.close()
 
     def loadBeerSmithFileData(self,beerSmithFilePath):
         #Opens the BeerSmith file
