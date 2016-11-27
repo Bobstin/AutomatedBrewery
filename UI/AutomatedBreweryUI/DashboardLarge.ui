@@ -2198,7 +2198,7 @@ QPushButton:pressed {
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QLineEdit" name="Sparg_Target">
+   <widget class="QLineEdit" name="Sparge_Target">
     <property name="geometry">
      <rect>
       <x>1390</x>
@@ -4711,7 +4711,7 @@ BeerSmith File</string>
    <zorder>label_5</zorder>
    <zorder>Strike_Target</zorder>
    <zorder>Strike_Actual</zorder>
-   <zorder>Sparg_Target</zorder>
+   <zorder>Sparge_Target</zorder>
    <zorder>Sparge_Actual</zorder>
    <zorder>label_6</zorder>
    <zorder>label_7</zorder>
