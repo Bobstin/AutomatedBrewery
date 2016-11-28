@@ -88,6 +88,7 @@ class importDialog(QtWidgets.QMainWindow, Ui_ImportDialog):
             self.boilSchedule = self.importResults[2]
             self.dryHopSchedule = self.importResults[3]
             self.mashSchedule = self.importResults[4]
+            self.pHValues = self.importResults[5]
 
             #Updates the volumes
             self.HLT_Fill_1_Target.setText("{:.2f} gal".format(self.volumeValues[0]))
@@ -102,6 +103,9 @@ class importDialog(QtWidgets.QMainWindow, Ui_ImportDialog):
             self.Strike_Temp.setText("{:.0f} F".format(self.tempValues[0]))
             self.HLT_Fill_2_Temp.setText("{:.0f} F".format(self.tempValues[1]))
             self.Sparge_Temp.setText("{:.0f} F".format(self.tempValues[2]))
+
+            #updates the mash pH
+            self.Mash_pH.setText("{:.2f}".format(self.pHValues[0]))
                       
 
             #adds the boil schedule
@@ -203,7 +207,9 @@ class importDialog(QtWidgets.QMainWindow, Ui_ImportDialog):
         self.tempValues[1] = float(self.HLT_Fill_2_Temp.text()[:-2])
         self.tempValues[2] = float(self.Sparge_Temp.text()[:-2])
 
-        self.importSignal.emit(self.volumeValues,self.tempValues,self.boilSchedule,self.dryHopSchedule,self.mashSchedule)
+        self.pHValues[0] = float(self.Mash_pH.text())
+
+        self.importSignal.emit(self.volumeValues,self.tempValues,self.boilSchedule,self.dryHopSchedule,self.mashSchedule,self.pHValues)
 
         self.close()
 
@@ -212,8 +218,8 @@ class importDialog(QtWidgets.QMainWindow, Ui_ImportDialog):
         beerSmithFile = open(beerSmithFilePath,'r').read()
 
         #Volumes are in fl oz, temps are in F
-        globalTags = ['F_R_NAME','F_MS_TUN_VOL','F_E_BOIL_VOL','F_E_BOIL_OFF','F_E_BATCH_VOL','F_MH_TUN_DEADSPACE','F_MH_SPARGE_TEMP','F_MS_GRAIN_WEIGHT','F_G_BOIL_TIME']
-        #globalNames = ['Recipe name','Mash tun volume','Pre-boil volume','Boil off','Batch volume','Mash deadspace','Sparge temp','Grain Weight','Boil time']
+        globalTags = ['F_R_NAME','F_MS_TUN_VOL','F_E_BOIL_VOL','F_E_BOIL_OFF','F_E_BATCH_VOL','F_MH_TUN_DEADSPACE','F_MH_SPARGE_TEMP','F_MS_GRAIN_WEIGHT','F_G_BOIL_TIME','F_R_TARGET_PH']
+        #globalNames = ['Recipe name','Mash tun volume','Pre-boil volume','Boil off','Batch volume','Mash deadspace','Sparge temp','Grain Weight','Boil time','Mash pH']
         globalRegexs = [tag+">(.*?)<\/"+tag for tag in globalTags]
         globalResults = [re.search(regex,beerSmithFile).group(1) for regex in globalRegexs]
         #print(globalResults)
@@ -266,7 +272,6 @@ class importDialog(QtWidgets.QMainWindow, Ui_ImportDialog):
 
         #Converts the volumeValues to gallons from fl oz
         volumeValues = [value/128 for value in volumeValues]
-
 
 
         #Calculates the temps
@@ -346,7 +351,11 @@ class importDialog(QtWidgets.QMainWindow, Ui_ImportDialog):
 
         mashSchedule = list(zip(mashNames,mashAmounts,mashStepTemp,mashInfusionTemp,mashRiseTime,mashStepTime))
 
-        importResults=[volumeValues,tempValues,boilSchedule,dryHopSchedule,mashSchedule]
+        #gets the mash pH target
+        pHValues=[float(globalResults[9])]
+
+
+        importResults=[volumeValues,tempValues,boilSchedule,dryHopSchedule,mashSchedule,pHValues]
         return importResults        
         
 if __name__ == '__main__':

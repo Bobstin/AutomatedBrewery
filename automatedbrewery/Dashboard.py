@@ -68,7 +68,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     BLKPIDSignal = QtCore.pyqtSignal(list)
     setHeatSignal = QtCore.pyqtSignal(str,str,int)
 
-    importSignal = QtCore.pyqtSignal(list,list,list,list,list)
+    importSignal = QtCore.pyqtSignal(list,list,list,list,list,list)
 
     heatGraphSignal = QtCore.pyqtSignal(float,float,str)
 
@@ -286,6 +286,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         #Starts up the UI
         self.setupUi(self)
         self.show()
+
+        self.Mash_Steps.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        self.Boil_Steps.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
 
         #Creates threads for each of the sensors and controllers
         self.HLTPIDThread = threading.Thread(target = self.startHLTPID)
@@ -709,7 +712,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     def beerSmithImportDialog(self):
         self.beerSmithImportDialog = importDialog(self.importSignal)
 
-    def beerSmithImport(self,volumeValues,tempValues,boilSchedule,dryHopSchedule,mashSchedule):
+    def beerSmithImport(self,volumeValues,tempValues,boilSchedule,dryHopSchedule,mashSchedule,pHValues):
         self.clearData()
         
         self.volumeValues = volumeValues
@@ -717,6 +720,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.boilSchedule = boilSchedule
         self.dryHopSchedule = dryHopSchedule
         self.mashSchedule = mashSchedule
+        self.pHValues = pHValues
 
         #Updates the volumes
         self.HLT_Fill_1_Target.setText("{:.2f} gal".format(self.volumeValues[0]))
@@ -731,6 +735,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.Strike_Temp.setText("{:.0f} F".format(self.tempValues[0]))
         self.HLT_Fill_2_Temp.setText("{:.0f} F".format(self.tempValues[1]))
         self.Sparge_Temp.setText("{:.0f} F".format(self.tempValues[2]))
+
+        #updates the pH
+        self.pH_target.setText("{:.2f}".format(self.pHValues[0]))
                   
 
         #adds the boil schedule
