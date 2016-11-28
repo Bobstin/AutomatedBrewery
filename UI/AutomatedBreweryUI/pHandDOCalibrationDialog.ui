@@ -214,7 +214,7 @@ background: white;
      <string>10.00</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="Calibrate_Lowpoint_2">
+   <widget class="QPushButton" name="Calibrate_Highpoint">
     <property name="geometry">
      <rect>
       <x>220</x>
@@ -421,7 +421,7 @@ background: white;
      <string notr="true"/>
     </property>
     <property name="text">
-     <string>XXX</string>
+     <string>N/A</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
