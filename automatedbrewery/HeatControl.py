@@ -173,7 +173,6 @@ class HeatController(object):
         self.cycleTime = cycleTime
         self.kettle = "None"
 
-
         #Set everything to off intially
         self.relay1 = 0
         self.relay2 = 0
@@ -182,6 +181,9 @@ class HeatController(object):
 
         #Set onTime and offTime
         self.calcOnOffTime()
+
+        #Initializes the heat control as running
+        self.turnOff = False
 
     def calcOnOffTime(self):
         self.onTime = (self.heatSetting/100)*self.cycleTime
@@ -216,7 +218,7 @@ class HeatController(object):
         #if onTime or offTime = 0, then does not switch the relay. This reduces the number of
         #switches, as well as any delay due to code execution
         
-        while True:
+        while self.turnOff == False:
             if self.kettle == "HLT":
                 if self.onTime!=0:
                     self.SSR1 = 1

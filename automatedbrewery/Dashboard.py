@@ -265,6 +265,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     UIToAlarmPipe, AlarmToUIPipe = Pipe()
     UIToPAVPipe, PAVToUIPipe = Pipe()
 
+    #Also creates a pipe used to shut off the flow sensors
+    UIToFlowPipe, FlowToUIPipe = Pipe()
+
     def __init__(self):
         super(dashboard, self).__init__()
         
@@ -290,17 +293,24 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.Mash_Steps.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
         self.Boil_Steps.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
 
+        #Sets all of the sensor threads to keep sensing
+        self.turnOffVolumeSensing = False
+        self.turnOffTempSensing = False
+        self.turnOffpHandDOSensing = False
+        self.turnOffMainSwitchSensing = False
+        self.turnOffValveSwitchSensing = False
+
         #Creates threads for each of the sensors and controllers
-        self.HLTPIDThread = threading.Thread(target = self.startHLTPID)
-        self.BLKPIDThread = threading.Thread(target = self.startBLKPID)
-        self.heatThread = threading.Thread(target = self.startHeatControl)
+        self.HLTPIDThread = threading.Thread(name='HLTPIDThread',target = self.startHLTPID)
+        self.BLKPIDThread = threading.Thread(name='BLKPIDThread',target = self.startBLKPID)
+        self.heatThread = threading.Thread(name='heatThread',target = self.startHeatControl)
         
-        self.flowThread = threading.Thread(target = self.startFlowSensing)
-        self.volumeThread  = threading.Thread(target = self.startVolumeSensing)
-        self.tempThread = threading.Thread(target = self.startTempSensing)
-        self.pHandDOThread = threading.Thread(target = self.startpHandDOSensing)
-        self.mainSwitchThread = threading.Thread(target = self.startMainSwitchSensing)
-        self.valveSwitchThread = threading.Thread(target = self.startValveSwitchSensing)
+        self.flowThread = threading.Thread(name='flowThread',target = self.startFlowSensing)
+        self.volumeThread  = threading.Thread(name='volumeThread',target = self.startVolumeSensing)
+        self.tempThread = threading.Thread(name='tempThread',target = self.startTempSensing)
+        self.pHandDOThread = threading.Thread(name='pHandDOThread',target = self.startpHandDOSensing)
+        self.mainSwitchThread = threading.Thread(name='mainSwitchThread',target = self.startMainSwitchSensing)
+        self.valveSwitchThread = threading.Thread(name='valveSwitchThread',target = self.startValveSwitchSensing)
 
         #Connects the valve buttons to the valve control
         self.valve1.clicked.connect(lambda: self.changeValve(1))
@@ -399,25 +409,25 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.PAVControl = PumpAerationValveController()
 
     def startFlowSensing(self):
-        flowSensor = flowSensors(self.flowSignal)
+        flowSensor = flowSensors(self.flowSignal, inputPipe=self.FlowToUIPipe)
 
     def startVolumeSensing(self):
         volumeSensor = volumeSensors()
-        while True:
+        while self.turnOffVolumeSensing == False:
             volumes = [volumeSensor.HLTVolume(),volumeSensor.MLTVolume(),volumeSensor.BLKVolume()]
             self.volumeSignal.emit(volumes)
             time.sleep(2)
 
     def startTempSensing(self):
         self.tempSensor = tempSensors()
-        while True:
+        while self.turnOffTempSensing == False:
             temps = [self.tempSensor.HLTTemp(),self.tempSensor.MLTTemp(),self.tempSensor.BLKTemp()]
             self.tempSignal.emit(temps)
             time.sleep(2)
 
     def startpHandDOSensing(self):
         pHandDOSensor = pHandDOSensors()
-        while True:
+        while self.turnOffpHandDOSensing == False:
             pH = pHandDOSensor.pH()
             DO = pHandDOSensor.DO()
             self.pHandDOSignal.emit(pH,DO)
@@ -426,7 +436,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     def startMainSwitchSensing(self):
         self.mainSwitchSensor = mainSwitchSensors()
         self.mainSwitchSensor.interruptSetUp(self.interruptedMainSwitch)
-        while True:
+        while self.turnOffMainSwitchSensing == False:
             mainSwitchStates = self.mainSwitchSensor.allMainSwitchStates()
             self.mainSwitchSignal.emit(mainSwitchStates)
             time.sleep(10)
@@ -434,7 +444,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     def startValveSwitchSensing(self):
         self.valveSwitchSensor = valveSwitchSensors()
         self.valveSwitchSensor.interruptSetUp(self.interruptedValveSwitch)
-        while True:
+        while self.turnOffValveSwitchSensing == False:
             valveSwitchStates = self.valveSwitchSensor.allValveSwitchStates()
             self.valveSwitchSignal.emit(valveSwitchStates)
             time.sleep(10)
@@ -691,9 +701,20 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #turns off heat
         self.UIToHLTPIDPipe.send(("mode","Off"))
+        self.UIToHLTPIDPipe.send(("stop",True))
         self.UIToBLKPIDPipe.send(("mode","Off"))
+        self.UIToBLKPIDPipe.send(("stop",True))
         self.UIToHeatPipe.send(("kettle","None"))
         self.UIToHeatPipe.send(("heatSetting",0))
+        self.UIToHeatPipe.send(("turnOff",True))
+
+        #Turns off the sensors
+        self.turnOffVolumeSensing = True
+        self.turnOffTempSensing = True
+        self.turnOffpHandDOSensing = True
+        self.turnOffMainSwitchSensing = True
+        self.turnOffValveSwitchSensing = True
+        self.UIToFlowPipe.send(("turnOffSensor",True))
 
         #self.flowThread.exit()
         #self.volumeThread.exit()
@@ -704,6 +725,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         #self.heatThread.exit()
         #self.HLTPIDThread.exit()
         #self.BLKPIDThread.exit()
+
+        #time.sleep(10)
+        #print(threading.enumerate())
         
         super(dashboard, self).closeEvent
 
