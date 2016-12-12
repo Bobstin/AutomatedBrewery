@@ -3,12 +3,13 @@ import time
 import sys
 
 class flowSensors(object):
-    def __init__(self,graphSignal,flowPins = [8,7,12,16,20,21],flowNames = ["HLT In","HLT Out","MLT In","MLT Out","BLK In","BLK Out"],sendSeries=True):
+    def __init__(self,graphSignal,flowPins = [8,7,12,16,20,21],flowNames = ["HLT In","HLT Out","MLT In","MLT Out","BLK In","BLK Out"],sendSeries=True,inputPipe=None):
         #stores the parameters
         self.flowPins = flowPins
         self.flowNames = flowNames
         self.graphSignal = graphSignal
         self.sendSeries = sendSeries
+        self.inputPipe = inputPipe
         
         #Sets up the pins as inputs with detection events
         GPIO.setmode(GPIO.BCM)        
@@ -24,6 +25,9 @@ class flowSensors(object):
         self.rates=[[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]]]
         self.totals=[[[],[]],[[],[]],[[],[]],[[],[]],[[],[]],[[],[]]]
 
+        #defaults the sensor to keep sensing
+        self.turnOffSensor = False
+
         #starts counting
         self.startTime=time.time()
         self.run()
@@ -38,7 +42,7 @@ class flowSensors(object):
 
 
     def run(self):
-                while True:
+                while self.turnOffSensor == False:
                     self.lastRun = time.time()
                     time.sleep(1)
 
@@ -59,6 +63,14 @@ class flowSensors(object):
 
                     #send the data to the UI
                     self.graphSignal.emit(self.rates,self.totals)
+
+                    #checks the pipe for an instruction (mostly used to turn the sensor off)
+                    if self.inputPipe != None:
+                        #print("checking pipe")
+                        while self.inputPipe.poll():
+                            data = self.inputPipe.recv()
+                            #print(data)
+                            setattr(self,data[0],data[1])
 
         
 
