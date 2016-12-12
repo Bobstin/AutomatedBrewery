@@ -372,7 +372,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.BLKPIDThread.start()
 
     def startHLTPID(self):
-        self.HLTPID = PID(self.tempSensor,"HLTTemp")
+        #Note that the PIDs get the temp from the dashboard; this prevents them from also
+        #Polling the RTDs, which causes errors
+        self.HLTPID = PID(self,"HLTTemp")
         self.HLTPID.outputPipeConn = self.HLTPIDToHeatPipe
         self.HLTPID.inputPipeConn = self.HLTPIDToUIPipe
         self.HLTPID.outputMin = 0
@@ -386,7 +388,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         
 
     def startBLKPID(self):
-        self.BLKPID = PID(self.tempSensor,"BLKTemp")
+        #Note that the PIDs get the temp from the dashboard; this prevents them from also
+        #Polling the RTDs, which causes errors
+        self.BLKPID = PID(self,"BLKTemp")
         self.BLKPID.outputPipeConn = self.BLKPIDToHeatPipe
         self.BLKPID.inputPipeConn = self.BLKPIDToUIPipe
         self.BLKPID.outputMin = 0
@@ -423,7 +427,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         while self.turnOffTempSensing == False:
             temps = [self.tempSensor.HLTTemp(),self.tempSensor.MLTTemp(),self.tempSensor.BLKTemp()]
             self.tempSignal.emit(temps)
-            time.sleep(2)
+            time.sleep(1)
 
     def startpHandDOSensing(self):
         pHandDOSensor = pHandDOSensors()
@@ -474,6 +478,11 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.BLK.setValue(int(round(volumeValues[2]*100)))
         
     def tempUpdate(self, tempValues):
+        #Stores the temp values so that they can be polled by the PID
+        self.HLTTemp = tempValues[0]
+        self.MLTTemp = tempValues[1]
+        self.BLKTemp = tempValues[2]
+
         OldHLTText = self.HLT_Heat.text()
         OldMLTText = self.MLT_Heat.text()
         OldBLKText = self.BLK_Heat.text()

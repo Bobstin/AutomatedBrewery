@@ -22,6 +22,7 @@ class PID(object):
                 self.semiAutoValue = None
                 self.inputPipeConn = None
                 self.tempGraphSignal = None
+                self.messageSignal = None
 
                 self.inputSource = inputSource
                 self.outputAttributeName = 'setting'
@@ -59,12 +60,19 @@ class PID(object):
 
                         self._mode = value
                 else:
-                        print('Error: mode must be Auto, SemiAuto, or Off. Not changing the mode.')
+                        self.printAndSendMessage('Error: mode must be Auto, SemiAuto, or Off. Not changing the mode.',"Alarm")
 
         def checkPipe(self):
                 if self.inputPipeConn.poll():
                         data = self.inputPipeConn.recv()
-                        setattr(self,data[0],data[1])
+                        if data[0] == "autoTune":
+                                self.autoTune(data[1][0],data[1][1],data[1][2],data[1][3],data[1][4],data[1][5],data[1][6])
+                        else:
+                                setattr(self,data[0],data[1])
+
+        def printAndSendMessage(self,message,messageType):
+                print(message)
+                if self.messageSignal != None: self.messageSignal.emit(message,messageType)
 
         def run(self):
                 #since you just started the run, resets stop to 0
@@ -108,7 +116,7 @@ class PID(object):
                         #waits until the next cycle
                         if self.cycleTime != None:
                                 if time.time()*1000 > self.nextCycleStart:
-                                        print('Error: I was not able to calculate the next output prior to the next cycle. Please set a longer cycle time (note that cycle time is measured in ms). Stopping the PID.')
+                                        self.printAndSendMessage('Error: I was not able to calculate the next output prior to the next cycle. Please set a longer cycle time (note that cycle time is measured in ms). Stopping the PID.',"Alarm")
                                         self.stop = 1
                                 else:
                                         waittime = (self.nextCycleStart - time.time()*1000)/1000
@@ -120,14 +128,14 @@ class PID(object):
                 #Performs checks to see if all parameters are set properly
                 
                 if self.outputMin >= self.outputMax:
-                        print('Error: outputMin is greater than or equal to outputMax')
+                        self.printAndSendMessage('Error: outputMin is greater than or equal to outputMax',"Alarm")
                         self.stop = 1
                         return
                 
                 #if cycleTime is not set, then the PID will just run once (this is so that you can run the PID externally
                 #and not in its own loop). However, warn people that this is the case
                 if self.cycleTime == None:
-                                print('Warning: Cycle time is not set. Running PID a single time')
+                                self.printAndSendMessage('Warning: Cycle time is not set. Running PID a single time',"Warning")
                                 self.stop = 1
 
                 #If mode is Off, don't do anything. If it is semiauto, then produce the set output
@@ -136,7 +144,7 @@ class PID(object):
                 elif self._mode == 'SemiAuto':
                         self.sentOffSignal = False
                         if self.semiAutoValue == None:
-                                print ('Error: mode is set to SemiAuto, but semiAutoValue is not set')
+                                self.printAndSendMessage ('Error: mode is set to SemiAuto, but semiAutoValue is not set',"Alarm")
                                 self.stop = 1
                                 return
                         else:
@@ -145,12 +153,12 @@ class PID(object):
                         self.sentOffSignal = False
                         #checks that all parameters are set properly
                         if (self.Kp == None) | (self.Ki == None) | (self.Kd == None):
-                                print('Error: Kp, Ki, and Kd are not all set')
+                                self.printAndSendMessage('Error: Kp, Ki, and Kd are not all set',"Alarm")
                                 self.stop = 1
                                 return
 
                         if ((self.Kp <0) | (self.Ki <0) | (self.Kd <0)) & ((self.Kp >0) | (self.Ki >0) | (self.Kd >0)):
-                                print('Error: all K parameters must have the same sign')
+                                self.printAndSendMessage('Error: all K parameters must have the same sign',"Alarm")
                                 self.stop = 1
                                 return
                 
@@ -186,7 +194,7 @@ class PID(object):
                         #output is limited to be no larger than outputMax and no smaller than outputMin
                         self.output = self.Kp*error + self.integralTerm - self.Kd*dInput
                         self.output = max(min(self.output,self.outputMax),self.outputMin)
-                        #print(self.output)
+                        #self.printAndSendMessage(self.output,"Message")
 
                         #preserves some values for the next run
                         self.lastInput = latestInput
@@ -201,12 +209,12 @@ class PID(object):
                 #to outputStartValue-outputChange)
                 #expected noise amplitude and lookBackTime are smoothing parameters
 
-                print("Starting autoTune")
+                self.printAndSendMessage("Starting autoTune","Message")
                 self.stop = 0
 
                 #checks that the output ranges are allowed
                 if ((outputStartValue - outputChange)< self.outputMin)|((outputStartValue + outputChange)< self.outputMax):
-                        print ("Error: outputs will exceed allowed values given outputStartValue and outputChange")
+                        self.printAndSendMessage ("Error: outputs will exceed allowed values given outputStartValue and outputChange","Alarm")
 
                 #sets the output to the outputStartValue
                 self.outputPipeConn.send((self.outputAttributeName,outputStartValue))
@@ -223,6 +231,7 @@ class PID(object):
 
                         # gets and prints the temperature
                         latestInput = getattr(self.inputSource,self.inputAttributeName)
+                        #self.printAndSendMessage(latestInput,"Message")
                         if self.tempGraphSignal != None:
                                 self.tempGraphSignal.emit(time.time()*1000,latestInput)
 
@@ -244,7 +253,7 @@ class PID(object):
                         #checks if temp has settled enough
                         if ((maxTemp - minTemp) < expectedNoiseAmplitude)&(oldestAllowed > firstCycleTime):
                                 steady = True
-                                print("Steady state achieved")
+                                self.printAndSendMessage("Steady state achieved","Success")
 
                         #checks the input pipe to see if anything needs to change
                         if self.inputPipeConn != None:
@@ -255,7 +264,7 @@ class PID(object):
 
                         #waits until the next cycle
                         if time.time()*1000 > self.nextCycleStart:
-                                print('Error: I was not able to calculate the next output prior to the next cycle. Please set a longer cycle time (note that cycle time is measured in ms). Stopping the PID.')
+                                self.printAndSendMessage('Error: I was not able to calculate the next output prior to the next cycle. Please set a longer cycle time (note that cycle time is measured in ms). Stopping the PID.',"Alarm")
                                 return
                         else:
                                 waittime = (self.nextCycleStart - time.time()*1000)/1000
@@ -264,7 +273,8 @@ class PID(object):
                 #Starts the calibration
                 #trigger level is set by taking a delta from the stable value
                 triggerLow = sum(temp)/float(len(temp)) - triggerDelta - expectedNoiseAmplitude/2
-                triggerHigh = sum(temp)/float(len(temp)) - triggerDelta + expectedNoiseAmplitude/2
+                triggerHigh = sum(temp)/float(len(temp)) + triggerDelta + expectedNoiseAmplitude/2
+                self.printAndSendMessage("Low temperature trigger is {:2f}\nHigh temperature trigger is {:2f}".format(triggerLow,triggerHigh),"Message")
 
 
                 #decreases the input by the outputChange
@@ -319,14 +329,12 @@ class PID(object):
                                         if priorMinOrMax == 1:
                                                 actualMaxs.append(possibleMaxs[-1])
                                                 actualMaxTimes.append(possibleMaxTimes[-1])
-                                                print("Adding actual Max")
-                                                print(possibleMaxs[-1])
+                                                self.printAndSendMessage("Adding actual Max: {:.2f}".format(possibleMaxs[-1]),"Message")
                                                 #for max, checks to see if the last three maxs are close enough. If so,
                                                 #calibration is complete!
                                                 if len(actualMaxs) >= 3:
                                                         lastThree = actualMaxs[-3:]
-                                                        print ("Last Three Maximums:")
-                                                        print (lastThree)
+                                                        self.printAndSendMessage ("Last Three Maximums:{:.2f}, {:.2f}, {:.2f}".format(lastThree[0],lastThree[1],lastThree[2]),"Message")
                                                         
                                                         maxDelta = (max(lastThree)-min(lastThree))/float(min(lastThree))
                                                         if maxDelta < requiredAccuracy:
@@ -338,13 +346,9 @@ class PID(object):
                                                                 Kp = 0.6*Ku
                                                                 Ki = 1.2*Ku/float(Pu)
                                                                 Kd = 0.075*Ku*Pu
-                                                                print("Kp")
-                                                                print(Kp)
-                                                                print("Ki")
-                                                                print(Ki)
-                                                                print("Kd")
-                                                                print(Kd)
+                                                                self.printAndSendMessage("Calibration Successful! Kp={:.4f}, Ki={:.4f}, Kd={:.4f}".format(Kp,Ki,Kd),"Success")
                                                                 calibrating == False
+                                                                self.inputPipeConn.send([Kp,Ki,Kd])
                                                                 return
                                         priorMinOrMax = -1
                                 elif comparisonTemp[-1]==max(comparisonTemp):
@@ -353,8 +357,7 @@ class PID(object):
                                         if priorMinOrMax == -1:
                                                 actualMins.append(possibleMins[-1])
                                                 actualMinTimes.append(possibleMinTimes[-1])
-                                                print("Adding actual Min")
-                                                print(possibleMins[-1])
+                                                self.printAndSendMessage("Adding actual Min: {:.2f}".format(possibleMins[-1]),"Message")
                                         priorMinOrMax = 1
 
                         #sets the heat based on if it is above or below the appropriate trigger value
@@ -372,7 +375,7 @@ class PID(object):
 
                         #waits until the next cycle
                         if time.time()*1000 > self.nextCycleStart:
-                                print('Error: I was not able to calculate the next output prior to the next cycle. Please set a longer cycle time (note that cycle time is measured in ms). Stopping the PID.')
+                                self.printAndSendMessage('Error: I was not able to calculate the next output prior to the next cycle. Please set a longer cycle time (note that cycle time is measured in ms). Stopping the PID.',"Error")
                                 return
                         else:
                                 waittime = (self.nextCycleStart - time.time()*1000)/1000
