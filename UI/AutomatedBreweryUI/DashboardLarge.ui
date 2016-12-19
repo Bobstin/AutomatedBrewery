@@ -393,7 +393,7 @@ QPushButton:pressed {
       <x>107</x>
       <y>60</y>
       <width>20</width>
-      <height>210</height>
+      <height>186</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -4791,6 +4791,29 @@ BeerSmith File</string>
      <string>Minutes since startup</string>
     </property>
    </widget>
+   <widget class="QFrame" name="frame_49">
+    <property name="geometry">
+     <rect>
+      <x>107</x>
+      <y>246</y>
+      <width>20</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame {
+	border-width: 6px;
+	border-style: none none none solid;
+	border-color: red;
+}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
    <zorder>HLT</zorder>
    <zorder>BLK</zorder>
    <zorder>MLT</zorder>
@@ -4956,6 +4979,7 @@ BeerSmith File</string>
    <zorder>label_28</zorder>
    <zorder>label_31</zorder>
    <zorder>label_49</zorder>
+   <zorder>frame_49</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
