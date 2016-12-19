@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 import sys
+import pickle
 
 class flowSensors(object):
     def __init__(self,graphSignal,flowPins = [8,7,12,16,20,21],flowNames = ["HLT In","HLT Out","MLT In","MLT Out","BLK In","BLK Out"],sendSeries=True,inputPipe=None):
@@ -28,6 +29,10 @@ class flowSensors(object):
         #defaults the sensor to keep sensing
         self.turnOffSensor = False
 
+        #imports the calibration parameters
+        with open('../calibrations/FlowCalibration.pk1','rb') as FlowCalibration:
+            self.calibration = pickle.load(FlowCalibration)
+
         #starts counting
         self.startTime=time.time()
         self.run()
@@ -48,14 +53,14 @@ class flowSensors(object):
 
                     for i in range(0,6):
                         #For rates, append the counts divided by the time since the last run
-                        self.rates[i][1].append(self.counts[i]/(time.time()-self.lastRun))
+                        self.rates[i][1].append(self.counts[i]*self.calibration[i]/(time.time()-self.lastRun))
                         
                         #Add the time that the data was collected
                         self.rates[i][0].append(time.time()-self.startTime)
 
                         if i<=2:
                             #For totals, just append the total counts
-                            self.totals[i][1].append(self.totalCounts[i])
+                            self.totals[i][1].append(self.totalCounts[i]*self.calibration[i])
                             self.totals[i][0].append(time.time()-self.startTime)
 
                     #resets the counts
