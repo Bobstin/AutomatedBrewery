@@ -4,6 +4,7 @@ import time
 import threading
 from multiprocessing import Pipe
 import sys
+import pickle
 
 #imports sensor modules
 from FlowSensor import flowSensors
@@ -79,7 +80,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     }
 
     QPushButton:pressed {
-        background-color: grey;
+        background-color: rgb(191,191,191);
     }'''
 
     greenSwitchStyle = '''
@@ -89,7 +90,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     }
 
     QPushButton:pressed {
-        background-color: grey;
+        background-color: rgb(191,191,191);
     }'''
     
     autoGreenSwitchStyle = '''
@@ -100,7 +101,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     }
 
     QPushButton:pressed {
-        background-color: grey;
+        background-color: rgb(191,191,191);
     }'''
 
     autoRedSwitchStyle = '''
@@ -111,7 +112,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     }
 
     QPushButton:pressed {
-        background-color: grey;
+        background-color: rgb(191,191,191);
     }'''
 
     pumpOnStyle = '''
@@ -122,7 +123,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     }
 
     QPushButton:pressed {
-        background-color: grey;
+        background-color: rgb(191,191,191);
     }'''
 
     pumpOffStyle = '''
@@ -133,7 +134,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     }
 
     QPushButton:pressed {
-        background-color: grey;
+        background-color: rgb(191,191,191);
     }'''
 
     pumpAutoOnStyle = '''
@@ -144,7 +145,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     }
 
     QPushButton:pressed {
-        background-color: grey;
+        background-color: rgb(191,191,191);
     }'''
 
     pumpAutoOffStyle = '''
@@ -155,7 +156,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     }
 
     QPushButton:pressed {
-        background-color: grey;
+        background-color: rgb(191,191,191);
     }'''
 
     aerationOnStyle = '''
@@ -166,7 +167,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     }
 
     QPushButton:pressed {
-        background-color: grey;
+        background-color: rgb(191,191,191);
     }'''
 
     aerationOffStyle = '''
@@ -177,7 +178,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     }
 
     QPushButton:pressed {
-        background-color: grey;
+        background-color: rgb(191,191,191);
     }'''
 
     aerationAutoOnStyle = '''
@@ -188,7 +189,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     }
 
     QPushButton:pressed {
-        background-color: grey;
+        background-color: rgb(191,191,191);
     }'''
 
     aerationAutoOffStyle = '''
@@ -199,7 +200,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     }
 
     QPushButton:pressed {
-        background-color: grey;
+        background-color: rgb(191,191,191);
     }'''
 
     heatOffStyle = '''
@@ -211,7 +212,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     }
 
     QPushButton:pressed {
-        background-color: grey;
+        background-color: rgb(191,191,191);
     }'''
 
     heatOnStyle = '''
@@ -224,7 +225,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     }
 
     QPushButton:pressed {
-        background-color: grey;
+        background-color: rgb(191,191,191);
     }'''
 
     heatAutoOnStyle = '''
@@ -237,7 +238,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     }
 
     QPushButton:pressed {
-        background-color: grey;
+        background-color: rgb(191,191,191);
     }'''
 
     heatAutoOffStyle = '''
@@ -249,12 +250,199 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     }
 
     QPushButton:pressed {
-        background-color: grey;
+        background-color: rgb(191,191,191);
     }'''
 
     alarmSwitchOffStyle = "color:rgb(203,34,91)"
 
     alarmSwitchOnStyle = "color:rgb(7,155,132)"
+
+    topWaterStyle = '''
+    QFrame {
+        border-width: 6px;
+        border-style: solid none none none;
+        border-color: rgb(0,138,205);
+    }'''
+
+    leftWaterStyle = '''
+    QFrame {
+        border-width: 6px;
+        border-style: none none none solid;
+        border-color: rgb(0,138,205);
+    }'''
+
+    leftRoundWaterStyle = '''
+    QFrame {
+        border-width: 6px;
+        border-style: none none none solid;
+        border-color: rgb(0,138,205);
+        border-radius: 20px;
+    }'''
+
+    chillerWaterStyle = '''
+    QFrame {
+        border-width: 6px;
+        border-style: solid;
+        border-color: rgb(0,138,205);
+    }'''
+
+
+
+    topWortStyle = '''
+    QFrame {
+        border-width: 6px;
+        border-style: solid none none none;
+        border-color: rgb(226,152,21);
+    }'''
+
+    leftWortStyle = '''
+    QFrame {
+        border-width: 6px;
+        border-style: none none none solid;
+        border-color: rgb(226,152,21);
+    }'''
+
+    leftRoundWortStyle = '''
+    QFrame {
+        border-width: 6px;
+        border-style: none none none solid;
+        border-color: rgb(226,152,21);
+        border-radius: 20px;
+    }'''
+
+
+    topOffStyle = '''
+    QFrame {
+        border-width: 6px;
+        border-style: solid none none none;
+        border-color: rgb(191,191,191);
+    }'''
+
+    leftOffStyle = '''
+    QFrame {
+        border-width: 6px;
+        border-style: none none none solid;
+        border-color: rgb(191,191,191);
+    }'''
+
+    leftRoundOffStyle = '''
+    QFrame {
+        border-width: 6px;
+        border-style: none none none solid;
+        border-color: rgb(191,191,191);
+        border-radius: 20px;
+    }'''
+
+    chillerOffStyle = '''
+    QFrame {
+        border-width: 6px;
+        border-style: solid;
+        border-color: rgb(191,191,191);
+    }'''
+
+    #Defines the mapping between liquid paths and frames
+    pathsToFrames = {1:[1],
+                     2:[3,9],
+                     3:[10,11],
+                     4:[8],
+                     5:[7],
+                     6:[5,4],
+                     7:[15,16,40,17],
+                     8:[24],
+                     9:[25],
+                     10:[30],
+                     11:[31,32,20,19,18],
+                     12:[13],
+                     13:[22,21],
+                     14:[35,36,37,23,38,39],
+                     15:[26],
+                     16:[27],
+                     17:[33,34,45],
+                     18:[42,46],
+                     19:[41,44],
+                     20:[28],
+                     21:[6,12],
+                     22:[14],
+                     23:[2],
+                     24:[29],
+                     25:[49]
+    }
+
+    #Defines the frame types (top, left, or left round)
+    frameTypes = {1:"top",
+                  2:"left",
+                  3:"left",
+                  4:"top",
+                  5:"left",
+                  6:"left",
+                  7:"top",
+                  8:"left",
+                  9:"top",
+                  10:"top",
+                  11:"left",
+                  12:"top",
+                  13:"left",
+                  14:"top",
+                  15:"left",
+                  16:"top",
+                  17:"top",
+                  18:"left",
+                  19:"left round",
+                  20:"left",
+                  21:"top",
+                  22:"left",
+                  23:"left round",
+                  24:"top",
+                  25:"top",
+                  26:"top",
+                  27:"top",
+                  28:"left",
+                  29:"left",
+                  30:"top",
+                  31:"left",
+                  32:"top",
+                  33:"left",
+                  34:"top",
+                  35:"left",
+                  36:"top",
+                  37:"left",
+                  38:"left",
+                  39:"top",
+                  40:"left",
+                  41:"left",
+                  42:"top",
+                  43:"none",
+                  44:"left",
+                  45:"left",
+                  46:"left",
+                  47:"none",
+                  48:"none",
+                  49:"left"                  
+    }
+
+    #Defines the mapping between valves and liquidpaths
+    valvesToPaths = {():[[],[]],
+                     (1,):[[1,2,23,25],[]],
+                     (1,3,7):[[1,2,23,25],[]],
+                     (3,4,7):[[2,3,4,5,6],[]],
+                     (3,4):[[2,3,4,5,6],[]],
+                     (4,5,7,8):[[3,4,5,7,21,22],[]],
+                     (4,5,7):[[3,4,5,7,21,22],[]],
+                     (4,5):[[3,4,5,7,21,22],[]],
+                     (3,4,6,7,9):[[2,3,4,5,6,7,8,9,10,11,12,20],[]],
+                     (3,4,6,9):[[2,3,4,5,6,7,8,9,10,11,12,20],[]],
+                     (3,7,8,9):[[],[8,9,10,13,14,20]],
+                     (7,8,9):[[],[8,9,10,13,14,20]],
+                     (4,5,7,8):[[3,4,5,7,21,22],[8,9,10,13,14,20]],
+                     (2,8,10):[[1,19,24],[10,13,15,16,17,18,20]],
+                     (1,4,5,8):[[1,2,3,4,5,7,21,22,23,25],[]],
+                     (1,4,5):[[1,2,3,4,5,7,21,22,23,25],[]],
+                     (6,9):[[7,8,9,10,11,12,20],[]],
+                     (7,8,9):[[],[8,9,10,13,14,20]],
+                     (8,9):[[8,9,10,13,17,18,20],[]]
+    }
+                  
+                     
 
     #Creates the pipes used to talk to the control modules
     heatToHLTPIDPipe, HLTPIDToHeatPipe = Pipe()
@@ -299,6 +487,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.turnOffpHandDOSensing = False
         self.turnOffMainSwitchSensing = False
         self.turnOffValveSwitchSensing = False
+
+        #Defaults the grain added parameter to False
+        self.grainAdded = False
 
         #Creates threads for each of the sensors and controllers
         self.HLTPIDThread = threading.Thread(name='HLTPIDThread',target = self.startHLTPID)
@@ -354,8 +545,11 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.BLKPen = pyqtgraph.mkPen(color = (0,44,119), width = 3)
 
         self.startTime = time.time()
-      
 
+        with open('../calibrations/PIDCalibration.pk1','rb') as PIDCalibration:
+            self.HLTPIDCalibration = pickle.load(PIDCalibration)
+            self.BLKPIDCalibration = pickle.load(PIDCalibration)
+     
         #Starts the above threads
         self.flowThread.start()
         self.volumeThread.start()
@@ -374,6 +568,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     def startHLTPID(self):
         #Note that the PIDs get the temp from the dashboard; this prevents them from also
         #Polling the RTDs, which causes errors
+        time.sleep(2)
         self.HLTPID = PID(self,"HLTTemp")
         self.HLTPID.outputPipeConn = self.HLTPIDToHeatPipe
         self.HLTPID.inputPipeConn = self.HLTPIDToUIPipe
@@ -381,6 +576,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.HLTPID.outputMax = 100
         self.HLTPID.cycleTime = 2000
         self.HLTPID.outputAttributeName = "heatSetting"
+        self.HLTPID.Kp = self.HLTPIDCalibration[0]
+        self.HLTPID.Ki = self.HLTPIDCalibration[1]
+        self.HLTPID.Kd = self.HLTPIDCalibration[2]
         #self.HLTPID.semiAutoValue = 0
         self.HLTPID.mode = "Off"
         #self.HLTPID.tempGraphSignal = self.tempSignal
@@ -390,6 +588,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     def startBLKPID(self):
         #Note that the PIDs get the temp from the dashboard; this prevents them from also
         #Polling the RTDs, which causes errors
+        time.sleep(2)
         self.BLKPID = PID(self,"BLKTemp")
         self.BLKPID.outputPipeConn = self.BLKPIDToHeatPipe
         self.BLKPID.inputPipeConn = self.BLKPIDToUIPipe
@@ -397,6 +596,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.BLKPID.outputMax = 100
         self.BLKPID.cycleTime = 2000
         self.BLKPID.outputAttributeName = "heatSetting"
+        self.BLKPID.Kp = self.BLKPIDCalibration[0]
+        self.BLKPID.Ki = self.BLKPIDCalibration[1]
+        self.BLKPID.Kd = self.BLKPIDCalibration[2]
         #self.BLKPID.semiAutoValue = 0
         self.BLKPID.mode = "Off"
         #self.BLKPID.tempGraphSignal = self.tempSignal
@@ -454,7 +656,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             time.sleep(10)
 
     def flowUpdate(self, flowRateValues, flowTotalValues):
-        self.HLT_In.setText("{:.2f} g/m".format(flowRateValues[0][1][-1]))
+        self.HLT_In.setText("{:.2f} g/m".format(flowRateValues
+[0][1][-1]))
         self.HLT_Out.setText("{:.2f} g/m".format(flowRateValues[1][1][-1]))
         self.MLT_In.setText("{:.2f} g/m".format(flowRateValues[2][1][-1]))
         self.MLT_Out.setText("{:.2f} g/m".format(flowRateValues[3][1][-1]))
@@ -576,6 +779,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def valveSwitchUpdate(self, valveSwitchStates):
         autoValveStates = self.PAVControl.valveStates
+        #print(autoValveStates)
+        #print(valveSwitchStates)
         for i in range(1,11):
             if i in [1,2,4,5,6,9,10]:
                 if valveSwitchStates[i-1]=="On": getattr(self,"valve"+str(i)).setStyleSheet(self.greenSwitchStyle)
@@ -597,6 +802,53 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                     if autoValveStates[i-1] == 1:
                         getattr(self,"valve"+str(i)+"u").setStyleSheet(self.autoGreenSwitchStyle)
                         getattr(self,"valve"+str(i)+"d").setStyleSheet(self.autoRedSwitchStyle)
+
+        #Creates a list of the on valves based on the autoValveStates and ValveSwitchStates
+        onValves = []
+        #print(autoValveStates)
+        for i in range(0,10):
+            if valveSwitchStates[i] == "Auto":
+                if autoValveStates[i] == 1: onValves.append(i+1)
+            elif valveSwitchStates[i] == "On": onValves.append(i+1)
+
+        onValves = tuple(onValves)
+        #print(onValves)
+
+        #if the valves are a known configuration, then assigns the relevant paths
+        if onValves in self.valvesToPaths:
+            if (onValves==(4,3,6,7,9) or onValves==(4,3,6,9)) and self.grainAdded == True:
+                newPaths = [[2,3,4,5,6],[7,8,9,10,11,12,20]]
+            else:
+                newPaths = self.valvesToPaths[onValves]
+        else: newPaths = [[],[]]
+
+        #print(newPaths)
+
+        #updates the stylesheets based on the new paths
+        for i in range(0,25):
+            if i+1 in newPaths[0]:
+                for frame in self.pathsToFrames[i+1]:
+                    #print(frame)
+                    if self.frameTypes[frame] == "top":getattr(self,"frame_"+str(frame)).setStyleSheet(self.topWaterStyle)
+                    elif self.frameTypes[frame] == "left": getattr(self,"frame_"+str(frame)).setStyleSheet(self.leftWaterStyle)
+                    elif self.frameTypes[frame] == "left round": getattr(self,"frame_"+str(frame)).setStyleSheet(self.leftRoundWaterStyle)
+
+                #for path 19, also change the chiller color (only needed for water and off, since no wort goes through the chiller's water coil)
+                if i+1 == 19: self.chiller.setStyleSheet(self.chillerWaterStyle)
+            elif i+1 in newPaths[1]:
+                for frame in self.pathsToFrames[i+1]:
+                    if self.frameTypes[frame] == "top": getattr(self,"frame_"+str(frame)).setStyleSheet(self.topWortStyle)
+                    elif self.frameTypes[frame] == "left": getattr(self,"frame_"+str(frame)).setStyleSheet(self.leftWortStyle)
+                    elif self.frameTypes[frame] == "left round": getattr(self,"frame_"+str(frame)).setStyleSheet(self.leftRoundWortStyle)
+            else:
+                for frame in self.pathsToFrames[i+1]:
+                    if self.frameTypes[frame] == "top": getattr(self,"frame_"+str(frame)).setStyleSheet(self.topOffStyle)
+                    elif self.frameTypes[frame] == "left": getattr(self,"frame_"+str(frame)).setStyleSheet(self.leftOffStyle)
+                    elif self.frameTypes[frame] == "left round": getattr(self,"frame_"+str(frame)).setStyleSheet(self.leftRoundOffStyle)
+
+                #for path 19, also change the chiller color (only needed for water and off, since no wort goes through the chiller's water coil)
+                if i+1 == 19: self.chiller.setStyleSheet(self.chillerOffStyle)
+                
 
     def interruptedMainSwitch(self,pin):
         mainSwitchStates = self.mainSwitchSensor.allMainSwitchStates()
@@ -700,6 +952,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             
 
     def closeEvent(self, *args, **kwargs):
+        print("Beginning system shutdown")
         #Closes all valves:
         for i in [1,11]: setattr(self.PAVControl,"valve"+str(i),0)
 
@@ -737,10 +990,13 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #time.sleep(10)
         #print(threading.enumerate())
-        
+
         super(dashboard, self).closeEvent
 
-        print("System exited successfully!")
+        #hile len(threading.enumerate()) > 1:
+            #time.sleep(1)
+
+        #print("System exited successfully!")
 
     def beerSmithImportDialog(self):
         self.beerSmithImportDialog = importDialog(self.importSignal)
