@@ -145,7 +145,7 @@ QProgressBar::chunk {
      <string>%v gal</string>
     </property>
    </widget>
-   <widget class="QFrame" name="frame">
+   <widget class="QFrame" name="frame_1">
     <property name="geometry">
      <rect>
       <x>80</x>
@@ -4840,7 +4840,7 @@ BeerSmith File</string>
    <zorder>frame_27</zorder>
    <zorder>frame_28</zorder>
    <zorder>frame_29</zorder>
-   <zorder>frame</zorder>
+   <zorder>frame_1</zorder>
    <zorder>wortPump</zorder>
    <zorder>frame_30</zorder>
    <zorder>frame_31</zorder>
