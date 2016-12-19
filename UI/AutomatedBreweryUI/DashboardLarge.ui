@@ -1558,7 +1558,7 @@ QPushButton:pressed {
      <enum>QFrame::Raised</enum>
     </property>
    </widget>
-   <widget class="QFrame" name="water_2">
+   <widget class="QFrame" name="chiller">
     <property name="geometry">
      <rect>
       <x>90</x>
@@ -1569,7 +1569,9 @@ QPushButton:pressed {
     </property>
     <property name="styleSheet">
      <string notr="true">QFrame {
-	border:6px solid grey
+	border-width: 6px;
+	border-style: solid;
+	border-color: red;
 }</string>
     </property>
     <property name="frameShape">
@@ -4814,6 +4816,7 @@ BeerSmith File</string>
      <enum>QFrame::Raised</enum>
     </property>
    </widget>
+   <zorder>frame_14</zorder>
    <zorder>HLT</zorder>
    <zorder>BLK</zorder>
    <zorder>MLT</zorder>
@@ -4844,7 +4847,6 @@ BeerSmith File</string>
    <zorder>frame_13</zorder>
    <zorder>valve5</zorder>
    <zorder>frame_15</zorder>
-   <zorder>frame_14</zorder>
    <zorder>frame_17</zorder>
    <zorder>frame_18</zorder>
    <zorder>frame_20</zorder>
@@ -4874,7 +4876,7 @@ BeerSmith File</string>
    <zorder>frame_37</zorder>
    <zorder>frame_23</zorder>
    <zorder>frame_39</zorder>
-   <zorder>water_2</zorder>
+   <zorder>chiller</zorder>
    <zorder>frame_41</zorder>
    <zorder>frame_44</zorder>
    <zorder>frame_45</zorder>
