@@ -5011,6 +5011,65 @@ BeerSmith File</string>
    <header>pyqtgraph</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>HLT_Fill_1_Target</tabstop>
+  <tabstop>Strike_Target</tabstop>
+  <tabstop>HLT_Fill_2_Target</tabstop>
+  <tabstop>Sparge_Target</tabstop>
+  <tabstop>Pre_Boil_Target</tabstop>
+  <tabstop>Post_Boil_Target</tabstop>
+  <tabstop>Fermenter_Target</tabstop>
+  <tabstop>Strike_Temp</tabstop>
+  <tabstop>HLT_Fill_2_Temp</tabstop>
+  <tabstop>Sparge_Temp</tabstop>
+  <tabstop>valve8d</tabstop>
+  <tabstop>valve8u</tabstop>
+  <tabstop>valve10</tabstop>
+  <tabstop>wortPump</tabstop>
+  <tabstop>graph1</tabstop>
+  <tabstop>graph2</tabstop>
+  <tabstop>HLT_Heat</tabstop>
+  <tabstop>BLK_Heat</tabstop>
+  <tabstop>phase1</tabstop>
+  <tabstop>phase2</tabstop>
+  <tabstop>phase3</tabstop>
+  <tabstop>phase4</tabstop>
+  <tabstop>phase5</tabstop>
+  <tabstop>phase9</tabstop>
+  <tabstop>phase6</tabstop>
+  <tabstop>phase10</tabstop>
+  <tabstop>phase7</tabstop>
+  <tabstop>phase8</tabstop>
+  <tabstop>valve1</tabstop>
+  <tabstop>Strike_Actual</tabstop>
+  <tabstop>valve3d</tabstop>
+  <tabstop>Sparge_Actual</tabstop>
+  <tabstop>waterPump</tabstop>
+  <tabstop>Pre_Boil_Actual</tabstop>
+  <tabstop>valve4</tabstop>
+  <tabstop>Post_Boil_Actual</tabstop>
+  <tabstop>HLT_Fill_1_Actual</tabstop>
+  <tabstop>valve2</tabstop>
+  <tabstop>valve3u</tabstop>
+  <tabstop>HLT_Fill_2_Actual</tabstop>
+  <tabstop>valve5</tabstop>
+  <tabstop>Fermenter_Actual</tabstop>
+  <tabstop>valve6</tabstop>
+  <tabstop>valve7u</tabstop>
+  <tabstop>valve7d</tabstop>
+  <tabstop>Notes</tabstop>
+  <tabstop>Messages</tabstop>
+  <tabstop>Turn_Off_Alarm</tabstop>
+  <tabstop>Pause</tabstop>
+  <tabstop>E_Stop</tabstop>
+  <tabstop>MLT_Heat</tabstop>
+  <tabstop>master_Heat</tabstop>
+  <tabstop>aeration</tabstop>
+  <tabstop>valve9</tabstop>
+  <tabstop>Beersmith_Import</tabstop>
+  <tabstop>Boil_Steps</tabstop>
+  <tabstop>Mash_Steps</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
