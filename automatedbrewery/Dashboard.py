@@ -75,6 +75,10 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
     messageSignal = QtCore.pyqtSignal(str,str)
 
+    lockFieldSignal = QtCore.pyqtSignal(str,bool)
+    actualValueSignal = QtCore.pyqtSignal(str,str)
+    phaseButtonStylesSignal = QtCore.pyqtSignal(int)
+
     redSwitchStyle = '''
     QPushButton {
         border-radius: 0px;
@@ -380,6 +384,18 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         color: grey;
     }'''
 
+    lockedInputStyle = '''
+    QLineEdit {
+        background-color: rgb(229,229,229);
+        font: 12pt "Arial";
+    }'''
+
+    unlockedInputStyle = '''
+    QLineEdit {
+        background-color: rgb(255,255,255);
+        font: 12pt "Arial";
+    }'''
+
     redBrush = QtGui.QBrush(QtCore.Qt.SolidPattern)
     redBrush.setColor(QtGui.QColor(203,34,91))
 
@@ -492,8 +508,11 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                      (7,8,9):[[],[8,9,10,13,14,20]],
                      (8,9):[[8,9,10,13,17,18,20],[]]
     }
-                 
-                     
+
+    #Defines the list of targets and actuals
+    targets = ["HLT_Fill_1_Target","Strike_Target","HLT_Fill_2_Target","Sparge_Target","Pre_Boil_Target","Post_Boil_Target","Fermenter_Target","Strike_Temp","HLT_Fill_2_Temp","Sparge_Temp"]
+    actuals = ["HLT_Fill_1_Actual","Strike_Actual","HLT_Fill_2_Actual","Sparge_Actual","Pre_Boil_Actual","Post_Boil_Actual","Fermenter_Actual"]
+                                    
 
     #Creates the pipes used to talk to the control modules
     heatToHLTPIDPipe, HLTPIDToHeatPipe = Pipe()
@@ -525,12 +544,33 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.importSignal.connect(self.beerSmithImport)
         self.heatGraphSignal.connect(self.updateHeatGraph)
         self.messageSignal.connect(self.printAndSendMessage)
+        self.lockFieldSignal.connect(self.lockField)
+        self.actualValueSignal.connect(self.setActualValue)
+        self.phaseButtonStylesSignal.connect(self.setPhaseButtonStyles)
 
         #Starts up the UI and sets some default states
         self.setupUi(self)
         self.Messages.clear()
+
+        #Sets default phase button styles
         for i in range(1,11):
             getattr(self,"phase"+str(i)).setStyleSheet(self.futurePhaseStyle)
+
+        #Sets default input styles
+        for target in self.targets:
+            getattr(self,target).setStyleSheet(self.unlockedInputStyle)
+            getattr(self,target).setReadOnly(False)
+
+        for actual in self.actuals:
+            getattr(self,actual).setStyleSheet(self.lockedInputStyle)
+            getattr(self,actual).setReadOnly(True)
+
+        self.HLT_Fill_1_Target.setText("1 gal")
+        self.Strike_Target.setText("1 gal")
+        self.HLT_Fill_2_Target.setText("1 gal")
+        self.Strike_Temp.setText("70 F")
+        self.HLT_Fill_2_Temp.setText("70 F")
+            
             
         self.show()
 
@@ -761,6 +801,12 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.BLK_Out.setText("{:.2f} g/m".format(flowRateValues[5][1][-1]))
 
     def volumeUpdate(self, volumeValues):
+        #stores the numerical values for easier reading
+        self.HLTVolume = volumeValues[0]
+        self.MLTVolume = volumeValues[1]
+        self.BLKVolume = volumeValues[2]
+
+        #Sets the text labels on the UI
         self.HLT_Vol.setText("{:.2f} gal".format(volumeValues[0]))
         self.MLT_Vol.setText("{:.2f} gal".format(volumeValues[1]))
         self.BLK_Vol.setText("{:.2f} gal".format(volumeValues[2]))
@@ -1086,11 +1132,54 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             mainSwitchStates = self.mainSwitchSensor.allMainSwitchStates()
             self.mainSwitchSignal.emit(mainSwitchStates)
 
+    def getVolumeInput(self,inputToCheck):
+        if getattr(self,inputToCheck).text()[-4:]!=" gal":
+            self.messageSignal.emit("Error: {} does not end in ' gal'. Press the phase {} button once resolved to try again".format(inputToCheck,self.phaseRunning),"Alarm")
+            self.phaseRunning = None
+            return None
+        try:
+            result = float(getattr(self,inputToCheck).text()[:-4])
+            return result
+        except:
+            self.messageSignal.emit("Error: {} appears to be invalid. Press the phase{} button once resolved to try again".format(inputToCheck,self.phaseRunning),"Alarm")
+            self.phaseRunning = None
+            return None
+
+    def getTempInput(self,inputToCheck):
+        if getattr(self,inputToCheck).text()[-2:]!=" F":
+            self.messageSignal.emit("Error: {} does not end in ' F'. Press the phase {} button once resolved to try again".format(inputToCheck,self.phaseRunning),"Alarm")
+            self.phaseRunning = None
+            return None
+        try:
+            result = float(getattr(self,inputToCheck).text()[:-2])
+            return result
+        except:
+            self.messageSignal.emit("Error: {} appears to be invalid. Press the phase{} button once resolved to try again".format(inputToCheck,self.phaseRunning),"Alarm")
+            self.phaseRunning = None
+            return None
+
+    def lockField(self,targetField,lock):
+        if lock==True:
+            getattr(self,targetField).setStyleSheet(self.lockedInputStyle)
+            getattr(self,targetField).setReadOnly(True)
+        elif lock==False:
+            getattr(self,targetField).setStyleSheet(self.unlockedInputStyle)
+            getattr(self,targetField).setReadOnly(False)
+
+    def setActualValue(self,field,value):
+        getattr(self,field).setText(value)
+
+    def setPhaseButtonStyles(self,phase):
+            for i in range(1,phase): getattr(self,"phase"+str(i)).setStyleSheet(self.pastPhaseStyle)
+            getattr(self,"phase"+str(phase)).setStyleSheet(self.currentPhaseStyle)
+            for i in range(phase+1,11): getattr(self,"phase"+str(i)).setStyleSheet(self.futurePhaseStyle)
+
     def startPhase(self,phase):
         #If currently staging a new phase, throws a warning
         if self.currentlyStagingPhase == True:
-            self.printAndSendMessage("Warning: currently starting a new phase. Please wait a few seconds and try again. NOT starting phase {}".format(phase),"Warning")
+            self.messageSignal.emit("Warning: currently starting a new phase. Please wait a few seconds and try again. NOT starting phase {}".format(phase),"Warning")
             return
+        
         #Creates and starts a staging thread with the proper phase
         threading.Thread(name='phaseStagingThread',target = self.phaseStaging,args=(phase,)).start()
     
@@ -1106,90 +1195,113 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #Updates the phase button colors
         if phase != None:
-            for i in range(1,phase): getattr(self,"phase"+str(i)).setStyleSheet(self.pastPhaseStyle)
-            getattr(self,"phase"+str(phase)).setStyleSheet(self.currentPhaseStyle)
-            for i in range(phase+1,11): getattr(self,"phase"+str(i)).setStyleSheet(self.futurePhaseStyle)
+            self.phaseButtonStylesSignal.emit(phase)
+
+        #marks the staging as complete
+        self.currentlyStagingPhase = False
 
         #creates and starts a thread for the new phase
         self.stopPhase = False
         self.phaseRunning = phase
         threading.Thread(name='phase'+str(phase)+'Thread',target = getattr(self,'startPhase'+str(phase))).start()
-
-        #marks the staging as complete
-        self.currentlyStagingPhase = False            
             
-    def startPhase1(self):
-        #checks that all needed parameters are set
-        if self.HLT_Fill_1_Target.text()[-4:]!=" gal":
-            self.messageSignal.emit("Error: HLT Fill 1 does not end in ' gal'. Press the phase 1 button once resolved to try again","Alarm")
-            self.phaseRunning = None
-            return
+    def standardPhase(self,phase,phaseType,targetField,startValveStates,endValveStates,pumpAerationStates,kettle):
+        #Gets the input needed for the phase
+        if phaseType == "Fill" or phaseType == "Drain": target = self.getVolumeInput(targetField)
+        elif phaseType == "Heat": target = self.getTempInput(targetField)
        
-        try:
-            HLTFill1Target = float(self.HLT_Fill_1_Target.text()[:-4])
-        except:
-            self.messageSignal.emit("Error: HLT fill 1 appears to be invalid. Press the phase 1 button once resolved to try again","Alarm")
+        #If failed to get the needed input, returns
+        if target == None: return
+
+        #Locks the inputs used
+        self.lockFieldSignal.emit(targetField,True)
+        
+        #For heat targets, checks that the temperature is not an error
+        if phaseType == "Heat":
+            if float(getattr(self,kettle+"_Heat").text()[14:17]) == 999 or float(getattr(self,kettle+"_Heat").text()[14:17]) == 0:
+                self.messageSignal.emit("Error: {} temperature seems to be invalid. Press the phase {} button once resolved to try again".format(kettle,phase),"Alarm")
+                self.phaseRunning = None
+                return
+
+        #If requirements not met, skips the remainder of the phase
+        if self.phaseRunning != None:
+            self.messageSignal.emit("Starting Phase {}".format(phase),"Message")
+
+            #opens the valves to the correct state     
+            self.PAVControl.valveStates = startValveStates
+
+            #waits 5 seconds for the valves to change positions
+            time.sleep(5)
+
+            #starts the pumps
+            self.PAVControl.waterPump = pumpAerationStates[0]
+            self.PAVControl.wortPump = pumpAerationStates[1]
+            self.PAVControl.aeration = pumpAerationStates[2]
+
+            #For heat targets, turns on the heat. Note that if the MLT is being heated, we actually apply heat to the HLT (the MLT is heated though HERMS)
+            if phaseType == "Heat":
+                if kettle == "MLT":
+                    self.setHeatSignal.emit("HLT","Auto",target)
+                else:
+                    self.setHeatSignal.emit(kettle,"Auto",target)
+
+            #Waits until target is hit
+            if phaseType == "Fill":  
+                while getattr(self,kettle+"Volume")<target and self.stopPhase == False:
+                    time.sleep(.5)
+            elif phaseType == "Drain":
+                while getattr(self,kettle+"Volume")>target and self.stopPhase == False:
+                    time.sleep(.5)
+            elif phaseType == "Heat":
+                while getattr(self,kettle+"Temp")<target and self.stopPhase == False:
+                    time.sleep(.5)
+       
+            #For fills, stores the volume that was hit, and prints a message. For heat, just prints a message
+            if phaseType == "Fill":
+                self.actualValueSignal.emit(targetField[:-6]+"Actual","{:.2f} gal".format(getattr(self,kettle+"Volume")))
+                self.messageSignal.emit("{} filled to {:.2f} gal".format(kettle,getattr(self,kettle+"Volume")),"Message")
+            elif phaseType == "Heat":
+                self.messageSignal.emit("{} heated to {:.0f} F".format(kettle,getattr(self,kettle+"Temp")),"Message")
+
+            #turns off the heat and pumps/aeration
+            if kettle == "MLT":
+                self.setHeatSignal.emit("HLT","Off",0)
+            else:
+                self.setHeatSignal.emit(kettle,"Off",0)
+            self.PAVControl.waterPump = 0
+            self.PAVControl.wortPump = 0
+            self.PAVControl.aeration = 0
+
+            #for safety, closes the valves to the endValveStates
+            self.PAVControl.valveStates = endValveStates
+
+            #Notes that this phase is complete (otherwise other phases won't start)
             self.phaseRunning = None
-            return
 
+            #If it stopped naturally, then starts next phase, otherwise sends an alarm
+            if self.stopPhase == False:
+                self.messageSignal.emit("Phase {} complete! Beginning phase {}.\n".format(phase,phase+1),"Success")
+                self.startPhase(phase+1)
+            else: self.messageSignal.emit("Manually stopping phase {}".format(phase),"Alarm")
 
-        #opens the valves to the correct state     
-        self.PAVControl.valveStates = [1,0,1,0,0,0,1,0,0,0]
-
-        #waits until the HLT is filled  
-        while float(self.HLT_Vol.text()[:-4])<HLTFill1Target and self.stopPhase == False:
-            time.sleep(.5)
-
-        #for safety, closes valve 1 once filling is complete
-        self.PAVControl.valveStates = [0,0,1,0,0,0,1,0,0,0]
-
-        #Notes that this phase is complete (otherwise other phases won't start)
-        self.phaseRunning = None
-
-        #If it stopped naturally, then starts phase 2, otherwise sends an alarm
-        if self.stopPhase == False:
-            self.messageSignal.emit("Phase 1 complete! Beginning phase 2.","Success")
-            self.startPhase(2)
-        else: self.messageSignal.emit("Manually stopping phase 1","Alarm")
+    def startPhase1(self):
+        self.standardPhase(1,"Fill","HLT_Fill_1_Target",[1,0,1,0,0,0,1,0,0,0],[0,0,1,0,0,0,1,0,0,0],[0,0,0],"HLT")
 
     def startPhase2(self):
-        if self.Strike_Temp.text()[-2:]!=" F":
-            print(self.Strike_Temp.text()[-2:])
-            self.messageSignal.emit("Error: Strike Temp does not end in ' F'. Press the phase 2 button once resolved to try again","Alarm")
-            self.phaseRunning = None
-            return
+        self.standardPhase(2,"Heat","Strike_Temp",[0,0,1,1,0,0,1,0,0,0],[0,0,1,1,0,0,1,0,0,0],[1,0,0],"HLT")
 
-        try:
-            strikeTempTarget = float(self.Strike_Temp.text()[:-2])
-        except:
-            self.messageSignal.emit("Strike Temp appears to be invalid. Press the phase 2 button once resolved to try again","Alarm")
-            self.phaseRunning = None
-            return
+    def startPhase3(self):
+        self.standardPhase(3,"Fill","Strike_Target",[0,0,0,1,1,0,1,0,0,0],[0,0,1,1,1,0,1,0,0,0],[1,0,0],"MLT")
 
-        #checks that the current HLT tempurature is not an error
-        if float(self.HLT_Heat.text()[14:17]) == 999 or float(self.HLT_Heat.text()[14:17]) == 0:
-            self.messageSignal.emit("Error: HLT temperature seems to be invalid. Press the phase 2 button once resolved to try again","Alarm")
-            self.phaseRunning = None
-            return
+    def startPhase4(self):
+        self.standardPhase(4,"Fill","HLT_Fill_2_Target",[1,0,1,0,0,0,1,0,0,0],[0,0,1,0,0,0,1,0,0,0],[0,0,0],"HLT")
 
-        #opens the valves to the correct state     
-        self.PAVControl.valveStates = [0,0,1,1,0,0,1,0,0,0]
+    def startPhase5(self):
+        self.standardPhase(5,"Heat","HLT_Fill_2_Temp",[0,0,1,1,0,1,1,0,1,0],[0,0,1,1,0,1,1,0,1,0],[1,1,0],"MLT")
 
-        #starts the water pump
-        self.PAVControl.waterPump = 1
 
-        #waits until the tempurature of the HLT reaches the strike temp
-        while float(self.HLT_Heat.text()[14:17]) < strikeTempTarget and self.stopPhase == False:
-            time.sleep(.5)
 
-        #Notes that this phase is complete (otherwise other phases won't start)
-        self.phaseRunning = None
 
-        #If it stopped naturally, then starts phase 2, otherwise sends an alarm
-        if self.stopPhase == False:
-            self.messageSignal.emit("Phase 2 complete! Beginning phase 3.","Success")
-            self.startPhase(3)
-        else: self.messageSignal.emit("Manually stopping phase 1","Alarm")
 
         
             
