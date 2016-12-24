@@ -597,6 +597,15 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #Connects the phase control buttons
         self.phase1.clicked.connect(lambda: self.startPhase(1))
+        self.phase2.clicked.connect(lambda: self.startPhase(2))
+        self.phase3.clicked.connect(lambda: self.startPhase(3))
+        self.phase4.clicked.connect(lambda: self.startPhase(4))
+        self.phase5.clicked.connect(lambda: self.startPhase(5))
+        self.phase6.clicked.connect(lambda: self.startPhase(6))
+        self.phase7.clicked.connect(lambda: self.startPhase(7))
+        self.phase8.clicked.connect(lambda: self.startPhase(8))
+        self.phase9.clicked.connect(lambda: self.startPhase(9))
+        self.phase10.clicked.connect(lambda: self.startPhase(10))
 
         #defaults the kettle setting to none
         self.kettleSetting = "None"
@@ -1087,7 +1096,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     
 
     def phaseStaging(self,phase):
-        #Stores the fact that staging is going on, and instructs the currently running phase to stop
+        #Stores the fact that staging is going on, and instructs the currently running phase to stop (if any)
         self.currentlyStagingPhase=True
         self.stopPhase = True
 
@@ -1119,9 +1128,10 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         try:
             HLTFill1Target = float(self.HLT_Fill_1_Target.text()[:-4])
         except:
-            self.printAndSendMessage("Error: HLT fill 1 appears to be invalid. Press the phase 1 button once resolved to try again","Alarm")
+            self.messageSignal.emit("Error: HLT fill 1 appears to be invalid. Press the phase 1 button once resolved to try again","Alarm")
             self.phaseRunning = None
             return
+
 
         #opens the valves to the correct state     
         self.PAVControl.valveStates = [1,0,1,0,0,0,1,0,0,0]
@@ -1130,7 +1140,59 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         while float(self.HLT_Vol.text()[:-4])<HLTFill1Target and self.stopPhase == False:
             time.sleep(.5)
 
+        #for safety, closes valve 1 once filling is complete
+        self.PAVControl.valveStates = [0,0,1,0,0,0,1,0,0,0]
+
+        #Notes that this phase is complete (otherwise other phases won't start)
         self.phaseRunning = None
+
+        #If it stopped naturally, then starts phase 2, otherwise sends an alarm
+        if self.stopPhase == False:
+            self.messageSignal.emit("Phase 1 complete! Beginning phase 2.","Success")
+            self.startPhase(2)
+        else: self.messageSignal.emit("Manually stopping phase 1","Alarm")
+
+    def startPhase2(self):
+        if self.Strike_Temp.text()[-2:]!=" F":
+            print(self.Strike_Temp.text()[-2:])
+            self.messageSignal.emit("Error: Strike Temp does not end in ' F'. Press the phase 2 button once resolved to try again","Alarm")
+            self.phaseRunning = None
+            return
+
+        try:
+            strikeTempTarget = float(self.Strike_Temp.text()[:-2])
+        except:
+            self.messageSignal.emit("Strike Temp appears to be invalid. Press the phase 2 button once resolved to try again","Alarm")
+            self.phaseRunning = None
+            return
+
+        #checks that the current HLT tempurature is not an error
+        if float(self.HLT_Heat.text()[14:17]) == 999 or float(self.HLT_Heat.text()[14:17]) == 0:
+            self.messageSignal.emit("Error: HLT temperature seems to be invalid. Press the phase 2 button once resolved to try again","Alarm")
+            self.phaseRunning = None
+            return
+
+        #opens the valves to the correct state     
+        self.PAVControl.valveStates = [0,0,1,1,0,0,1,0,0,0]
+
+        #starts the water pump
+        self.PAVControl.waterPump = 1
+
+        #waits until the tempurature of the HLT reaches the strike temp
+        while float(self.HLT_Heat.text()[14:17]) < strikeTempTarget and self.stopPhase == False:
+            time.sleep(.5)
+
+        #Notes that this phase is complete (otherwise other phases won't start)
+        self.phaseRunning = None
+
+        #If it stopped naturally, then starts phase 2, otherwise sends an alarm
+        if self.stopPhase == False:
+            self.messageSignal.emit("Phase 2 complete! Beginning phase 3.","Success")
+            self.startPhase(3)
+        else: self.messageSignal.emit("Manually stopping phase 1","Alarm")
+
+        
+            
         
             
 
