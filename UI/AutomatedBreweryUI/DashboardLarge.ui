@@ -2902,9 +2902,9 @@ QPushButton:pressed {
     <property name="geometry">
      <rect>
       <x>1290</x>
-      <y>650</y>
-      <width>291</width>
-      <height>361</height>
+      <y>870</y>
+      <width>611</width>
+      <height>141</height>
      </rect>
     </property>
    </widget>
@@ -2912,7 +2912,7 @@ QPushButton:pressed {
     <property name="geometry">
      <rect>
       <x>1290</x>
-      <y>620</y>
+      <y>840</y>
       <width>71</width>
       <height>21</height>
      </rect>
@@ -2936,10 +2936,10 @@ QPushButton:pressed {
    <widget class="QListWidget" name="Messages">
     <property name="geometry">
      <rect>
-      <x>1610</x>
+      <x>1290</x>
       <y>651</y>
-      <width>291</width>
-      <height>321</height>
+      <width>611</width>
+      <height>171</height>
      </rect>
     </property>
     <item>
@@ -3002,7 +3002,7 @@ QPushButton:pressed {
    <widget class="QLabel" name="label_25">
     <property name="geometry">
      <rect>
-      <x>1610</x>
+      <x>1290</x>
       <y>620</y>
       <width>111</width>
       <height>21</height>
@@ -3028,7 +3028,7 @@ QPushButton:pressed {
     <property name="geometry">
      <rect>
       <x>1610</x>
-      <y>980</y>
+      <y>610</y>
       <width>291</width>
       <height>31</height>
      </rect>
@@ -3644,7 +3644,7 @@ QPushButton:pressed {
    <widget class="QLabel" name="alarm_Text">
     <property name="geometry">
      <rect>
-      <x>1870</x>
+      <x>1550</x>
       <y>620</y>
       <width>51</width>
       <height>21</height>
@@ -3669,7 +3669,7 @@ QPushButton:pressed {
    <widget class="QLabel" name="label_21">
     <property name="geometry">
      <rect>
-      <x>1760</x>
+      <x>1440</x>
       <y>620</y>
       <width>121</width>
       <height>21</height>
