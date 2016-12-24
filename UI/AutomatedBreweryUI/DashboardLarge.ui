@@ -1801,12 +1801,12 @@ QPushButton:pressed {
      <string notr="true">QPushButton {
     border-radius: 0px;
     background-color: rgb(191, 191, 191);
-	color:grey;
+	color: rgb(143, 143, 143);
 	font: 12pt &quot;Arial&quot;;
 }
 
 QPushButton:pressed {
-    background-color: grey;
+    background-color: rgb(143, 143, 143);
 }</string>
     </property>
     <property name="text">
@@ -2751,7 +2751,7 @@ QPushButton:pressed {
    <widget class="QLabel" name="label_14">
     <property name="geometry">
      <rect>
-      <x>1110</x>
+      <x>980</x>
       <y>240</y>
       <width>121</width>
       <height>21</height>
@@ -2826,9 +2826,9 @@ QPushButton:pressed {
    <widget class="QLabel" name="Mash_Timer">
     <property name="geometry">
      <rect>
-      <x>1210</x>
+      <x>1080</x>
       <y>240</y>
-      <width>51</width>
+      <width>181</width>
       <height>21</height>
      </rect>
     </property>
@@ -2845,15 +2845,15 @@ QPushButton:pressed {
      <string notr="true"/>
     </property>
     <property name="text">
-     <string>99:99</string>
+     <string>0 hrs 0 mins 0 secs</string>
     </property>
    </widget>
    <widget class="QLabel" name="Boil_Timer">
     <property name="geometry">
      <rect>
-      <x>1210</x>
+      <x>1080</x>
       <y>620</y>
-      <width>51</width>
+      <width>181</width>
       <height>21</height>
      </rect>
     </property>
@@ -2870,13 +2870,13 @@ QPushButton:pressed {
      <string notr="true"/>
     </property>
     <property name="text">
-     <string>99:99</string>
+     <string>0 hrs 0 mins 0 secs</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_23">
     <property name="geometry">
      <rect>
-      <x>1110</x>
+      <x>980</x>
       <y>620</y>
       <width>121</width>
       <height>21</height>
