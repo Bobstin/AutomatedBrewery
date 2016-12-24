@@ -192,8 +192,10 @@ class PID(object):
 
                         #calculates the result based on the parameters and error
                         #output is limited to be no larger than outputMax and no smaller than outputMin
-                        self.output = self.Kp*error + self.integralTerm - self.Kd*dInput
-                        self.output = max(min(self.output,self.outputMax),self.outputMin)
+                        output = self.Kp*error + self.integralTerm - self.Kd*dInput
+                        #print(output)
+                        self.output = max(min(output,self.outputMax),self.outputMin)
+                        #print(self.output)
                         #self.printAndSendMessage(self.output,"Message")
 
                         #preserves some values for the next run

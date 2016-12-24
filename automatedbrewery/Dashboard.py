@@ -73,6 +73,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
     heatGraphSignal = QtCore.pyqtSignal(float,float,str)
 
+    messageSignal = QtCore.pyqtSignal(str,str)
+
     redSwitchStyle = '''
     QPushButton {
         border-radius: 0px;
@@ -340,6 +342,55 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         border-color: rgb(191,191,191);
     }'''
 
+    pastPhaseStyle = '''
+    QPushButton {
+        border-radius: 0px;
+        background-color: rgb(191,191,191);
+        color:grey;
+        font: 12pt "Arial";
+    }
+
+    QPushButton::pressed {
+        background-color: rgb(191,191,191);
+        color: rgb(191,191,191);
+    }'''
+
+    currentPhaseStyle = '''
+    QPushButton {
+        border-radius: 0px;
+        background-color: rgb(0,138,179);
+        color:white;
+        font: 12pt "Arial";
+    }
+
+    QPushButton::pressed {
+        background-color: rgb(191,191,191);
+        color: grey;
+    }'''
+
+    futurePhaseStyle = '''
+    QPushButton {
+        border-radius: 0px;
+        background-color: rgb(196,236,244);
+        font: 12pt "Arial";
+    }
+
+    QPushButton::pressed {
+        background-color: rgb(191,191,191);
+        color: grey;
+    }'''
+
+    redBrush = QtGui.QBrush(QtCore.Qt.SolidPattern)
+    redBrush.setColor(QtGui.QColor(203,34,91))
+
+    greenBrush = QtGui.QBrush(QtCore.Qt.SolidPattern)
+    greenBrush.setColor(QtGui.QColor(7,155,132))
+
+    whiteBrush = QtGui.QBrush(QtCore.Qt.SolidPattern)
+    whiteBrush.setColor(QtGui.QColor(255,255,255))
+
+
+
     #Defines the mapping between liquid paths and frames
     pathsToFrames = {1:[1],
                      2:[3,9],
@@ -441,7 +492,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                      (7,8,9):[[],[8,9,10,13,14,20]],
                      (8,9):[[8,9,10,13,17,18,20],[]]
     }
-                  
+                 
                      
 
     #Creates the pipes used to talk to the control modules
@@ -472,10 +523,15 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.valveSwitchSignal.connect(self.valveSwitchUpdate)
         self.setHeatSignal.connect(self.setHeat)
         self.importSignal.connect(self.beerSmithImport)
-        self.heatGraphSignal.connect(self.updateHeatGraph)        
+        self.heatGraphSignal.connect(self.updateHeatGraph)
+        self.messageSignal.connect(self.printAndSendMessage)
 
-        #Starts up the UI
+        #Starts up the UI and sets some default states
         self.setupUi(self)
+        self.Messages.clear()
+        for i in range(1,11):
+            getattr(self,"phase"+str(i)).setStyleSheet(self.futurePhaseStyle)
+            
         self.show()
 
         self.Mash_Steps.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
@@ -490,6 +546,11 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #Defaults the grain added parameter to False
         self.grainAdded = False
+
+        #Sets default state for the phase threads
+        self.currentlyStagingPhase = False
+        self.stopPhase = False
+        self.phaseRunning = None
 
         #Creates threads for each of the sensors and controllers
         self.HLTPIDThread = threading.Thread(name='HLTPIDThread',target = self.startHLTPID)
@@ -531,6 +592,12 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         #Connects the import button
         self.Beersmith_Import.clicked.connect(self.beerSmithImportDialog)
 
+        #Connects the alarm off button
+        self.Turn_Off_Alarm.clicked.connect(self.turnOffAlarm)
+
+        #Connects the phase control buttons
+        self.phase1.clicked.connect(lambda: self.startPhase(1))
+
         #defaults the kettle setting to none
         self.kettleSetting = "None"
 
@@ -564,6 +631,23 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.HLTPIDThread.start()
         self.BLKPIDThread.start()
+
+    def printAndSendMessage(self,message,messageType):
+        print(message)
+        self.newMessage(message,messageType)
+
+    def newMessage(self,message,messageType):
+        newmessage = QtWidgets.QListWidgetItem(self.Messages)
+        newmessage.setText(message)
+
+        if messageType == "Alarm":
+            newmessage.setBackground(self.redBrush)
+            newmessage.setForeground(self.whiteBrush)
+            self.alarmControl.alarm = 1
+        elif messageType == "Warning": newmessage.setForeground(self.redBrush)
+        elif messageType == "Success": newmessage.setForeground(self.greenBrush)
+
+        self.Messages.scrollToBottom()
 
     def startHLTPID(self):
         #Note that the PIDs get the temp from the dashboard; this prevents them from also
@@ -609,7 +693,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         heatCtrl.run()
 
     def startAlarmControl(self):
-        TEMP=1
+        self.alarmControl = AlarmController()
 
     def startPAVControl(self):
         self.PAVControl = PumpAerationValveController()
@@ -622,7 +706,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         while self.turnOffVolumeSensing == False:
             volumes = [volumeSensor.HLTVolume(),volumeSensor.MLTVolume(),volumeSensor.BLKVolume()]
             self.volumeSignal.emit(volumes)
-            time.sleep(2)
+            time.sleep(1)
+            #print(threading.enumerate())
 
     def startTempSensing(self):
         self.tempSensor = tempSensors()
@@ -645,7 +730,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         while self.turnOffMainSwitchSensing == False:
             mainSwitchStates = self.mainSwitchSensor.allMainSwitchStates()
             self.mainSwitchSignal.emit(mainSwitchStates)
-            time.sleep(10)
+            time.sleep(1)
 
     def startValveSwitchSensing(self):
         self.valveSwitchSensor = valveSwitchSensors()
@@ -653,11 +738,13 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         while self.turnOffValveSwitchSensing == False:
             valveSwitchStates = self.valveSwitchSensor.allValveSwitchStates()
             self.valveSwitchSignal.emit(valveSwitchStates)
-            time.sleep(10)
+            time.sleep(1)
+
+    def turnOffAlarm(self):
+        self.alarmControl.alarm = 0
 
     def flowUpdate(self, flowRateValues, flowTotalValues):
-        self.HLT_In.setText("{:.2f} g/m".format(flowRateValues
-[0][1][-1]))
+        self.HLT_In.setText("{:.2f} g/m".format(flowRateValues[0][1][-1]))
         self.HLT_Out.setText("{:.2f} g/m".format(flowRateValues[1][1][-1]))
         self.MLT_In.setText("{:.2f} g/m".format(flowRateValues[2][1][-1]))
         self.MLT_Out.setText("{:.2f} g/m".format(flowRateValues[3][1][-1]))
@@ -888,8 +975,34 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.tempPopup = tempPopup(self.setHeatSignal,kettle)
 
     def setHeat(self, kettle, mode, setting):
+        #Adds a message
+        if mode == "Off":
+            self.printAndSendMessage("Turning off heat to the {}".format(kettle),"message")
+        else:
+            if self.mainSwitchSensor.switchState('Master Heat') == "On":
+                if mode == "SemiAuto":self.printAndSendMessage("Setting the {} to {:.0f}%".format(kettle,setting),"Message")
+                if mode == "Auto":self.printAndSendMessage("Setting the {} to {:.0f} deg F".format(kettle,setting),"Message")
+            else:
+                self.printAndSendMessage("Error: Master heat is switched to off, but heat is turned on. Please turn on the master heat","Alarm")
+                return
+        
         #print(setting)
         if kettle == "HLT": 
+            if mode == "Auto":
+                self.kettleSetting = "HLT"
+                #Turns off the BLK, and turns on the HLT
+                self.UIToBLKPIDPipe.send(("mode","Off"))
+                self.UIToHLTPIDPipe.send(("setPoint",setting))
+                self.UIToHLTPIDPipe.send(("mode","Auto"))
+                self.UIToHeatPipe.send(("kettle","HLT"))
+
+                OldHLTText = self.HLT_Heat.text()
+                NewHLTText=OldHLTText[:17]+"\nTarget temp: {:.0f}".format(setting)
+                self.HLT_Heat.setText(NewHLTText)
+
+                OldBLKText = self.BLK_Heat.text()
+                NewBLKText=OldBLKText[:17]
+                self.BLK_Heat.setText(NewBLKText)
             if mode == "SemiAuto":
                 self.kettleSetting = "HLT"
                 #Turns off the BLK, and turns on the HLT
@@ -904,8 +1017,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
                 OldBLKText = self.BLK_Heat.text()
                 NewBLKText=OldBLKText[:17]
-                self.BLK_Heat.setText(NewBLKText)
-                
+                self.BLK_Heat.setText(NewBLKText)                
             if mode == "Off":
                 self.UIToHLTPIDPipe.send(("mode","Off"))
 
@@ -919,6 +1031,21 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.UIToHeatPipe.send(("kettle","None"))
             
         if kettle == "BLK": 
+            if mode == "Auto":
+                self.kettleSetting = "BLK"
+                #Turns off the BLK, and turns on the HLT
+                self.UIToHLTPIDPipe.send(("mode","Off"))
+                self.UIToBLKPIDPipe.send(("setPoint",setting))
+                self.UIToBLKPIDPipe.send(("mode","Auto"))
+                self.UIToHeatPipe.send(("kettle","BLK"))
+
+                OldBLKText = self.BLK_Heat.text()
+                NewBLKText=OldBLKText[:17]+"\nTarget temp: {:.0f}".format(setting)
+                self.BLK_Heat.setText(NewBLKText)
+
+                OldHLTText = self.HLT_Heat.text()
+                NewHLTText=OldHLTText[:17]
+                self.HLT_Heat.setText(NewHLTText)
             if mode == "SemiAuto":
                 self.kettleSetting = "BLK"
                 #Turns off the HLT, and turns on the BLK
@@ -949,10 +1076,69 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             #Updates the main switch states to reflect the new Auto statuses
             mainSwitchStates = self.mainSwitchSensor.allMainSwitchStates()
             self.mainSwitchSignal.emit(mainSwitchStates)
+
+    def startPhase(self,phase):
+        #If currently staging a new phase, throws a warning
+        if self.currentlyStagingPhase == True:
+            self.printAndSendMessage("Warning: currently starting a new phase. Please wait a few seconds and try again. NOT starting phase {}".format(phase),"Warning")
+            return
+        #Creates and starts a staging thread with the proper phase
+        threading.Thread(name='phaseStagingThread',target = self.phaseStaging,args=(phase,)).start()
+    
+
+    def phaseStaging(self,phase):
+        #Stores the fact that staging is going on, and instructs the currently running phase to stop
+        self.currentlyStagingPhase=True
+        self.stopPhase = True
+
+        #waits until no phase is running to start the new phase
+        while self.phaseRunning != None:
+            time.sleep(.1)
+
+        #Updates the phase button colors
+        if phase != None:
+            for i in range(1,phase): getattr(self,"phase"+str(i)).setStyleSheet(self.pastPhaseStyle)
+            getattr(self,"phase"+str(phase)).setStyleSheet(self.currentPhaseStyle)
+            for i in range(phase+1,11): getattr(self,"phase"+str(i)).setStyleSheet(self.futurePhaseStyle)
+
+        #creates and starts a thread for the new phase
+        self.stopPhase = False
+        self.phaseRunning = phase
+        threading.Thread(name='phase'+str(phase)+'Thread',target = getattr(self,'startPhase'+str(phase))).start()
+
+        #marks the staging as complete
+        self.currentlyStagingPhase = False            
+            
+    def startPhase1(self):
+        #checks that all needed parameters are set
+        if self.HLT_Fill_1_Target.text()[-4:]!=" gal":
+            self.messageSignal.emit("Error: HLT Fill 1 does not end in ' gal'. Press the phase 1 button once resolved to try again","Alarm")
+            self.phaseRunning = None
+            return
+       
+        try:
+            HLTFill1Target = float(self.HLT_Fill_1_Target.text()[:-4])
+        except:
+            self.printAndSendMessage("Error: HLT fill 1 appears to be invalid. Press the phase 1 button once resolved to try again","Alarm")
+            self.phaseRunning = None
+            return
+
+        #opens the valves to the correct state     
+        self.PAVControl.valveStates = [1,0,1,0,0,0,1,0,0,0]
+
+        #waits until the HLT is filled  
+        while float(self.HLT_Vol.text()[:-4])<HLTFill1Target and self.stopPhase == False:
+            time.sleep(.5)
+
+        self.phaseRunning = None
+        
             
 
     def closeEvent(self, *args, **kwargs):
         print("Beginning system shutdown")
+        #Ends the current phase
+        self.stopPhase = True
+        
         #Closes all valves:
         for i in [1,11]: setattr(self.PAVControl,"valve"+str(i),0)
 
@@ -1000,6 +1186,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def beerSmithImportDialog(self):
         self.beerSmithImportDialog = importDialog(self.importSignal)
+        self.printAndSendMessage("BeerSmith file imported successfully!","Success")
 
     def beerSmithImport(self,volumeValues,tempValues,boilSchedule,dryHopSchedule,mashSchedule,pHValues):
         self.clearData()
