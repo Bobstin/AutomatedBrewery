@@ -69,7 +69,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     BLKPIDSignal = QtCore.pyqtSignal(list)
     setHeatSignal = QtCore.pyqtSignal(str,str,int)
 
-    importSignal = QtCore.pyqtSignal(list,list,list,list,list,list)
+    importSignal = QtCore.pyqtSignal(list,list,list,list,list,list,float)
 
     heatGraphSignal = QtCore.pyqtSignal(float,float,str)
 
@@ -78,6 +78,16 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     lockFieldSignal = QtCore.pyqtSignal(str,bool)
     actualValueSignal = QtCore.pyqtSignal(str,str)
     phaseButtonStylesSignal = QtCore.pyqtSignal(int)
+
+    mashTimerSignal = QtCore.pyqtSignal(str)
+    mashTimerUpdateSignal = QtCore.pyqtSignal(float)
+    highlightMashStepSignal = QtCore.pyqtSignal(int)
+    mashTimerTextSignal = QtCore.pyqtSignal(float)
+
+    boilTimerSignal = QtCore.pyqtSignal(str)
+    boilTimerUpdateSignal = QtCore.pyqtSignal(float)
+    highlightBoilStepsSignal = QtCore.pyqtSignal(list)
+    boilTimerTextSignal = QtCore.pyqtSignal(float)
 
     redSwitchStyle = '''
     QPushButton {
@@ -350,7 +360,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     QPushButton {
         border-radius: 0px;
         background-color: rgb(191,191,191);
-        color:grey;
+        color:rgb(143,143,143);
         font: 12pt "Arial";
     }
 
@@ -369,7 +379,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
     QPushButton::pressed {
         background-color: rgb(191,191,191);
-        color: grey;
+        color:rgb(143,143,143) ;
     }'''
 
     futurePhaseStyle = '''
@@ -381,7 +391,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
     QPushButton::pressed {
         background-color: rgb(191,191,191);
-        color: grey;
+        color: rgb(143,143,143);
     }'''
 
     lockedInputStyle = '''
@@ -404,6 +414,18 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
     whiteBrush = QtGui.QBrush(QtCore.Qt.SolidPattern)
     whiteBrush.setColor(QtGui.QColor(255,255,255))
+
+    blueBrush = QtGui.QBrush(QtCore.Qt.SolidPattern)
+    blueBrush.setColor(QtGui.QColor(196,236,244))
+
+    lightGreyBrush = QtGui.QBrush(QtCore.Qt.SolidPattern)
+    lightGreyBrush.setColor(QtGui.QColor(191,191,191))
+
+    darkGreyBrush = QtGui.QBrush(QtCore.Qt.SolidPattern)
+    darkGreyBrush.setColor(QtGui.QColor(143,143,143))
+
+    blackBrush = QtGui.QBrush(QtCore.Qt.SolidPattern)
+    blackBrush.setColor(QtGui.QColor(0,0,0))
 
 
 
@@ -547,6 +569,14 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lockFieldSignal.connect(self.lockField)
         self.actualValueSignal.connect(self.setActualValue)
         self.phaseButtonStylesSignal.connect(self.setPhaseButtonStyles)
+        self.mashTimerSignal.connect(self.startMashTimer)
+        self.mashTimerUpdateSignal.connect(self.updateMashTimerText)
+        self.highlightMashStepSignal.connect(self.highlightCurrentMashStep)
+        self.mashTimerTextSignal.connect(self.updateMashTimerText)
+        self.boilTimerSignal.connect(self.startBoilTimer)
+        self.boilTimerUpdateSignal.connect(self.updateBoilTimerText)
+        self.highlightBoilStepsSignal.connect(self.highlightCurrentBoilStep)
+        self.boilTimerTextSignal.connect(self.updateBoilTimerText)
 
         #Starts up the UI and sets some default states
         self.setupUi(self)
@@ -563,15 +593,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for actual in self.actuals:
             getattr(self,actual).setStyleSheet(self.lockedInputStyle)
-            getattr(self,actual).setReadOnly(True)
-
-        self.HLT_Fill_1_Target.setText("1 gal")
-        self.Strike_Target.setText("1 gal")
-        self.HLT_Fill_2_Target.setText("1 gal")
-        self.Strike_Temp.setText("70 F")
-        self.HLT_Fill_2_Temp.setText("70 F")
-            
-            
+            getattr(self,actual).setReadOnly(True)          
+           
         self.show()
 
         self.Mash_Steps.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
@@ -586,6 +609,20 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #Defaults the grain added parameter to False
         self.grainAdded = False
+
+        #Defaults the mash schedule to be empty, and the mash start time to empty
+        self.mashSchedule = None
+        self.mashStartTime = None
+        self.stopMashTimer = False
+        self.mashPauseTime = 0
+        self.latestMashTime = 0
+
+        #Defaults the boil schedule to be empty, and the mash start time to empty
+        self.boilSchedule = None
+        self.boilStartTime = None
+        self.stopBoilTimer = False
+        self.boilPauseTime = 0
+        self.latestBoilTime = 0
 
         #Sets default state for the phase threads
         self.currentlyStagingPhase = False
@@ -793,6 +830,13 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.alarmControl.alarm = 0
 
     def flowUpdate(self, flowRateValues, flowTotalValues):
+        self.HLTFlowIn = flowRateValues[0][1][-1]
+        self.HLTFlowOut = flowRateValues[1][1][-1]
+        self.MLTFlowIn = flowRateValues[2][1][-1]
+        self.MLTFlowOut = flowRateValues[3][1][-1]
+        self.BLKFlowIn = flowRateValues[4][1][-1]
+        self.BLKFlowOut = flowRateValues[5][1][-1]
+        
         self.HLT_In.setText("{:.2f} g/m".format(flowRateValues[0][1][-1]))
         self.HLT_Out.setText("{:.2f} g/m".format(flowRateValues[1][1][-1]))
         self.MLT_In.setText("{:.2f} g/m".format(flowRateValues[2][1][-1]))
@@ -1207,7 +1251,13 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             
     def standardPhase(self,phase,phaseType,targetField,startValveStates,endValveStates,pumpAerationStates,kettle):
         #Gets the input needed for the phase
-        if phaseType == "Fill" or phaseType == "Drain": target = self.getVolumeInput(targetField)
+        if phaseType == "Fill":
+            startAmount = getattr(self,kettle+"Volume")
+            fillAmount = self.getVolumeInput(targetField)
+            if fillAmount != None:
+                target = startAmount + fillAmount
+            else: target = None
+        elif phaseType == "Drain": target = self.getVolumeInput(targetField)
         elif phaseType == "Heat": target = self.getTempInput(targetField)
        
         #If failed to get the needed input, returns
@@ -1222,6 +1272,12 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.messageSignal.emit("Error: {} temperature seems to be invalid. Press the phase {} button once resolved to try again".format(kettle,phase),"Alarm")
                 self.phaseRunning = None
                 return
+            #If you are heating the MLT, then the HLT temperature also needs to be valid, since the HLT is the kettle being heated
+            if kettle == "MLT":
+                if float(self.HLT_Heat.text()[14:17]) == 999 or float(self.HLT_Heat.text()[14:17]) == 0:
+                    self.messageSignal.emit("Error: HLT temperature seems to be invalid. Press the phase 6 button once resolved to try again","Alarm")
+                    self.phaseRunning = None
+                    return
 
         #If requirements not met, skips the remainder of the phase
         if self.phaseRunning != None:
@@ -1258,7 +1314,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
        
             #For fills, stores the volume that was hit, and prints a message. For heat, just prints a message
             if phaseType == "Fill":
-                self.actualValueSignal.emit(targetField[:-6]+"Actual","{:.2f} gal".format(getattr(self,kettle+"Volume")))
+                self.actualValueSignal.emit(targetField[:-6]+"Actual","{:.2f} gal".format(getattr(self,kettle+"Volume")-startAmount))
                 self.messageSignal.emit("{} filled to {:.2f} gal".format(kettle,getattr(self,kettle+"Volume")),"Message")
             elif phaseType == "Heat":
                 self.messageSignal.emit("{} heated to {:.0f} F".format(kettle,getattr(self,kettle+"Temp")),"Message")
@@ -1299,22 +1355,465 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     def startPhase5(self):
         self.standardPhase(5,"Heat","HLT_Fill_2_Temp",[0,0,1,1,0,1,1,0,1,0],[0,0,1,1,0,1,1,0,1,0],[1,1,0],"MLT")
 
+    def startPhase6(self):
+        #Checks if a mash schedule has been defined
+        if self.mashSchedule == None:
+            self.messageSignal.emit("Error: No mash schedule has been imported. Press the phase 6 button once resolved to try again","Alarm")
+            self.phaseRunning = None
+            return
 
+        #Checks that the temperature in the HLT and the MLT is not an error
+        if float(self.HLT_Heat.text()[14:17]) == 999 or float(self.HLT_Heat.text()[14:17]) == 0:
+            self.messageSignal.emit("Error: HLT temperature seems to be invalid. Press the phase 6 button once resolved to try again","Alarm")
+            self.phaseRunning = None
+            return
 
+        if float(self.MLT_Heat.text()[14:17]) == 999 or float(self.MLT_Heat.text()[14:17]) == 0:
+            self.messageSignal.emit("Error: MLT temperature seems to be invalid. Press the phase 6 button once resolved to try again","Alarm")
+            self.phaseRunning = None
+            return
 
+        #If requirements not met, skips the remainder of the phase
+        if self.phaseRunning != None:
+            self.messageSignal.emit("Starting Phase 6","Message")
 
-        
+            #Sends an alarm to indicate it is time to add grains
+            self.messageSignal.emit("Add grains and adjust pH as needed","Warning")
+            self.alarmControl.alarm = 1
+
+            #opens the valves to the correct state     
+            self.PAVControl.valveStates = [0,0,1,1,0,1,1,0,1,0]
+
+            #waits 5 seconds for the valves to change positions
+            time.sleep(5)
+
+            #starts the pumps
+            self.PAVControl.waterPump = 1
+            self.PAVControl.wortPump = 1
+            self.PAVControl.aeration = 0
+
+            #starts the mash timer
+            self.mashTimerSignal.emit("Start")
             
-        
-            
+            #goes through the mash schedule, adding water and heating as needed
+            for step in range(0,len(self.mashSchedule)):
+                #highlights the current mash step
+                self.highlightMashStepSignal.emit(step)
+                
+                #sets the heat to the correct temperature for the step
+                self.setHeatSignal.emit("HLT","Auto",self.mashSchedule[step][2])
+                
+                #for each step, starts by adding the correct amount of water, if needed (except for the first step, where this was completed in advance)
+                if step != 0 and self.mashSchedule[step][1] != 0:
+                    #sets the new volume target based on the current volume, and the mashSchedule
+                    volumeTarget = self.MLTVolume + self.mashSchedule[step][1]
 
+                    #turns off the pumps
+                    self.PAVControl.waterPump = 0
+                    self.PAVControl.wortPump = 0
+                    self.PAVControl.aeration = 0
+
+                    #changes the valves to a fill configuration
+                    self.PAVControl.valveStates = [0,0,0,1,1,0,1,0,0,0]
+
+                    #waits for the valves to change positions
+                    time.sleep(5)
+
+                    #turns on the water pump
+                    self.PAVControl.waterPump = 1
+
+                    #waits until the volume target is reached
+                    while self.MLTVolume<volumeTarget and self.stopPhase == False:
+                        time.sleep(.5)
+
+                #waits until the target temp is reached
+                while self.MLTTemp<self.mashSchedule[step][2] and self.stopPhase == False:
+                    time.sleep(.5)
+
+                self.messageSignal.emit("Reached temp for {} (step {}). Holding for {:.0f} min.".format(self.mashSchedule[step][0],step+1,self.mashSchedule[step][5]),"Message")
+
+                #once temp has been reached, waits the length of the mash step
+                endOfStep = self.latestMashTime + 60*self.mashSchedule[step][5]
+                while self.latestMashTime<endOfStep and self.stopPhase == False:
+                    time.sleep(.5)
+
+                #once the step is complete, sends a message
+                self.messageSignal.emit("{} complete (step {}). Beginning next mash step.".format(self.mashSchedule[step][0],step+1),"Success")
+
+            self.highlightMashStepSignal.emit(len(self.mashSchedule))
+            
+            #Stops the mash timer (uses pause to preserve the time)
+            self.mashTimerSignal.emit("Pause")
+
+            #turns off the heat and pumps/aeration
+            self.setHeatSignal.emit("HLT","Off",0)
+            self.PAVControl.waterPump = 0
+            self.PAVControl.wortPump = 0
+            self.PAVControl.aeration = 0
+
+            #Notes that this phase is complete (otherwise other phases won't start)
+            self.phaseRunning = None
+
+            #If it stopped naturally, then starts next phase, otherwise sends an alarm
+            if self.stopPhase == False:
+                self.messageSignal.emit("Phase 6 complete! Beginning phase 7.\n","Success")
+                self.startPhase(7)
+            else: self.messageSignal.emit("Manually stopping phase 6","Alarm")
+
+    def startPhase7(self):
+        #Gets the input needed for the phase
+        spargeAmount = self.getVolumeInput("Sparge_Target")
+        BLKStartAmount = self.BLKVolume
+        HLTStartAmount = self.HLTVolume
+        if spargeAmount != None:
+            targetVolume = BLKStartAmount + spargeAmount
+        else:
+            targetVolume = None
+            self.phaseRunning = None
+            return
+
+        spargeTemp = self.getTempInput("Sparge_Temp")
+
+        #If failed to get the needed inputs, returns
+        if targetVolume == None or spargeTemp == None: return
+
+        #Locks the inputs used
+        self.lockFieldSignal.emit("Sparge_Target",True)
+        self.lockFieldSignal.emit("Sparge_Temp",True)
+
+        #Checks that the HLT and MLT temperatures are not errors
+        if float(self.HLT_Heat.text()[14:17]) == 999 or float(self.HLT_Heat.text()[14:17]) == 0:
+            self.messageSignal.emit("Error: HLT temperature seems to be invalid. Press the phase 7 button once resolved to try again","Alarm")
+            self.phaseRunning = None
+            return
+
+        if float(self.MLT_Heat.text()[14:17]) == 999 or float(self.MLT_Heat.text()[14:17]) == 0:
+            self.messageSignal.emit("Error: MLT temperature seems to be invalid. Press the phase 7 button once resolved to try again","Alarm")
+            self.phaseRunning = None
+            return
+
+        #If requirements not met, skips the remainder of the phase
+        if self.phaseRunning != None:
+            self.messageSignal.emit("Starting Phase 7","Message")
+
+            #opens the valves to start the mash-out    
+            self.PAVControl.valveStates = [0,0,1,1,0,1,1,0,1,0]
+
+            #waits 5 seconds for the valves to change positions
+            time.sleep(5)
+
+            #starts the pumps
+            self.PAVControl.waterPump = 1
+            self.PAVControl.wortPump = 1
+            self.PAVControl.aeration = 0
+
+            #Turn on the heat
+            self.setHeatSignal.emit("HLT","Auto",spargeTemp)
+
+            #Waits until target is hit
+            while self.MLTTemp<spargeTemp and self.stopPhase == False:
+                time.sleep(.5)
+
+            #Sends a message that the mash-out temperature has been reached
+            self.messageSignal.emit("Achieved mash-out temp of {}. Beginning sparge.".format(spargeTemp),"Success")
+
+            #Turns off the pumps
+            self.PAVControl.waterPump = 0
+            self.PAVControl.wortPump = 0
+
+            #Changes the valves to the intial sparge positions to let the tubing fill
+            self.PAVControl.valveStates = [0,0,0,1,1,0,1,1,1,0]
+            time.sleep(10)
+
+            #Closes valves 5 and 9 (these will be the ones that are used to control sparge rate)
+            self.PAVControl.valveStates = [0,0,0,1,0,0,1,1,0,0]
+            time.sleep(5)
+
+            #Partially opens valves 5 and 9 (two seconds, or approximately halfway)
+            self.PAVControl.partialOpenClose(5,2)
+            self.PAVControl.partialOpenClose(9,2)
+
+            #Turns on the pumps
+            self.PAVControl.waterPump = 1
+            self.PAVControl.wortPump = 1
+
+            #Begins sparge
+            counter=0
+            lastFiveMLTFlowOut=[]
+            lastFiveBLKFlowIn=[]
+            targetFlowRate = .2
+            valveChangeMultiplier = 10
+            while self.BLKVolume<targetVolume and self.stopPhase == False:
+                time.sleep(1)
+                if counter!=5:
+                    #Records the last flow rate
+                    lastFiveMLTFlowOut.append(self.MLTFlowOut)
+                    lastFiveBLKFlowIn.append(self.BLKFlowIn)
+                    counter += 1
+                else:
+                    #Every five seconds, compares the flow rate average to the target, and adjusts the valves
+                    #Uses a 10:1 calculation to adjust flow rate - if the rate is off by .1 gal/min, opens the
+                    #Valve for 1 second
+                    MLTFlow = sum(lastFiveMLTFlowOut)/len(lastFiveMLTFlowOut)
+                    MLTFlowError = targetFlowRate - MLTFlow
+                    MLTCorrection = MLTFlowError*valveChangeMultiplier
+                    #Doesn't change the value if change is less than .25 sec, to reduce impact on relays
+                    if abs(MLTCorrection)>.25:
+                        self.PAVControl.partialOpenClose(5,MLTCorrection)
+
+                    BLKFlow = sum(lastFiveBLKFlowIn)/len(lastFiveBLKFlowIn)
+                    BLKFlowError = targetFlowRate - BLKFlow
+                    BLKCorrection = BLKFlowError*valveChangeMultiplier
+                    if abs(BLKCorrection)>.25:
+                        self.PAVControl.partialOpenClose(9,BLKCorrection)
+
+                    #Resets the flow values and counter
+                    lastFiveMLTFlowOut=[]
+                    lastFiveBLKFlowIn=[]
+                    counter=0
+
+            #Since sparge is complete, fully closes valves 5 and 9, and turns off the pumps
+            self.PAVControl.waterPump = 0
+            self.PAVControl.wortPump = 0
+            self.PAVControl.fullyOpenClose(5,0)
+            self.PAVControl.fullyOpenClose(9,0)
+
+            #Notes that this phase is complete (otherwise other phases won't start)
+            self.phaseRunning = None
+
+            #If it stopped naturally, then starts next phase, otherwise sends an alarm
+            if self.stopPhase == False:
+                #stores the sparge and pre-boil volume and prints a message
+                self.actualValueSignal.emit("Sparge_Actual","{:.2f} gal".format(HLTStartAmount-self.HLTVolume))
+                self.actualValueSignal.emit("Pre_Boil_Actual","{:.2f} gal".format(self.BLKVolume))
+                self.messageSignal.emit("BLK filled to {:.2f} gal using {:.2f} gal of sparge water ".format(self.BLKVolume,HLTStartAmount-self.HLTVolume),"Message")
+                self.messageSignal.emit("Phase 7 complete! Beginning phase 8.\n","Success")
+                self.startPhase(8)
+            else: self.messageSignal.emit("Manually stopping phase 7","Alarm")
+
+    def startPhase8(self):
+        BLKStartVolume = self.BLKVolume
+
+        if self.boilSchedule == None:
+            self.messageSignal.emit("Error: No boil schedule has been imported. Press the phase 8 button once resolved to try again","Alarm")
+            self.phaseRunning = None
+            return
+
+        if self.Boil_Time.text()[-4:]!=" min":
+            self.messageSignal.emit("Error: Boil time does not end in ' min'. Press the phase 8 button once resolved to try again","Alarm")
+            self.phaseRunning = None
+            return
+        try:
+            boilTime = float(self.Boil_Time.text()[:-4])
+        except:
+            self.messageSignal.emit("Error: Boil time appears to be invalid. Press the phase 8 button once resolved to try again","Alarm")
+            self.phaseRunning = None
+            return
+        
+        #For heat targets, checks that the BLK temperature is not an error
+        if float(self.BLK_Heat.text()[14:17]) == 999 or float(self.BLK_Heat.text()[14:17]) == 0:
+            self.messageSignal.emit("Error: BLK temperature seems to be invalid. Press the phase 8 button once resolved to try again","Alarm")
+            self.phaseRunning = None
+            return            
+
+        #If requirements not met, skips the remainder of the phase
+        if self.phaseRunning != None:
+            self.messageSignal.emit("Starting Phase 8","Message")
+
+            #opens the valves to the correct state     
+            self.PAVControl.valveStates = [0,0,0,0,0,0,1,1,0,0]
+
+            #waits 5 seconds for the valves to change positions
+            time.sleep(5)
+
+            #makes sure the pumps are off
+            self.PAVControl.waterPump = 0
+            self.PAVControl.wortPump = 0
+            self.PAVControl.aeration = 0
+
+            #To get to boiling as quickly as possible, turns on the heat to 100%.
+            self.setHeatSignal.emit("BLK","SemiAuto",100)
+
+            #Waits until we hit near a boil (208 F), when it will alarm
+            while self.BLKTemp<70 and self.stopPhase == False:
+                time.sleep(.5)
+
+            self.messageSignal.emit("Approaching boil. Add fermcap if you haven't yet, or watch for boil overs","Warning")
+            self.alarmControl.alarm = 1
+
+            #Waits for boil (212 F), when it will start the timer and reduce heat to 80% 
+            while self.BLKTemp<90 and self.stopPhase == False:
+                time.sleep(.5)
+
+            self.messageSignal.emit("Reached boil - reducing heat to 85%. Add additions if needed.","Warning")
+            self.alarmControl.alarm = 1
+            self.setHeatSignal.emit("BLK","SemiAuto",85)
+            self.boilTimerSignal.emit("Start")
+
+            #Alarms whenever an addition is needed in 2 minutes, and turns off heat at the end of the boil
+            alarmedSteps = 0
+            additionNum = 1
+            while self.latestBoilTime<60*boilTime and self.stopPhase == False:
+                #If the next step is in next than 2 minutes, send an alarm
+                #Stores the time in a variable, to prevent the unlikely situation where a step is missed due to code execution time
+                currentBoilTime = self.latestBoilTime/60
+                #Stops checking for two minute warnings once you have reached the last step
+                if alarmedSteps < len(self.boilSchedule):
+                    if (self.boilSchedule[alarmedSteps][1]-2) < currentBoilTime:
+                        if self.boilSchedule[alarmedSteps][1] != 0:
+                            self.messageSignal.emit("2 minute warning for addition #{} at {:.0f} mins".format(additionNum,self.boilSchedule[alarmedSteps][1]),"Warning")
+                            self.alarmControl.alarm = 1
+                        else:
+                            self.messageSignal.emit("Add 0 minute additions","Warning")
+                            self.alarmControl.alarm = 1
+                        #Count the number of rows that will be added in this addition, and add them to the number of alarmed steps
+                        if alarmedSteps < len(self.boilSchedule):
+                            while (self.boilSchedule[alarmedSteps][1]-2) < currentBoilTime:
+                                alarmedSteps += 1
+                                if alarmedSteps == len(self.boilSchedule):
+                                    break
+
+                        #adds one to the addition number
+                        additionNum += 1
+
+                #Sends a signal to highlight the correct rows
+                highlightData = []
+                #print(self.latestBoilTime)
+                for i in range(0,len(self.boilSchedule)):
+                    if 60*self.boilSchedule[i][1] <= self.latestBoilTime: highlightData.append("Grey")
+                    elif 60*self.boilSchedule[i][1] - 120 <= self.latestBoilTime: highlightData.append("Blue")
+                    else: highlightData.append("White")
+                self.highlightBoilStepsSignal.emit(highlightData)
+                time.sleep(1)
+
+            #Sends a signal to grey out all of the additions
+            highlightData = ["Grey"]*len(self.boilSchedule)
+            self.highlightBoilStepsSignal.emit(highlightData)
+
+                        
+            #Sends the post-boil volume to the UI, and sends a message
+            self.actualValueSignal.emit("Post_Boil_Actual","{:.2f} gal".format(self.BLKVolume))
+            self.messageSignal.emit("Boil complete. Post boil volume is {:.2f} gal".format(self.BLKVolume),"Message")
+
+            #Stops the mash timer (uses pause to preserve the time)
+            self.boilTimerSignal.emit("Pause")
+
+            #turns off the heat and pumps/aeration, just in case
+            self.setHeatSignal.emit("BLK","Off",0)
+            self.PAVControl.waterPump = 0
+            self.PAVControl.wortPump = 0
+            self.PAVControl.aeration = 0
+
+            #Notes that this phase is complete (otherwise other phases won't start)
+            self.phaseRunning = None
+
+            #If it stopped naturally, then starts next phase, otherwise sends an alarm
+            if self.stopPhase == False:
+                self.messageSignal.emit("Phase 8 complete! Beginning phase 9.\n","Success")
+                self.startPhase(9)
+            else: self.messageSignal.emit("Manually stopping phase 8","Alarm")
+        
+    def startMashTimer(self,command):
+        if command == "Start":
+            self.mashStartTime = time.time()
+            threading.Thread(name='mashTimerThread',target = self.mashTimer).start()
+        elif command == "Reset":
+            self.mashStartTime = time.time()
+            self.mashPauseTime = 0
+        elif command == "Pause":
+            self.stopMashTimer = True
+            self.mashPauseTime = self.latestMashTime
+
+    def mashTimer(self):
+        while self.stopMashTimer == False:
+            self.latestMashTime = self.mashPauseTime + time.time() - self.mashStartTime
+            self.mashTimerTextSignal.emit(self.latestMashTime)
+            time.sleep(1)
+
+    def updateMashTimerText(self,latestMashTime):
+        hours = int(latestMashTime/3600)
+        minutes = int((latestMashTime%3600)/60)
+        seconds = int(latestMashTime%60)
+        self.Mash_Timer.setText("{} hrs {} mins {} secs".format(hours,minutes,seconds))
+
+    def startBoilTimer(self,command):
+        if command == "Start":
+            self.boilStartTime = time.time()
+            threading.Thread(name='boilTimerThread',target = self.boilTimer).start()
+        elif command == "Reset":
+            self.boilStartTime = time.time()
+            self.boilPauseTime = 0
+        elif command == "Pause":
+            self.stopBoilTimer = True
+            self.boilPauseTime = self.latestBoilTime
+
+    def boilTimer(self):
+        while self.stopBoilTimer == False:
+            self.latestBoilTime = self.boilPauseTime + time.time() - self.boilStartTime
+            self.boilTimerTextSignal.emit(self.latestBoilTime)
+            time.sleep(1)
+
+    def updateBoilTimerText(self,latestBoilTime):
+        hours = int(latestBoilTime/3600)
+        minutes = int((latestBoilTime%3600)/60)
+        seconds = int(latestBoilTime%60)
+        self.Boil_Timer.setText("{} hrs {} mins {} secs".format(hours,minutes,seconds))
+
+    def highlightCurrentMashStep(self,stepNum):
+        if stepNum < len(self.mashSchedule):
+            #changes the prior steps to dark grey on light grey 
+            for step in range(0,stepNum):
+                for i in range(0,5):
+                    self.Mash_Steps.item(step,i).setForeground(self.darkGreyBrush)
+                    self.Mash_Steps.item(step,i).setBackground(self.lightGreyBrush)
+
+            #changes the current step to black on blue       
+            for i in range(0,5):
+                self.Mash_Steps.item(stepNum,i).setForeground(self.blackBrush)
+                self.Mash_Steps.item(stepNum,i).setBackground(self.blueBrush)
+
+            #changes the future steps to black on white    
+            for step in range(stepNum+1,len(self.mashSchedule)):
+                for i in range(0,5):
+                    self.Mash_Steps.item(step,i).setForeground(self.blackBrush)
+                    self.Mash_Steps.item(step,i).setBackground(self.whiteBrush)
+        elif stepNum == len(self.mashSchedule):
+            #changes all steps to dark grey on light grey 
+            for step in range(0,stepNum):
+                for i in range(0,5):
+                    self.Mash_Steps.item(step,i).setForeground(self.darkGreyBrush)
+                    self.Mash_Steps.item(step,i).setBackground(self.lightGreyBrush)
+        else:
+            #If you send something larger than the length of the mash schedule, then resets everything
+            for step in range(0,stepNum):
+                for i in range(0,5):
+                    self.Mash_Steps.item(step,i).setForeground(self.blackBrush)
+                    self.Mash_Steps.item(step,i).setBackground(self.whiteBrush)
+
+    def highlightCurrentBoilStep(self,highlightData):
+        for i in range(0,len(self.boilSchedule)):
+            if highlightData[i] == "Grey":
+                for j in range(0,3):
+                    self.Boil_Steps.item(i,j).setForeground(self.darkGreyBrush)
+                    self.Boil_Steps.item(i,j).setBackground(self.lightGreyBrush)
+            if highlightData[i] == "Blue":
+                for j in range(0,3):
+                    self.Boil_Steps.item(i,j).setForeground(self.blackBrush)
+                    self.Boil_Steps.item(i,j).setBackground(self.blueBrush)
+            if highlightData[i] == "White":
+                for j in range(0,3):
+                    self.Boil_Steps.item(i,j).setForeground(self.blackBrush)
+                    self.Boil_Steps.item(i,j).setBackground(self.whiteBrush)   
+           
     def closeEvent(self, *args, **kwargs):
         print("Beginning system shutdown")
         #Ends the current phase
         self.stopPhase = True
         
         #Closes all valves:
-        for i in [1,11]: setattr(self.PAVControl,"valve"+str(i),0)
+        self.PAVControl.fullyOpenClose(5,0)
+        self.PAVControl.fullyOpenClose(9,0)
+        self.PAVControl.valveStates = [0,0,0,0,0,0,0,0,0,0]
 
         #turns off pumps and aeration
         self.PAVControl.wortPump = 0
@@ -1337,6 +1836,10 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.turnOffMainSwitchSensing = True
         self.turnOffValveSwitchSensing = True
         self.UIToFlowPipe.send(("turnOffSensor",True))
+
+        #Stops the mash and boil timers
+        self.stopMashTimer = True
+        self.stopBoilTimer = True
 
         #self.flowThread.exit()
         #self.volumeThread.exit()
@@ -1362,7 +1865,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.beerSmithImportDialog = importDialog(self.importSignal)
         self.printAndSendMessage("BeerSmith file imported successfully!","Success")
 
-    def beerSmithImport(self,volumeValues,tempValues,boilSchedule,dryHopSchedule,mashSchedule,pHValues):
+    def beerSmithImport(self,volumeValues,tempValues,boilSchedule,dryHopSchedule,mashSchedule,pHValues,boilTime):
         self.clearData()
         
         self.volumeValues = volumeValues
@@ -1371,6 +1874,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.dryHopSchedule = dryHopSchedule
         self.mashSchedule = mashSchedule
         self.pHValues = pHValues
+        self.boilTime = boilTime
 
         #Updates the volumes
         self.HLT_Fill_1_Target.setText("{:.2f} gal".format(self.volumeValues[0]))
@@ -1388,7 +1892,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #updates the pH
         self.pH_target.setText("{:.2f}".format(self.pHValues[0]))
-                  
+
+        #Updates the boil time
+        self.Boil_Time.setText("{:.0f} min".format(self.boilTime))                  
 
         #adds the boil schedule
         #print(boilSchedule)
@@ -1412,7 +1918,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             self.Mash_Steps.setItem(rowPosition,2,QtWidgets.QTableWidgetItem("{:.0f} F".format(self.mashSchedule[i][2])))
             self.Mash_Steps.setItem(rowPosition,3,QtWidgets.QTableWidgetItem("{:.0f} min".format(self.mashSchedule[i][4])))
             self.Mash_Steps.setItem(rowPosition,4,QtWidgets.QTableWidgetItem("{:.0f} min".format(self.mashSchedule[i][5])))
-
+        #print(self.mashSchedule)
+        
     def clearData(self):
         for i in range(0,self.Boil_Steps.rowCount()+1): self.Boil_Steps.removeRow(0)
         for i in range(0,self.Mash_Steps.rowCount()+1): self.Mash_Steps.removeRow(0)
@@ -1430,6 +1937,10 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.Strike_Temp.setText("")
         self.HLT_Fill_2_Temp.setText("")
         self.Sparge_Temp.setText("")
+
+        #Updates the pH and boil time
+        self.pH_target.setText("")
+        self.Boil_Time.setText("")
 
     def updateHeatGraph(self,time,heatSetting,kettle):
         currTime = (time/1000 - self.startTime)/60
