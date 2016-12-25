@@ -1635,14 +1635,14 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             self.setHeatSignal.emit("BLK","SemiAuto",100)
 
             #Waits until we hit near a boil (208 F), when it will alarm
-            while self.BLKTemp<70 and self.stopPhase == False:
+            while self.BLKTemp<208 and self.stopPhase == False:
                 time.sleep(.5)
 
             self.messageSignal.emit("Approaching boil. Add fermcap if you haven't yet, or watch for boil overs","Warning")
             self.alarmControl.alarm = 1
 
             #Waits for boil (212 F), when it will start the timer and reduce heat to 80% 
-            while self.BLKTemp<90 and self.stopPhase == False:
+            while self.BLKTemp<212 and self.stopPhase == False:
                 time.sleep(.5)
 
             self.messageSignal.emit("Reached boil - reducing heat to 85%. Add additions if needed.","Warning")
