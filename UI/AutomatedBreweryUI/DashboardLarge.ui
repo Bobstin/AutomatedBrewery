@@ -2851,7 +2851,7 @@ QPushButton:pressed {
    <widget class="QLabel" name="Boil_Timer">
     <property name="geometry">
      <rect>
-      <x>1080</x>
+      <x>1110</x>
       <y>620</y>
       <width>181</width>
       <height>21</height>
@@ -4816,6 +4816,47 @@ BeerSmith File</string>
      <enum>QFrame::Raised</enum>
     </property>
    </widget>
+   <widget class="QLineEdit" name="Boil_Time">
+    <property name="geometry">
+     <rect>
+      <x>1110</x>
+      <y>590</y>
+      <width>151</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_32">
+    <property name="geometry">
+     <rect>
+      <x>980</x>
+      <y>595</y>
+      <width>121</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(0, 138, 179)</string>
+    </property>
+    <property name="text">
+     <string>Total boil time:</string>
+    </property>
+   </widget>
    <zorder>frame_14</zorder>
    <zorder>HLT</zorder>
    <zorder>BLK</zorder>
@@ -4982,6 +5023,8 @@ BeerSmith File</string>
    <zorder>label_31</zorder>
    <zorder>label_49</zorder>
    <zorder>frame_49</zorder>
+   <zorder>Boil_Time</zorder>
+   <zorder>label_32</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
