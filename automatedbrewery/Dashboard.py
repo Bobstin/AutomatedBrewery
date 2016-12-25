@@ -406,6 +406,34 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         font: 12pt "Arial";
     }'''
 
+    kettleWaterStyle = '''
+    QProgressBar {
+        border: 2px solid rgb(143,143,143);
+        border-radius: 5px;
+        border-top-color: white;
+        text-align: top center;
+        font: 12pt "Arial";
+    }
+
+    QProgressBar::chunk {
+        background-color: rgb(0,138,205);
+        height: 1px;
+    }'''
+
+    kettleWortStyle = '''
+    QProgressBar {
+        border: 2px solid rgb(143,143,143);
+        border-radius: 5px;
+        border-top-color: white;
+        text-align: top center;
+        font: 12pt "Arial";
+    }
+
+    QProgressBar::chunk {
+        background-color: rgb(226,152,21);
+        height: 1px;
+    }'''
+
     redBrush = QtGui.QBrush(QtCore.Qt.SolidPattern)
     redBrush.setColor(QtGui.QColor(203,34,91))
 
@@ -512,22 +540,24 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     #Defines the mapping between valves and liquidpaths
     valvesToPaths = {():[[],[]],
                      (1,):[[1,2,23,25],[]],
+                     (1,8):[[1,2,23,25],[]],
                      (1,3,7):[[1,2,23,25],[]],
                      (3,4,7):[[2,3,4,5,6],[]],
                      (3,4):[[2,3,4,5,6],[]],
                      (4,5,7,8):[[3,4,5,7,21,22],[]],
                      (4,5,7):[[3,4,5,7,21,22],[]],
                      (4,5):[[3,4,5,7,21,22],[]],
+                     (4,5,8):[[3,4,5,7,21,22],[]],
                      (3,4,6,7,9):[[2,3,4,5,6,7,8,9,10,11,12,20],[]],
                      (3,4,6,9):[[2,3,4,5,6,7,8,9,10,11,12,20],[]],
                      (3,7,8,9):[[],[8,9,10,13,14,20]],
                      (7,8,9):[[],[8,9,10,13,14,20]],
                      (4,5,7,8):[[3,4,5,7,21,22],[8,9,10,13,14,20]],
                      (2,8,10):[[1,19,24],[10,13,15,16,17,18,20]],
+                     (8,10):[[],[10,13,15,16,17,18,20]],
                      (1,4,5,8):[[1,2,3,4,5,7,21,22,23,25],[]],
                      (1,4,5):[[1,2,3,4,5,7,21,22,23,25],[]],
                      (6,9):[[7,8,9,10,11,12,20],[]],
-                     (7,8,9):[[],[8,9,10,13,14,20]],
                      (8,9):[[8,9,10,13,17,18,20],[]]
     }
 
@@ -581,6 +611,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         #Starts up the UI and sets some default states
         self.setupUi(self)
         self.Messages.clear()
+        self.Messages.setWordWrap(True)
 
         #Sets default phase button styles
         for i in range(1,11):
@@ -593,7 +624,12 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for actual in self.actuals:
             getattr(self,actual).setStyleSheet(self.lockedInputStyle)
-            getattr(self,actual).setReadOnly(True)          
+            getattr(self,actual).setReadOnly(True)
+
+        #Sets default kettle styles
+        self.HLT.setStyleSheet(self.kettleWaterStyle)
+        self.MLT.setStyleSheet(self.kettleWaterStyle)
+        self.BLK.setStyleSheet(self.kettleWortStyle)        
            
         self.show()
 
@@ -911,6 +947,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     def pHandDOUpdate(self, pH, DO):
         self.pH.setText("{:.2f}".format(pH))
         self.DO.setText("{:.2f}".format(DO))
+        self.pHValue = pH
+        self.DOValue = DO
 
     def mainSwitchUpdate(self, mainSwitchValues):
         #Updates the heat select
@@ -999,11 +1037,17 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
         onValves = tuple(onValves)
         #print(onValves)
+        #print(self.grainAdded)
 
         #if the valves are a known configuration, then assigns the relevant paths
+        #Has a few overrides for paths that are different if grains have or have not been added
         if onValves in self.valvesToPaths:
-            if (onValves==(4,3,6,7,9) or onValves==(4,3,6,9)) and self.grainAdded == True:
+            if (onValves==(3,4,6,7,9) or onValves==(3,4,6,9)) and self.grainAdded == True:
                 newPaths = [[2,3,4,5,6],[7,8,9,10,11,12,20]]
+            elif onValves==(7,8,9) and self.grainAdded == False:
+                newPaths = [[8,9,10,13,14,20],[]]
+            elif onValves==(8,10)  and self.grainAdded == False:
+                newPaths = [[10,13,15,16,17,18,20],[]]
             else:
                 newPaths = self.valvesToPaths[onValves]
         else: newPaths = [[],[]]
@@ -1034,6 +1078,11 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
                 #for path 19, also change the chiller color (only needed for water and off, since no wort goes through the chiller's water coil)
                 if i+1 == 19: self.chiller.setStyleSheet(self.chillerOffStyle)
+
+        #updates the MLT kettle style if grains have been added
+        if self.grainAdded == True:
+            self.MLT.setStyleSheet(self.kettleWortStyle)
+            self.BLK.setStyleSheet(self.kettleWortStyle)
                 
 
     def interruptedMainSwitch(self,pin):
@@ -1249,22 +1298,28 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.phaseRunning = phase
         threading.Thread(name='phase'+str(phase)+'Thread',target = getattr(self,'startPhase'+str(phase))).start()
             
-    def standardPhase(self,phase,phaseType,targetField,startValveStates,endValveStates,pumpAerationStates,kettle):
+    def standardPhase(self,phase,phaseType,targetField,startValveStates,endValveStates,pumpAerationStates,kettle,endOfPhaseFlag):
         #Gets the input needed for the phase
-        if phaseType == "Fill":
-            startAmount = getattr(self,kettle+"Volume")
-            fillAmount = self.getVolumeInput(targetField)
-            if fillAmount != None:
-                target = startAmount + fillAmount
-            else: target = None
-        elif phaseType == "Drain": target = self.getVolumeInput(targetField)
-        elif phaseType == "Heat": target = self.getTempInput(targetField)
+        #If you give it a number (either int or float), then uses that target field
+        if type(targetField) == float or type(targetField) == int : target = float(targetField)
+        else:
+            if phaseType == "Fill":
+                startAmount = getattr(self,kettle+"Volume")
+                fillAmount = self.getVolumeInput(targetField)
+                if fillAmount != None:
+                    target = startAmount + fillAmount
+                else: target = None
+            #For drain, you always give it a numerical target (usually 0), so if you passed a string, generates an error
+            elif phaseType == "Drain": target = None
+            elif phaseType == "Heat": target = self.getTempInput(targetField)
        
         #If failed to get the needed input, returns
         if target == None: return
 
         #Locks the inputs used
-        self.lockFieldSignal.emit(targetField,True)
+        if phaseType == "Fill" or phaseType == "Heat":
+            if type(targetField) != float and type(targetField) != int:
+                self.lockFieldSignal.emit(targetField,True)
         
         #For heat targets, checks that the temperature is not an error
         if phaseType == "Heat":
@@ -1301,23 +1356,33 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 else:
                     self.setHeatSignal.emit(kettle,"Auto",target)
 
+            #For drains, waits 5 seconds before starting the check to give it a chance to have a flow
+            if phaseType == "Drain": time.sleep(5)
+
             #Waits until target is hit
             if phaseType == "Fill":  
                 while getattr(self,kettle+"Volume")<target and self.stopPhase == False:
                     time.sleep(.5)
             elif phaseType == "Drain":
-                while getattr(self,kettle+"Volume")>target and self.stopPhase == False:
+                while getattr(self,kettle+"FlowOut")>target and self.stopPhase == False:
                     time.sleep(.5)
             elif phaseType == "Heat":
                 while getattr(self,kettle+"Temp")<target and self.stopPhase == False:
                     time.sleep(.5)
+
+            #For drains, if the volume is still over two gallons, sends an alarm, since it is likely stuck.
+            if phaseType == "Drain":
+                if getattr(self,kettle+"Volume") >= 2: self.messageSignal.emit("Error: No more outflow from the {}, but {} volume is {:.2f}. Check if drain is stuck.".format(kettle,kettle,getattr(self,kettle+"Volume")),"Alarm")
        
             #For fills, stores the volume that was hit, and prints a message. For heat, just prints a message
             if phaseType == "Fill":
-                self.actualValueSignal.emit(targetField[:-6]+"Actual","{:.2f} gal".format(getattr(self,kettle+"Volume")-startAmount))
+                if type(targetField) != float and type(targetField) != int: self.actualValueSignal.emit(targetField[:-6]+"Actual","{:.2f} gal".format(getattr(self,kettle+"Volume")-startAmount))
                 self.messageSignal.emit("{} filled to {:.2f} gal".format(kettle,getattr(self,kettle+"Volume")),"Message")
             elif phaseType == "Heat":
                 self.messageSignal.emit("{} heated to {:.0f} F".format(kettle,getattr(self,kettle+"Temp")),"Message")
+            elif phaseType == "Drain":
+                self.messageSignal.emit("No more outflow from {}. Current detected volume is {:.2f} gal.".format(kettle,getattr(self,kettle+"Volume")),"Message")
+                
 
             #turns off the heat and pumps/aeration
             if kettle == "MLT":
@@ -1334,26 +1399,28 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             #Notes that this phase is complete (otherwise other phases won't start)
             self.phaseRunning = None
 
-            #If it stopped naturally, then starts next phase, otherwise sends an alarm
-            if self.stopPhase == False:
+            #If it stopped naturally and flagged as end of phase, then starts next phase, otherwise sends an alarm
+            if self.stopPhase == False and endOfPhaseFlag == True:
                 self.messageSignal.emit("Phase {} complete! Beginning phase {}.\n".format(phase,phase+1),"Success")
                 self.startPhase(phase+1)
             else: self.messageSignal.emit("Manually stopping phase {}".format(phase),"Alarm")
 
     def startPhase1(self):
-        self.standardPhase(1,"Fill","HLT_Fill_1_Target",[1,0,1,0,0,0,1,0,0,0],[0,0,1,0,0,0,1,0,0,0],[0,0,0],"HLT")
+        self.standardPhase(1,"Fill","HLT_Fill_1_Target",[1,0,1,0,0,0,1,0,0,0],[0,0,1,0,0,0,1,0,0,0],[0,0,0],"HLT",True)
 
     def startPhase2(self):
-        self.standardPhase(2,"Heat","Strike_Temp",[0,0,1,1,0,0,1,0,0,0],[0,0,1,1,0,0,1,0,0,0],[1,0,0],"HLT")
+        self.standardPhase(2,"Heat","Strike_Temp",[0,0,1,1,0,0,1,0,0,0],[0,0,1,1,0,0,1,0,0,0],[1,0,0],"HLT",True)
 
     def startPhase3(self):
-        self.standardPhase(3,"Fill","Strike_Target",[0,0,0,1,1,0,1,0,0,0],[0,0,1,1,1,0,1,0,0,0],[1,0,0],"MLT")
+        self.standardPhase(3,"Fill","Strike_Target",[0,0,0,1,1,0,1,0,0,0],[0,0,1,1,1,0,1,0,0,0],[1,0,0],"MLT",True)
 
     def startPhase4(self):
-        self.standardPhase(4,"Fill","HLT_Fill_2_Target",[1,0,1,0,0,0,1,0,0,0],[0,0,1,0,0,0,1,0,0,0],[0,0,0],"HLT")
+        self.standardPhase(4,"Fill","HLT_Fill_2_Target",[1,0,1,0,0,0,1,0,0,0],[0,0,1,0,0,0,1,0,0,0],[0,0,0],"HLT",True)
 
     def startPhase5(self):
-        self.standardPhase(5,"Heat","HLT_Fill_2_Temp",[0,0,1,1,0,1,1,0,1,0],[0,0,1,1,0,1,1,0,1,0],[1,1,0],"MLT")
+        self.standardPhase(5,"Heat","HLT_Fill_2_Temp",[0,0,1,1,0,1,1,0,1,0],[0,0,1,1,0,1,1,0,1,0],[1,1,0],"MLT",False)
+        self.messageSignal.emit("Add grains and adjust pH as needed. Once ready to continue, press the phase 6 button","Warning")
+        self.alarmControl.alarm = 1
 
     def startPhase6(self):
         #Checks if a mash schedule has been defined
@@ -1377,9 +1444,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.phaseRunning != None:
             self.messageSignal.emit("Starting Phase 6","Message")
 
-            #Sends an alarm to indicate it is time to add grains
-            self.messageSignal.emit("Add grains and adjust pH as needed","Warning")
-            self.alarmControl.alarm = 1
+            #Notes that grains have been added (all this does is change the color of the liquid flow on the dashboard)
+            self.grainAdded = True
 
             #opens the valves to the correct state     
             self.PAVControl.valveStates = [0,0,1,1,0,1,1,0,1,0]
@@ -1712,6 +1778,88 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.messageSignal.emit("Phase 8 complete! Beginning phase 9.\n","Success")
                 self.startPhase(9)
             else: self.messageSignal.emit("Manually stopping phase 8","Alarm")
+
+    def startPhase9(self):
+        #Checks that the DO target is valid
+        try:
+            DOTarget = float(self.DO_target.text())
+        except:
+            self.stopPhase = True
+            self.messageSignal.emit("Error: Dissolved Oxygen (DO) target appears to be invalid. Press the phase 9 button once resolved to try again","Alarm")
+
+        #Drains the BLK
+        self.standardPhase(9,"Drain",0,[0,1,0,0,0,0,0,1,0,1],[0,1,0,0,0,0,0,1,0,0],[0,1,0],"BLK",False)
+        
+        #Starts the aeration
+        self.messageSignal.emit("Drain complete! Beginning aeration of wort in fermenter","Success")
+
+        self.PAVControl.aeration = 1
+
+        #Waits for aeration to hit target
+        while self.DOValue<DOTarget and self.stopPhase == False:
+            time.sleep(.5)
+
+        #After this, the  brew day is complete! Sends a message, and an alarm
+        #Note that it does not start the cleaning phase, since you need to move 
+        #the outlet hose to the drain (also remove the grain from the MLT)
+        self.messageSignal.emit("BREWING COMPLETE! Once MLT grain has been removed, and wort chiller out hose is connected to the sink (was connected to fermenter), press phase 10 to start cleaning cycle.","Success")
+        self.alarmControl.alarm = 1
+
+    def startPhase10(self):
+        #Since it is a cleaning cycle, no grain should be added (only impacts color of liquid paths)
+        self.grainAdded = False
+        self.BLK.setStyleSheet(self.kettleWaterStyle)
+        
+        #Warns the brewer that they should switch the tap to hot water
+        self.messageSignal.emit("Warning: for cleaning, switch tap to hot water","Warning")
+        
+        #Repeats the cleaning cycle until stopPhase is triggered
+        while self.stopPhase == False:
+            #First fills the HLT
+            self.standardPhase("10a","Fill",max(8-self.HLTVolume,0),[1,0,0,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,1,0,0],[0,0,0],"HLT",False)
+            self.messageSignal.emit("Done filling the HLT. Now filling the MLT.","Message")
+            
+            #Then fills the MLT
+            self.standardPhase("10b","Fill",max(8-self.MLTVolume,0),[0,0,0,1,1,0,0,1,0,0],[0,0,0,1,1,0,0,1,0,0],[1,0,0],"MLT",False)
+            self.messageSignal.emit("Done filling the MLT. Now cycling the water in the MLT for 5 minutes","Message")
+
+            #Cycles the water in the MLT for 5 minutes
+            self.messageSignal.emit("Starting phase 10c","Message")
+            self.PAVControl.valveStates = [0,0,0,0,0,1,0,0,1,0]
+            time.sleep(5)
+            self.PAVControl.wortPump = 1
+            totalSleepTime = 0
+            while totalSleepTime < 300 and self.stopPhase == False:
+                time.sleep(1)
+                totalSleepTime += 1
+
+            #Drains the MLT
+            self.standardPhase("10d","Drain",0,[0,0,0,0,0,0,0,1,1,0],[0,0,0,0,0,0,0,1,1,0],[0,1,0],"MLT",False)
+
+            #Fills the HLT again
+            self.standardPhase("10e","Fill",max(8-self.HLTVolume,0),[1,0,0,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,1,0,0],[0,0,0],"HLT",False)
+            self.messageSignal.emit("Done filling the HLT. Now filling the MLT.","Message")
+
+            #Then fills the MLT again
+            self.standardPhase("10f","Fill",max(8-self.MLTVolume,0),[0,0,0,1,1,0,0,1,0,0],[0,0,0,1,1,0,0,1,0,0],[1,0,0],"MLT",False)
+            self.messageSignal.emit("Done filling the MLT. Now filling the BLK.","Message")
+
+            #Then fills the BLK
+            self.standardPhase("10g","Fill",max(8-self.BLKVolume,0),[0,0,0,0,0,0,1,1,1,0],[0,0,0,0,0,0,1,1,1,0],[0,1,0],"BLK",False)
+            self.messageSignal.emit("Done filling the BLK. Now draining the BLK","Message")
+
+            #Then drains the BLK
+            self.standardPhase("10h","Drain",0,[0,0,0,0,0,0,0,1,0,1],[0,0,0,0,0,0,0,1,0,1],[0,1,0],"BLK",False)
+            self.messageSignal.emit("Done with a cleaning cycle. This will continue until you hit pause. Waiting 1 minute before next cycle","Warning")
+            self.alarmControl.alarm = 1
+
+            totalSleepTime = 0
+            while totalSleepTime < 60 and self.stopPhase == False:
+                time.sleep(1)
+                totalSleepTime += 1
+                        
+                   
+
         
     def startMashTimer(self,command):
         if command == "Start":
