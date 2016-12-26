@@ -62,11 +62,6 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     mainSwitchSignal = QtCore.pyqtSignal(list)
     valveSwitchSignal = QtCore.pyqtSignal(list)
 
-    alarmControlSignal = QtCore.pyqtSignal(list)
-    heatControlSignal = QtCore.pyqtSignal(list)
-    PAVControlSignal = QtCore.pyqtSignal(list)
-    HLTPIDSignal = QtCore.pyqtSignal(list)
-    BLKPIDSignal = QtCore.pyqtSignal(list)
     setHeatSignal = QtCore.pyqtSignal(str,str,int)
 
     importSignal = QtCore.pyqtSignal(list,list,list,list,list,list,float)
@@ -455,8 +450,6 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     blackBrush = QtGui.QBrush(QtCore.Qt.SolidPattern)
     blackBrush.setColor(QtGui.QColor(0,0,0))
 
-
-
     #Defines the mapping between liquid paths and frames
     pathsToFrames = {1:[1],
                      2:[3,9],
@@ -572,8 +565,6 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     heatToBLKPIDPipe, BLKPIDToHeatPipe = Pipe()
     UIToBLKPIDPipe, BLKPIDToUIPipe = Pipe()
     UIToHeatPipe, heatToUIPipe = Pipe()
-    UIToAlarmPipe, AlarmToUIPipe = Pipe()
-    UIToPAVPipe, PAVToUIPipe = Pipe()
 
     #Also creates a pipe used to shut off the flow sensors
     UIToFlowPipe, FlowToUIPipe = Pipe()
@@ -1357,7 +1348,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             elif phaseType == "Heat": target = self.getTempInput(targetField)
        
         #If failed to get the needed input, returns
-        if target == None: return
+        if target == None:
+            self.phaseRunning = None
+            return
 
         #Locks the inputs used
         if phaseType == "Fill" or phaseType == "Heat":
@@ -1584,7 +1577,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         spargeTemp = self.getTempInput("Sparge_Temp")
 
         #If failed to get the needed inputs, returns
-        if targetVolume == None or spargeTemp == None: return
+        if targetVolume == None or spargeTemp == None:
+            self.phaseRunning = None
+            return
 
         #Locks the inputs used
         self.lockFieldSignal.emit("Sparge_Target",True)
@@ -1848,6 +1843,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.messageSignal.emit("BREWING COMPLETE! Once MLT grain has been removed, and wort chiller out hose is connected to the sink (was connected to fermenter), press phase 10 to start cleaning cycle.","Success")
         self.alarmControl.alarm = 1
 
+        #Notes that this phase is complete (otherwise other phases won't start)
+        self.phaseRunning = None
+
     def startPhase10(self):
         #Since it is a cleaning cycle, no grain should be added (only impacts color of liquid paths)
         self.grainAdded = False
@@ -1900,6 +1898,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             while totalSleepTime < 60 and self.stopPhase == False:
                 time.sleep(1)
                 totalSleepTime += 1
+
+        #Notes that this phase is complete (otherwise other phases won't start)
+            self.phaseRunning = None
                         
                    
 
