@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Turning on heat</string>
+   <string>Confirm release of locked inputs</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QMainWindow {
