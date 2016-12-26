@@ -3243,30 +3243,11 @@ QPushButton:pressed {
      <string>Target:</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="Pause">
-    <property name="geometry">
-     <rect>
-      <x>630</x>
-      <y>330</y>
-      <width>141</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Pause</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="E_Stop">
     <property name="geometry">
      <rect>
       <x>630</x>
-      <y>410</y>
+      <y>330</y>
       <width>141</width>
       <height>61</height>
      </rect>
@@ -4456,8 +4437,9 @@ QPushButton:pressed {
      </font>
     </property>
     <property name="text">
-     <string>Import
-BeerSmith File</string>
+     <string>Import inputs
+(Manual or
+BeerSmith file)</string>
     </property>
    </widget>
    <widget class="QTableWidget" name="Boil_Steps">
@@ -4857,6 +4839,25 @@ BeerSmith File</string>
      <string>Total boil time:</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="Release_Locked_Inputs">
+    <property name="geometry">
+     <rect>
+      <x>1290</x>
+      <y>580</y>
+      <width>291</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Release locked inputs</string>
+    </property>
+   </widget>
    <zorder>frame_14</zorder>
    <zorder>HLT</zorder>
    <zorder>BLK</zorder>
@@ -4991,7 +4992,6 @@ BeerSmith File</string>
    <zorder>DO_target</zorder>
    <zorder>pH_target</zorder>
    <zorder>label_27</zorder>
-   <zorder>Pause</zorder>
    <zorder>E_Stop</zorder>
    <zorder>label_39</zorder>
    <zorder>label_40</zorder>
@@ -5025,6 +5025,7 @@ BeerSmith File</string>
    <zorder>frame_49</zorder>
    <zorder>Boil_Time</zorder>
    <zorder>label_32</zorder>
+   <zorder>Release_Locked_Inputs</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -5103,7 +5104,6 @@ BeerSmith File</string>
   <tabstop>Notes</tabstop>
   <tabstop>Messages</tabstop>
   <tabstop>Turn_Off_Alarm</tabstop>
-  <tabstop>Pause</tabstop>
   <tabstop>E_Stop</tabstop>
   <tabstop>MLT_Heat</tabstop>
   <tabstop>master_Heat</tabstop>
