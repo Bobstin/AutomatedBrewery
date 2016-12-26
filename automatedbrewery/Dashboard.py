@@ -30,6 +30,28 @@ Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 tempPopupQtCreatorFile = "../UI/AutomatedBreweryUI/TempPopup.ui"
 Ui_TempPopup,TempPopupQtBaseClass = uic.loadUiType(tempPopupQtCreatorFile)
 
+releaseLockedInputsPopupQtCreatorFile = "../UI/AutomatedBreweryUI/ReleaseLockedInputsPopup.ui"
+Ui_ReleaseLockedInputsPopup,ReleaseLockedInputsPopupQtBaseClass = uic.loadUiType(releaseLockedInputsPopupQtCreatorFile)
+
+class releaseLockedInputsPopup(QtWidgets.QMainWindow, Ui_ReleaseLockedInputsPopup):
+    def __init__(self,releaseLockedInputsSignal):
+        super(releaseLockedInputsPopup,self).__init__()
+
+        self.setupUi(self)
+        self.show()
+
+        self.releaseLockedInputsSignal = releaseLockedInputsSignal
+
+        self.Release_Locked_Inputs.clicked.connect(self.sendReleaseSignal)
+        self.Cancel.clicked.connect(self.cancel)
+
+    def cancel(self):
+        self.close()
+
+    def sendReleaseSignal(self):
+        self.releaseLockedInputsSignal.emit()
+        self.close()
+
 
 class tempPopup(QtWidgets.QMainWindow, Ui_TempPopup):
     def __init__(self,setHeatSignal,kettle):
@@ -83,6 +105,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     boilTimerUpdateSignal = QtCore.pyqtSignal(float)
     highlightBoilStepsSignal = QtCore.pyqtSignal(list)
     boilTimerTextSignal = QtCore.pyqtSignal(float)
+
+    releaseLockedInputsSignal = QtCore.pyqtSignal()
 
     redSwitchStyle = '''
     QPushButton {
@@ -598,6 +622,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.boilTimerUpdateSignal.connect(self.updateBoilTimerText)
         self.highlightBoilStepsSignal.connect(self.highlightCurrentBoilStep)
         self.boilTimerTextSignal.connect(self.updateBoilTimerText)
+        self.releaseLockedInputsSignal.connect(self.releaseLockedInputs)
 
         #Starts up the UI and sets some default states
         self.setupUi(self)
@@ -609,9 +634,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             getattr(self,"phase"+str(i)).setStyleSheet(self.futurePhaseStyle)
 
         #Sets default input styles
-        for target in self.targets:
-            getattr(self,target).setStyleSheet(self.unlockedInputStyle)
-            getattr(self,target).setReadOnly(False)
+        self.releaseLockedInputs()
 
         for actual in self.actuals:
             getattr(self,actual).setStyleSheet(self.lockedInputStyle)
@@ -717,6 +740,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #Connects the emergency stop button
         self.E_Stop.clicked.connect(self.emergencyStop)
+
+        #Connects the input release button
+        self.Release_Locked_Inputs.clicked.connect(self.confirmReleaseLockedInputs)
 
         #defaults the kettle setting to none
         self.kettleSetting = "None"
@@ -1996,6 +2022,14 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 for j in range(0,3):
                     self.Boil_Steps.item(i,j).setForeground(self.blackBrush)
                     self.Boil_Steps.item(i,j).setBackground(self.whiteBrush)
+
+    def releaseLockedInputs(self):
+        for target in self.targets:
+            getattr(self,target).setStyleSheet(self.unlockedInputStyle)
+            getattr(self,target).setReadOnly(False)
+
+    def confirmReleaseLockedInputs(self):
+        self.confirmReleasePopup = releaseLockedInputsPopup(self.releaseLockedInputsSignal)
 
     def emergencyStop(self):
         #sends a shutdown message:
