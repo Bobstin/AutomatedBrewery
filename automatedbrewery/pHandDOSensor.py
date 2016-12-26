@@ -109,6 +109,19 @@ class pHandDOSensors(object):
             return numResult
         else: print("Error: Unable to get DO value")
 
+    def pHTemp(self,tempF):
+        tempF = float(tempF)
+        tempC = (tempF-32)/9*5
+        #print(tempF)
+        #print(tempC)
+        self.pHSensor.query("T,"+str(tempC))
+        
+    def DOTemp(self,tempF):
+        tempF = float(tempF)
+        tempC = (tempF-32)/9*5
+        #print(tempF)
+        #print(tempC)
+        self.pHSensor.query("T,"+str(tempC))
 def main():
     import sys
     Sensor = input(">>Enter sensor to test (pH or DO)")

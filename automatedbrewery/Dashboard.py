@@ -748,6 +748,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #Sets the system parameters
         self.safeFlowMinimum = .1
+        self.fermenterTemp  = 65
      
         #Starts the above threads
         self.flowThread.start()
@@ -853,11 +854,19 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def startpHandDOSensing(self):
         pHandDOSensor = pHandDOSensors()
+        #Waits a few seconds for the temperatures to be available
+        time.sleep(2)
+        #Since there is no temp sensor in the fermenter, for DO, uses an assumed value for the temp
+        pHandDOSensor.DOTemp(self.fermenterTemp)
+        
         while self.turnOffpHandDOSensing == False:
+            #Sends the HLT temp to the pH sensor to automatically adjust
+            if self.MLTTemp<999 and self.MLTTemp>0: pHandDOSensor.pHTemp(self.MLTTemp)
+            time.sleep(2)
             pH = pHandDOSensor.pH()
             DO = pHandDOSensor.DO()
             self.pHandDOSignal.emit(pH,DO)
-            time.sleep(2)
+            
 
     def startMainSwitchSensing(self):
         self.mainSwitchSensor = mainSwitchSensors()
