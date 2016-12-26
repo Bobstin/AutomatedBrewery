@@ -135,7 +135,7 @@ class HeatController(object):
             self._cycleTime = value
             self.calcOnOffTime()
 
-    def __init__(self, relay1Pin = 24, relay2Pin = 15, SSR1Pin = 18, SSR2Pin=23, heatSetting=0, cycleTime=2000, maxSetting=100, minSetting=0, pipeConn=None, pipeConn2=None,pipeConn3=None, heatGraphSignal=None):
+    def __init__(self, relay1Pin = 24, relay2Pin = 15, SSR1Pin = 18, SSR2Pin=23, heatSetting=0, cycleTime=2000, maxSetting=100, minSetting=0, pipeConn=None, pipeConn2=None,pipeConn3=None, heatGraphSignal=None, messageSignal=None, dashboard=None, HLTSafeVolume = 2, BLKSafeVolume = 2):
         #Note that for the relays, 0 is on, but for the SSR, 1 is on, however this is handled on the backend
         #just set the relay/ssr to the right status
         self.relayOn = 0
@@ -185,6 +185,12 @@ class HeatController(object):
         #Initializes the heat control as running
         self.turnOff = False
 
+        #Sets up the connection to the dashboard
+        self.dashboard = dashboard
+        self.messageSignal = messageSignal
+        self.HLTSafeVolume = HLTSafeVolume
+        self.BLKSafeVolume = BLKSafeVolume
+
     def calcOnOffTime(self):
         self.onTime = (self.heatSetting/100)*self.cycleTime
         self.offTime = (1-self.heatSetting/100)*self.cycleTime
@@ -220,6 +226,10 @@ class HeatController(object):
         
         while self.turnOff == False:
             if self.kettle == "HLT":
+                if self.dashboard != None:
+                    if getattr(self.dashboard,"HLTVolume")<self.HLTSafeVolume:
+                        self.kettle = "None"
+                        if self.messageSignal != None: self.messageSignal.emit("Error: Volume is below the safe threshold; heating element may be exposed. Turning off the heat.","HLT Heat Alarm")
                 if self.onTime!=0:
                     self.SSR1 = 1
                     time.sleep(self.onTime/1000)
@@ -228,7 +238,13 @@ class HeatController(object):
                     time.sleep(self.offTime/1000)
                 self.checkPipe()
                 if self.heatGraphSignal != None: self.sendGraphPoint()
+                
+                    
             elif self.kettle == "BLK":
+                if self.dashboard != None:
+                    if getattr(self.dashboard,"BLKVolume")<self.BLKSafeVolume:
+                        self.kettle = "None"
+                        if self.messageSignal != None: self.messageSignal.emit("Error: Volume is below the safe threshold; heating element may be exposed. Turning off the heat.","BLK Heat Alarm")
                 if self.onTime!=0:
                     self.SSR2 = 1
                     time.sleep(self.onTime/1000)

@@ -665,6 +665,10 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.stopPhase = False
         self.phaseRunning = None
 
+        #Defaults the low flow counts to zero
+        self.waterPumpLowFlowCount = 0
+        self.wortPumpLowFlowCount = 0
+
         #Creates threads for each of the sensors and controllers
         self.HLTPIDThread = threading.Thread(name='HLTPIDThread',target = self.startHLTPID)
         self.BLKPIDThread = threading.Thread(name='BLKPIDThread',target = self.startBLKPID)
@@ -720,6 +724,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.phase9.clicked.connect(lambda: self.startPhase(9))
         self.phase10.clicked.connect(lambda: self.startPhase(10))
 
+        #Connects the emergency stop button
+        self.E_Stop.clicked.connect(self.emergencyStop)
+
         #defaults the kettle setting to none
         self.kettleSetting = "None"
 
@@ -738,6 +745,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         with open('../calibrations/PIDCalibration.pk1','rb') as PIDCalibration:
             self.HLTPIDCalibration = pickle.load(PIDCalibration)
             self.BLKPIDCalibration = pickle.load(PIDCalibration)
+
+        #Sets the system parameters
+        self.safeFlowMinimum = .1
      
         #Starts the above threads
         self.flowThread.start()
@@ -762,12 +772,15 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         newmessage = QtWidgets.QListWidgetItem(self.Messages)
         newmessage.setText(message)
 
-        if messageType == "Alarm":
+        if "Alarm" in messageType:
             newmessage.setBackground(self.redBrush)
             newmessage.setForeground(self.whiteBrush)
             self.alarmControl.alarm = 1
         elif messageType == "Warning": newmessage.setForeground(self.redBrush)
         elif messageType == "Success": newmessage.setForeground(self.greenBrush)
+
+        if messageType == "HLT Heat Alarm": self.setHeatSignal.emit("HLT","Off",0)
+        if messageType == "BLK Heat Alarm": self.setHeatSignal.emit("BLK","Off",0)
 
         self.Messages.scrollToBottom()
 
@@ -811,7 +824,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.BLKPID.run()
 
     def startHeatControl(self):
-        heatCtrl = HeatController(pipeConn = self.heatToHLTPIDPipe,pipeConn2 = self.heatToBLKPIDPipe,pipeConn3 = self.heatToUIPipe, heatGraphSignal = self.heatGraphSignal)
+        heatCtrl = HeatController(pipeConn = self.heatToHLTPIDPipe,pipeConn2 = self.heatToBLKPIDPipe,pipeConn3 = self.heatToUIPipe, heatGraphSignal = self.heatGraphSignal, dashboard = self, messageSignal = self.messageSignal)
         heatCtrl.run()
 
     def startAlarmControl(self):
@@ -879,6 +892,27 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.MLT_Out.setText("{:.2f} g/m".format(flowRateValues[3][1][-1]))
         self.BLK_In.setText("{:.2f} g/m".format(flowRateValues[4][1][-1]))
         self.BLK_Out.setText("{:.2f} g/m".format(flowRateValues[5][1][-1]))
+
+        #Checks if the flows are too low for the pumps.
+        if self.PAVControl.waterPump == 1:
+            if self.HLTFlowOut < self.safeFlowMinimum:
+                self.waterPumpLowFlowCount += 1
+            else: self.waterPumpLowFlowCount = 0
+
+            if self.waterPumpLowFlowCount >= 5:
+                self.PAVControl.waterPump = 0
+                self.messageSignal.emit("Error: HLT out flow rate is below the safe minimum of {:.2f} gal/min - turning off the water pump".format(self.safeFlowMinimum),"Alarm")
+                self.waterPumpLowFlowCount = 0
+
+        if self.PAVControl.wortPump == 1:
+            if self.MLTFlowOut < self.safeFlowMinimum and self.BLKFlowOut < self.safeFlowMinimum:
+                self.wortPumpLowFlowCount += 1
+            else: self.wortPumpLowFlowCount = 0
+
+            if self.wortPumpLowFlowCount >= 5:
+                self.PAVControl.wortPump = 0
+                self.messageSignal.emit("Error: MLT out and BLK out flow rates are below the safe minimum of {:.2f} gal/min - turning off the wort pump".format(self.safeFlowMinimum),"Alarm")
+                self.wortPumpLowFlowCount = 0
 
     def volumeUpdate(self, volumeValues):
         #stores the numerical values for easier reading
@@ -1951,18 +1985,46 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             if highlightData[i] == "White":
                 for j in range(0,3):
                     self.Boil_Steps.item(i,j).setForeground(self.blackBrush)
-                    self.Boil_Steps.item(i,j).setBackground(self.whiteBrush)   
+                    self.Boil_Steps.item(i,j).setBackground(self.whiteBrush)
+
+    def emergencyStop(self):
+        #sends a shutdown message:
+        self.messageSignal.emit("Emergency stop signal recieved. Shutting off pumps, aeration, and heat. Closing all valves.","Alarm")
+        
+        #Ends the current phase
+        self.stopPhase = True
+
+        #Pauses the timers
+        self.mashTimerSignal.emit("Pause")
+        self.boilTimerSignal.emit("Pause")
+
+        #turns off pumps and aeration
+        self.PAVControl.wortPump = 0
+        self.PAVControl.waterPump = 0
+        self.PAVControl.aeration = 0
+
+        #turns off heat
+        self.setHeatSignal.emit("HLT","Off",0)
+        self.setHeatSignal.emit("BLK","Off",0)
+        self.UIToHLTPIDPipe.send(("mode","Off"))
+        self.UIToHLTPIDPipe.send(("stop",True))
+        self.UIToBLKPIDPipe.send(("mode","Off"))
+        self.UIToBLKPIDPipe.send(("stop",True))
+        self.UIToHeatPipe.send(("kettle","None"))
+        self.UIToHeatPipe.send(("heatSetting",0))
+        self.UIToHeatPipe.send(("turnOff",True))
+        
+        #Closes all valves:
+        self.PAVControl.fullyOpenClose(5,0)
+        self.PAVControl.fullyOpenClose(9,0)
+        self.PAVControl.valveStates = [0,0,0,0,0,0,0,0,0,0]      
+       
            
     def closeEvent(self, *args, **kwargs):
         print("Beginning system shutdown")
         #Ends the current phase
         self.stopPhase = True
         
-        #Closes all valves:
-        self.PAVControl.fullyOpenClose(5,0)
-        self.PAVControl.fullyOpenClose(9,0)
-        self.PAVControl.valveStates = [0,0,0,0,0,0,0,0,0,0]
-
         #turns off pumps and aeration
         self.PAVControl.wortPump = 0
         self.PAVControl.waterPump = 0
@@ -1976,6 +2038,11 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.UIToHeatPipe.send(("kettle","None"))
         self.UIToHeatPipe.send(("heatSetting",0))
         self.UIToHeatPipe.send(("turnOff",True))
+
+        #Closes all valves:
+        self.PAVControl.fullyOpenClose(5,0)
+        self.PAVControl.fullyOpenClose(9,0)
+        self.PAVControl.valveStates = [0,0,0,0,0,0,0,0,0,0]
 
         #Turns off the sensors
         self.turnOffVolumeSensing = True
