@@ -766,6 +766,21 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         #Sets the system parameters
         self.safeFlowMinimum = .1
         self.fermenterTemp  = 65
+        self.HLTSafeVolume = 2
+        self.BLKSafeVolume = 2
+        self.HLTMaxVolume = 10
+        self.MLTMaxVolume = 10
+        self.BLKMaxVolume = 10
+        self.targetSpargeRate = .2
+        self.minPartialValveChange = .25
+        self.valveChangeMultiplier = 10
+        self.boilWarningTemp = 208
+        self.boilTemp = 212
+        self.boilHeatLevel = 85
+        self.DOTarget = 7
+
+        #Updates the DO target text
+        self.DO_target.setText("{:.2f}".format(self.DOTarget))
      
         #Starts the above threads
         self.flowThread.start()
@@ -842,7 +857,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.BLKPID.run()
 
     def startHeatControl(self):
-        heatCtrl = HeatController(pipeConn = self.heatToHLTPIDPipe,pipeConn2 = self.heatToBLKPIDPipe,pipeConn3 = self.heatToUIPipe, heatGraphSignal = self.heatGraphSignal, dashboard = self, messageSignal = self.messageSignal)
+        heatCtrl = HeatController(pipeConn = self.heatToHLTPIDPipe,pipeConn2 = self.heatToBLKPIDPipe,pipeConn3 = self.heatToUIPipe, heatGraphSignal = self.heatGraphSignal, dashboard = self, messageSignal = self.messageSignal,HLTSafeVolume = self.HLTSafeVolume, BLKSafeVolume = self.BLKSafeVolume)
         heatCtrl.run()
 
     def startAlarmControl(self):
@@ -1671,8 +1686,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             counter=0
             lastFiveMLTFlowOut=[]
             lastFiveBLKFlowIn=[]
-            targetFlowRate = .2
-            valveChangeMultiplier = 10
+            targetFlowRate = self.targetSpargeRate
+            valveChangeMultiplier = self.valveChangeMultiplier
             while self.BLKVolume<targetVolume and self.stopPhase == False:
                 time.sleep(1)
                 if counter!=5:
@@ -1688,13 +1703,13 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                     MLTFlowError = targetFlowRate - MLTFlow
                     MLTCorrection = MLTFlowError*valveChangeMultiplier
                     #Doesn't change the value if change is less than .25 sec, to reduce impact on relays
-                    if abs(MLTCorrection)>.25:
+                    if abs(MLTCorrection)>self.minPartialValveChange:
                         self.PAVControl.partialOpenClose(5,MLTCorrection)
 
                     BLKFlow = sum(lastFiveBLKFlowIn)/len(lastFiveBLKFlowIn)
                     BLKFlowError = targetFlowRate - BLKFlow
                     BLKCorrection = BLKFlowError*valveChangeMultiplier
-                    if abs(BLKCorrection)>.25:
+                    if abs(BLKCorrection)>self.minPartialValveChange:
                         self.PAVControl.partialOpenClose(9,BLKCorrection)
 
                     #Resets the flow values and counter
@@ -1765,19 +1780,19 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             self.setHeatSignal.emit("BLK","SemiAuto",100)
 
             #Waits until we hit near a boil (208 F), when it will alarm
-            while self.BLKTemp<208 and self.stopPhase == False:
+            while self.BLKTemp<self.boilWarningTemp and self.stopPhase == False:
                 time.sleep(.5)
 
             self.messageSignal.emit("Approaching boil. Add fermcap if you haven't yet, or watch for boil overs","Warning")
             self.alarmControl.alarm = 1
 
             #Waits for boil (212 F), when it will start the timer and reduce heat to 80% 
-            while self.BLKTemp<212 and self.stopPhase == False:
+            while self.BLKTemp<self.boilTemp and self.stopPhase == False:
                 time.sleep(.5)
 
-            self.messageSignal.emit("Reached boil - reducing heat to 85%. Add additions if needed.","Warning")
+            self.messageSignal.emit("Reached boil - reducing heat to {}%. Add additions if needed.".format(self.boilHeatLevel),"Warning")
             self.alarmControl.alarm = 1
-            self.setHeatSignal.emit("BLK","SemiAuto",85)
+            self.setHeatSignal.emit("BLK","SemiAuto",self.boilHeatLevel)
             self.boilTimerSignal.emit("Start")
 
             #Alarms whenever an addition is needed in 2 minutes, and turns off heat at the end of the boil
@@ -1883,11 +1898,11 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         #Repeats the cleaning cycle until stopPhase is triggered
         while self.stopPhase == False:
             #First fills the HLT
-            self.standardPhase("10a","Fill",max(8-self.HLTVolume,0),[1,0,0,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,1,0,0],[0,0,0],"HLT",False)
+            self.standardPhase("10a","Fill",max(.8*float(self.HLTMaxVolume)-float(self.HLTVolume),0),[1,0,0,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,1,0,0],[0,0,0],"HLT",False)
             self.messageSignal.emit("Done filling the HLT. Now filling the MLT.","Message")
             
             #Then fills the MLT
-            self.standardPhase("10b","Fill",max(8-self.MLTVolume,0),[0,0,0,1,1,0,0,1,0,0],[0,0,0,1,1,0,0,1,0,0],[1,0,0],"MLT",False)
+            self.standardPhase("10b","Fill",max(.8*float(self.MLTMaxVolume)-float(self.MLTVolume),0),[0,0,0,1,1,0,0,1,0,0],[0,0,0,1,1,0,0,1,0,0],[1,0,0],"MLT",False)
             self.messageSignal.emit("Done filling the MLT. Now cycling the water in the MLT for 5 minutes","Message")
 
             #Cycles the water in the MLT for 5 minutes
@@ -1904,15 +1919,15 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             self.standardPhase("10d","Drain",0,[0,0,0,0,0,0,0,1,1,0],[0,0,0,0,0,0,0,1,1,0],[0,1,0],"MLT",False)
 
             #Fills the HLT again
-            self.standardPhase("10e","Fill",max(8-self.HLTVolume,0),[1,0,0,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,1,0,0],[0,0,0],"HLT",False)
+            self.standardPhase("10e","Fill",max(.8*float(self.HLTMaxVolume)-float(self.HLTVolume),0),[1,0,0,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,1,0,0],[0,0,0],"HLT",False)
             self.messageSignal.emit("Done filling the HLT. Now filling the MLT.","Message")
 
             #Then fills the MLT again
-            self.standardPhase("10f","Fill",max(8-self.MLTVolume,0),[0,0,0,1,1,0,0,1,0,0],[0,0,0,1,1,0,0,1,0,0],[1,0,0],"MLT",False)
+            self.standardPhase("10f","Fill",max(.8*float(self.MLTMaxVolume)-float(self.MLTVolume),0),[0,0,0,1,1,0,0,1,0,0],[0,0,0,1,1,0,0,1,0,0],[1,0,0],"MLT",False)
             self.messageSignal.emit("Done filling the MLT. Now filling the BLK.","Message")
 
             #Then fills the BLK
-            self.standardPhase("10g","Fill",max(8-self.BLKVolume,0),[0,0,0,0,0,0,1,1,1,0],[0,0,0,0,0,0,1,1,1,0],[0,1,0],"BLK",False)
+            self.standardPhase("10g","Fill",max(.8*float(self.BLKMaxVolume)-float(self.BLKVolume),0),[0,0,0,0,0,0,1,1,1,0],[0,0,0,0,0,0,1,1,1,0],[0,1,0],"BLK",False)
             self.messageSignal.emit("Done filling the BLK. Now draining the BLK","Message")
 
             #Then drains the BLK
