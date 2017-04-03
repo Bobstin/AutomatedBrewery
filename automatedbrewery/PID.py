@@ -215,7 +215,7 @@ class PID(object):
                 self.stop = 0
 
                 #checks that the output ranges are allowed
-                if ((outputStartValue - outputChange)< self.outputMin)|((outputStartValue + outputChange)< self.outputMax):
+                if ((outputStartValue - outputChange)< self.outputMin)|((outputStartValue + outputChange)> self.outputMax):
                         self.printAndSendMessage ("Error: outputs will exceed allowed values given outputStartValue and outputChange","Alarm")
 
                 #sets the output to the outputStartValue
@@ -338,7 +338,7 @@ class PID(object):
                                                         lastThree = actualMaxs[-3:]
                                                         self.printAndSendMessage ("Last Three Maximums:{:.2f}, {:.2f}, {:.2f}".format(lastThree[0],lastThree[1],lastThree[2]),"Message")
                                                         
-                                                        maxDelta = (max(lastThree)-min(lastThree))/float(min(lastThree))
+                                                        maxDelta = (max(lastThree)-min(lastThree))
                                                         if maxDelta < requiredAccuracy:
                                                                 averageMax = sum(actualMaxs[-3:])/float(3)
                                                                 averageMin = sum(actualMins[-3:])/float(3)
