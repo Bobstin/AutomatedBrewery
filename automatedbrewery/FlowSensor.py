@@ -52,8 +52,8 @@ class flowSensors(object):
                     time.sleep(1)
 
                     for i in range(0,6):
-                        #For rates, append the counts divided by the time since the last run
-                        self.rates[i][1].append(self.counts[i]*self.calibration[i]/(time.time()-self.lastRun))
+                        #For rates, append the counts divided by the time since the last run (multiplies by 60 since rate is in gal/min)
+                        self.rates[i][1].append(self.counts[i]*self.calibration[i]/(time.time()-self.lastRun)*60)
                         
                         #Add the time that the data was collected
                         self.rates[i][0].append(time.time()-self.startTime)
