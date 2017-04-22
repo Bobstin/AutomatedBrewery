@@ -940,7 +940,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.waterPumpLowFlowCount += 1
             else: self.waterPumpLowFlowCount = 0
 
-            if self.waterPumpLowFlowCount >= 5:
+            if self.waterPumpLowFlowCount >= 10:
                 self.PAVControl.waterPump = 0
                 self.messageSignal.emit("Error: HLT out flow rate is below the safe minimum of {:.2f} gal/min - turning off the water pump".format(self.safeFlowMinimum),"Alarm")
                 self.waterPumpLowFlowCount = 0
@@ -950,7 +950,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.wortPumpLowFlowCount += 1
             else: self.wortPumpLowFlowCount = 0
 
-            if self.wortPumpLowFlowCount >= 5:
+            if self.wortPumpLowFlowCount >= 10:
                 self.PAVControl.wortPump = 0
                 self.messageSignal.emit("Error: MLT out and BLK out flow rates are below the safe minimum of {:.2f} gal/min - turning off the wort pump".format(self.safeFlowMinimum),"Alarm")
                 self.wortPumpLowFlowCount = 0
