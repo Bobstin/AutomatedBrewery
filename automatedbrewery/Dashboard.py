@@ -764,7 +764,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             self.BLKPIDCalibration = pickle.load(PIDCalibration)
 
         #Sets the system parameters
-        self.safeFlowMinimum = .1
+        self.safeFlowMinimum = 0
         self.fermenterTemp  = 65
         self.HLTSafeVolume = 2
         self.BLKSafeVolume = 2
