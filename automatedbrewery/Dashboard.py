@@ -768,7 +768,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.fermenterTemp  = 65
         self.HLTSafeVolume = 2
         self.BLKSafeVolume = 2
-        self.HLTMaxVolume = 10
+        self.HLTMaxVolume = 22
         self.MLTMaxVolume = 10
         self.BLKMaxVolume = 10
         self.targetSpargeRate = .2
@@ -831,6 +831,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.HLTPID.Kp = self.HLTPIDCalibration[0]
         self.HLTPID.Ki = self.HLTPIDCalibration[1]
         self.HLTPID.Kd = self.HLTPIDCalibration[2]
+        self.HLTPID.integralWindupBlocker=True
         #self.HLTPID.semiAutoValue = 0
         self.HLTPID.mode = "Off"
         #self.HLTPID.tempGraphSignal = self.tempSignal
@@ -851,6 +852,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.BLKPID.Kp = self.BLKPIDCalibration[0]
         self.BLKPID.Ki = self.BLKPIDCalibration[1]
         self.BLKPID.Kd = self.BLKPIDCalibration[2]
+        self.BLKPID.integralWindupBlocker=True
         #self.BLKPID.semiAutoValue = 0
         self.BLKPID.mode = "Off"
         #self.BLKPID.tempGraphSignal = self.tempSignal

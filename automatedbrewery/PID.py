@@ -32,6 +32,7 @@ class PID(object):
 
 
                 self.lastRun = time.time()*1000
+                self.integralWindupBlocker = False
                 self.integralTerm = 0
 
                 self._mode = 'Auto'
@@ -56,7 +57,9 @@ class PID(object):
                         if value == 'Auto':
                                 self.lastInput = getattr(self.inputSource,self.inputAttributeName)
                                 if self._mode == 'SemiAuto': self.integralTerm = self.semiAutoValue
-                                else: self.integralTerm = 0
+                                else:
+                                        self.integralTerm = 0
+                                        self.inControllableRegion = False
 
                         self._mode = value
                 else:
@@ -126,7 +129,7 @@ class PID(object):
 
         def calculateOutput(self):
                 #Performs checks to see if all parameters are set properly
-                
+ 
                 if self.outputMin >= self.outputMax:
                         self.printAndSendMessage('Error: outputMin is greater than or equal to outputMax',"Alarm")
                         self.stop = 1
@@ -185,16 +188,33 @@ class PID(object):
 
                         error = self.setPoint - latestInput
 
-                        self.integralTerm += self.Ki*error*timeChange
-                        self.integralTerm=max(min(self.integralTerm,self.outputMax),self.outputMin)
+                        #For the integral windup blocker, only adds to the integral factor if we are in the
+                        #controllable regioun
+                        if self.integralWindupBlocker == False or self.inControllableRegion == True:
+                                self.integralTerm += self.Ki*error*timeChange
+                                self.integralTerm=max(min(self.integralTerm,self.outputMax),self.outputMin)
+                        #print(self.integralTerm)
 
                         dInput = (latestInput - self.lastInput) / timeChange
 
                         #calculates the result based on the parameters and error
                         #output is limited to be no larger than outputMax and no smaller than outputMin
+
+                        #print("P: {:.2f}".format(self.Kp*error))
+                        #print("I: {:.2f}".format(self.integralTerm))
+                        #print("D: {:.2f}".format(self.Kd*dInput))
+                        #print("")
                         output = self.Kp*error + self.integralTerm - self.Kd*dInput
                         #print(output)
                         self.output = max(min(output,self.outputMax),self.outputMin)
+
+                        if self.output < self.outputMax and self.output > self.outputMin:
+                                self.inControllableRegion = True
+                        else:
+                                #If just exited the controllable region, remove the addition to the integral term
+                                if self.inControllableRegion == True and self.integralWindupBlocker == True: self.integralTerm -= self.Ki*error*timeChange
+                                self.inControllableRegion = False
+                        
                         #print(self.output)
                         #self.printAndSendMessage(self.output,"Message")
 
