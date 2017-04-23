@@ -21,3 +21,4 @@ class AlarmController(object):
 
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.alarmPin,GPIO.OUT)
+        GPIO.output(self.alarmPin,1)
