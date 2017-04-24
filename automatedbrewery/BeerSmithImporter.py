@@ -253,8 +253,8 @@ class importDialog(QtWidgets.QMainWindow, Ui_ImportDialog):
         #Calculates the volumes
         volumeNames = ['HLT first fill','Strike','HLT second fill','Sparge','Pre-boil','Post-boil','Fermenter']
         volumeValues = [None]*7 
-        #Recommend filling the HLT to 85% of max initially
-        volumeValues[0] = .85*float(globalResults[1])
+        #Recommend filling the HLT to 90% of max initially
+        volumeValues[0] = .90*float(globalResults[1])
 
         #Strike water is calculated based on the infusion + mash tun addition from the first Mash step
         volumeValues[1] = float(mashResults[1][0]) + float(mashResults[2][0])
