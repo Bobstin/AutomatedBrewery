@@ -1202,16 +1202,16 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.mainSwitchUpdate(self.mainSwitchSensor.allMainSwitchStates())
 
     def setHeatPopup(self,kettle):
-        self.tempPopup = tempPopup(self.setHeatSignal,kettle,kettle)
+        self.tempPopup = tempPopup(self.setHeatSignal,kettle)
 
-    def setHeat(self, kettle, mode, setting, inputSource):
+    def setHeat(self, kettle, mode, setting, inputKettle):
         #Adds a message
         if mode == "Off":
             self.printAndSendMessage("Turning off heat to the {}".format(kettle),"message")
         else:
             if self.mainSwitchSensor.switchState('Master Heat') == "On":
                 if mode == "SemiAuto":self.printAndSendMessage("Setting the {} to {:.0f}%".format(kettle,setting),"Message")
-                if mode == "Auto":self.printAndSendMessage("Heating the {} to get the {} to {:.0f} deg F".format(kettle,inputSource,setting),"Message")
+                if mode == "Auto":self.printAndSendMessage("Heating the {} to get the {} to {:.0f} deg F".format(kettle,inputKettle,setting),"Message")
             else:
                 self.printAndSendMessage("Error: Master heat is switched to off, but heat is turned on. Please turn on the master heat","Alarm")
                 return
@@ -1225,7 +1225,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.UIToHLTPIDPipe.send(("setPoint",setting))
                 self.UIToHLTPIDPipe.send(("mode","Auto"))
                 self.UIToHeatPipe.send(("kettle","HLT"))
-                self.UIToHLTPIDPipe.send(("inputSource",inputSource+"Temp"))
+                self.UIToHLTPIDPipe.send(("inputAttributeName",inputKettle+"Temp"))
 
                 
             if mode == "SemiAuto":
@@ -1263,7 +1263,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.UIToBLKPIDPipe.send(("setPoint",setting))
                 self.UIToBLKPIDPipe.send(("mode","Auto"))
                 self.UIToHeatPipe.send(("kettle","BLK"))
-                self.UIToBLKPIDPipe.send(("inputSource",inputSource+"Temp"))
+                self.UIToBLKPIDPipe.send(("inputAttributeName",inputKettle+"Temp"))
 
                 OldBLKText = self.BLK_Heat.text()
                 NewBLKText=OldBLKText[:17]+"\nTarget temp: {:.0f}".format(setting)
@@ -1300,25 +1300,24 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.UIToHeatPipe.send(("kettle","None"))
 
         if mode == "Auto":
-            if inputSource == "HLT":
-                OldHLTText = self.HLT_Heat.text()
-                OldMLTText = self.MLT_Heat.text()
-                OldBLKText = self.BLK_Heat.text()
+            OldHLTText = self.HLT_Heat.text()
+            OldMLTText = self.MLT_Heat.text()
+            OldBLKText = self.BLK_Heat.text()
 
-                NewHLTText=OldHLTText[:17]
-                NewMLTText=OldMLTText[:17] 
-                NewBLKText=OldBLKText[:17]               
+            NewHLTText=OldHLTText[:17]
+            NewMLTText=OldMLTText[:17] 
+            NewBLKText=OldBLKText[:17]               
 
-                if inputSource == "HLT":
-                    NewHLTText=NewHLTText+"\nTarget temp: {:.0f}".format(setting)
-                elif inputSource == "MLT":
-                    NewMLTText=NewMLTText+"\nTarget temp: {:.0f}".format(setting)
-                elif inputSource == "BLK":
-                    NewBLKText=NewBLKText+"\nTarget temp: {:.0f}".format(setting)
+            if inputKettle == "HLT":
+                NewHLTText=NewHLTText+"\nTarget temp: {:.0f}".format(setting)
+            elif inputKettle == "MLT":
+                NewMLTText=NewMLTText+"\nTarget temp: {:.0f}".format(setting)
+            elif inputKettle == "BLK":
+                NewBLKText=NewBLKText+"\nTarget temp: {:.0f}".format(setting)
 
-                self.HLT_Heat.setText(NewHLTText)
-                self.MLT_Heat.setText(NewMLTText)
-                self.BLK_Heat.setText(NewBLKText)
+            self.HLT_Heat.setText(NewHLTText)
+            self.MLT_Heat.setText(NewMLTText)
+            self.BLK_Heat.setText(NewBLKText)
 
 
             #Updates the main switch states to reflect the new Auto statuses
