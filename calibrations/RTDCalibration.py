@@ -23,13 +23,13 @@ MLTOffset=float(input(">>Enter MLT Offset: "))
 BLKOffset=float(input(">>Enter BLK Offset: "))
 
 confirm=input(">> Save new calibrations? (Y/N): ")
-    if confirm=="Y":
-        with open('PIDCalibration.pk1','wb') as output:
-            pickle.dump(HLTOffset,output,protocol = pickle.HIGHEST_PROTOCOL)
-            pickle.dump(MLTOffset,output,protocol = pickle.HIGHEST_PROTOCOL)
-            pickle.dump(BLKOffset,output,protocol = pickle.HIGHEST_PROTOCOL)
-            print("Calibrations saved")
-    else: print ("Calibrations not saved")
+if confirm=="Y":
+    with open('RTDCalibration.pk1','wb') as output:
+        pickle.dump(HLTOffset,output,protocol = pickle.HIGHEST_PROTOCOL)
+        pickle.dump(MLTOffset,output,protocol = pickle.HIGHEST_PROTOCOL)
+        pickle.dump(BLKOffset,output,protocol = pickle.HIGHEST_PROTOCOL)
+        print("Calibrations saved")
+else: print ("Calibrations not saved")
 
 
 
