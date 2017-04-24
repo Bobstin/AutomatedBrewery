@@ -85,7 +85,7 @@ QProgressBar::chunk {
 }</string>
     </property>
     <property name="maximum">
-     <number>8500</number>
+     <number>850</number>
     </property>
     <property name="value">
      <number>500</number>
@@ -127,7 +127,7 @@ QProgressBar::chunk {
 }</string>
     </property>
     <property name="maximum">
-     <number>8000</number>
+     <number>800</number>
     </property>
     <property name="value">
      <number>0</number>
