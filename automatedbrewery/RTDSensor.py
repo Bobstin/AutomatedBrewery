@@ -247,15 +247,15 @@ class FaultError(Exception):
 
 class tempSensors(object):
 	def HLTTemp(self):
-		Temp = self.HLTTempSensor.readTemp()
+		Temp = self.HLTTempSensor.readTemp() + self.HLTOffset
 		return Temp
 
 	def MLTTemp(self):
-		Temp = self.MLTTempSensor.readTemp()
+		Temp = self.MLTTempSensor.readTemp() + self.MLTOffset
 		return Temp
 
 	def BLKTemp(self):
-		Temp = self.BLKTempSensor.readTemp()
+		Temp = self.BLKTempSensor.readTemp() + self.BLKOffset
 		return Temp
 	
 	def __init__(self,csPins=[6,12,10],misoPins=[7,11,11],mosiPins=[4,8,8],clkPins=[5,9,9],address=0x23):
@@ -263,6 +263,11 @@ class tempSensors(object):
 		self.HLTTempSensor = max31865(self.mcp,csPins[0],misoPins[0],mosiPins[0],clkPins[0])
 		self.MLTTempSensor = max31865(self.mcp,csPins[1],misoPins[1],mosiPins[1],clkPins[1])
 		self.BLKTempSensor = max31865(self.mcp,csPins[2],misoPins[2],mosiPins[2],clkPins[2])
+
+    	with open('../calibrations/RTDCalibration.pk1','rb') as pickleInput:
+        	self.HLTOffset = pickle.load(pickleInput)
+        	self.MLTOffset = pickle.load(pickleInput)
+        	self.BLKOffset = pickle.load(pickleInput)
 
 if __name__ == "__main__":
 
