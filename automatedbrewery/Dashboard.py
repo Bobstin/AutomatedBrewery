@@ -69,7 +69,7 @@ class tempPopup(QtWidgets.QMainWindow, Ui_TempPopup):
     def setHeat(self):
         if self.HeatMode.currentText() == "Off":heatSetting = 0
         else: heatSetting = int(round(float(self.Heat_Setting.text())))
-        self.setHeatSignal.emit(self.kettle,self.HeatMode.currentText(),heatSetting)
+        self.setHeatSignal.emit(self.kettle,self.HeatMode.currentText(),heatSetting,self.kettle)
         self.close()
 
     def cancel(self): self.close()
@@ -84,7 +84,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     mainSwitchSignal = QtCore.pyqtSignal(list)
     valveSwitchSignal = QtCore.pyqtSignal(list)
 
-    setHeatSignal = QtCore.pyqtSignal(str,str,int)
+    setHeatSignal = QtCore.pyqtSignal(str,str,int,str)
 
     importSignal = QtCore.pyqtSignal(list,list,list,list,list,list,float)
 
@@ -766,12 +766,17 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         #Sets the system parameters
         self.safeFlowMinimum = 0
         self.fermenterTemp  = 65
-        self.HLTSafeVolume = 2
-        self.BLKSafeVolume = 2
+        self.HLTSafeVolume = 5
+        self.BLKSafeVolume = 4.5
         self.HLTMaxVolume = 22
         self.MLTMaxVolume = 10
         self.BLKMaxVolume = 10
+
+        self.spargeValve5StartPartialOpenTime = 1
+        self.spargeValve9StartPartialOpenTime = 1
+        self.dynamicSparge = False
         self.targetSpargeRate = .2
+
         self.minPartialValveChange = .25
         self.valveChangeMultiplier = 10
         self.boilWarningTemp = 208
@@ -812,8 +817,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         elif messageType == "Warning": newmessage.setForeground(self.redBrush)
         elif messageType == "Success": newmessage.setForeground(self.greenBrush)
 
-        if messageType == "HLT Heat Alarm": self.setHeatSignal.emit("HLT","Off",0)
-        if messageType == "BLK Heat Alarm": self.setHeatSignal.emit("BLK","Off",0)
+        if messageType == "HLT Heat Alarm": self.setHeatSignal.emit("HLT","Off",0,"HLT")
+        if messageType == "BLK Heat Alarm": self.setHeatSignal.emit("BLK","Off",0,"HLT")
 
         self.Messages.scrollToBottom()
 
@@ -1197,16 +1202,16 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.mainSwitchUpdate(self.mainSwitchSensor.allMainSwitchStates())
 
     def setHeatPopup(self,kettle):
-        self.tempPopup = tempPopup(self.setHeatSignal,kettle)
+        self.tempPopup = tempPopup(self.setHeatSignal,kettle,kettle)
 
-    def setHeat(self, kettle, mode, setting):
+    def setHeat(self, kettle, mode, setting, inputSource):
         #Adds a message
         if mode == "Off":
             self.printAndSendMessage("Turning off heat to the {}".format(kettle),"message")
         else:
             if self.mainSwitchSensor.switchState('Master Heat') == "On":
                 if mode == "SemiAuto":self.printAndSendMessage("Setting the {} to {:.0f}%".format(kettle,setting),"Message")
-                if mode == "Auto":self.printAndSendMessage("Setting the {} to {:.0f} deg F".format(kettle,setting),"Message")
+                if mode == "Auto":self.printAndSendMessage("Heating the {} to get the {} to {:.0f} deg F".format(kettle,inputSource,setting),"Message")
             else:
                 self.printAndSendMessage("Error: Master heat is switched to off, but heat is turned on. Please turn on the master heat","Alarm")
                 return
@@ -1220,14 +1225,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.UIToHLTPIDPipe.send(("setPoint",setting))
                 self.UIToHLTPIDPipe.send(("mode","Auto"))
                 self.UIToHeatPipe.send(("kettle","HLT"))
+                self.UIToHLTPIDPipe.send(("inputSource",inputSource+"Temp"))
 
-                OldHLTText = self.HLT_Heat.text()
-                NewHLTText=OldHLTText[:17]+"\nTarget temp: {:.0f}".format(setting)
-                self.HLT_Heat.setText(NewHLTText)
-
-                OldBLKText = self.BLK_Heat.text()
-                NewBLKText=OldBLKText[:17]
-                self.BLK_Heat.setText(NewBLKText)
+                
             if mode == "SemiAuto":
                 self.kettleSetting = "HLT"
                 #Turns off the BLK, and turns on the HLT
@@ -1263,6 +1263,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.UIToBLKPIDPipe.send(("setPoint",setting))
                 self.UIToBLKPIDPipe.send(("mode","Auto"))
                 self.UIToHeatPipe.send(("kettle","BLK"))
+                self.UIToBLKPIDPipe.send(("inputSource",inputSource+"Temp"))
 
                 OldBLKText = self.BLK_Heat.text()
                 NewBLKText=OldBLKText[:17]+"\nTarget temp: {:.0f}".format(setting)
@@ -1297,6 +1298,28 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 if self.kettleSetting == "BLK":
                     self.kettleSetting = "None"
                     self.UIToHeatPipe.send(("kettle","None"))
+
+        if mode == "Auto":
+            if inputSource == "HLT":
+                OldHLTText = self.HLT_Heat.text()
+                OldMLTText = self.MLT_Heat.text()
+                OldBLKText = self.BLK_Heat.text()
+
+                NewHLTText=OldHLTText[:17]
+                NewMLTText=OldMLTText[:17] 
+                NewBLKText=OldBLKText[:17]               
+
+                if inputSource == "HLT":
+                    NewHLTText=NewHLTText+"\nTarget temp: {:.0f}".format(setting)
+                elif inputSource == "MLT":
+                    NewMLTText=NewMLTText+"\nTarget temp: {:.0f}".format(setting)
+                elif inputSource == "BLK":
+                    NewBLKText=NewBLKText+"\nTarget temp: {:.0f}".format(setting)
+
+                self.HLT_Heat.setText(NewHLTText)
+                self.MLT_Heat.setText(NewMLTText)
+                self.BLK_Heat.setText(NewBLKText)
+
 
             #Updates the main switch states to reflect the new Auto statuses
             mainSwitchStates = self.mainSwitchSensor.allMainSwitchStates()
@@ -1429,11 +1452,12 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             self.PAVControl.aeration = pumpAerationStates[2]
 
             #For heat targets, turns on the heat. Note that if the MLT is being heated, we actually apply heat to the HLT (the MLT is heated though HERMS)
+            #As a result, we also need to change the input source to be the MLT instead of HLT
             if phaseType == "Heat":
                 if kettle == "MLT":
-                    self.setHeatSignal.emit("HLT","Auto",target)
+                    self.setHeatSignal.emit("HLT","Auto",target,"MLT")
                 else:
-                    self.setHeatSignal.emit(kettle,"Auto",target)
+                    self.setHeatSignal.emit(kettle,"Auto",target,kettle)
 
             #For drains, waits 5 seconds before starting the check to give it a chance to have a flow
             if phaseType == "Drain": time.sleep(5)
@@ -1465,9 +1489,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
             #turns off the heat and pumps/aeration
             if kettle == "MLT":
-                self.setHeatSignal.emit("HLT","Off",0)
+                self.setHeatSignal.emit("HLT","Off",0,"HLT")
             else:
-                self.setHeatSignal.emit(kettle,"Off",0)
+                self.setHeatSignal.emit(kettle,"Off",0,kettle)
             self.PAVControl.waterPump = 0
             self.PAVControl.wortPump = 0
             self.PAVControl.aeration = 0
@@ -1485,7 +1509,11 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             else: self.messageSignal.emit("Manually stopping phase {}".format(phase),"Alarm")
 
     def startPhase1(self):
+        self.messageSignal.emit("Turn on water for filling of HLT","Warning")
+        self.alarmControl.alarm = 1
         self.standardPhase(1,"Fill","HLT_Fill_1_Target",[1,0,1,0,0,0,1,0,0,0],[0,0,1,0,0,0,1,0,0,0],[0,0,0],"HLT",True)
+        self.messageSignal.emit("Turn off water for filling of HLT","Warning")
+        self.alarmControl.alarm = 1
 
     def startPhase2(self):
         self.standardPhase(2,"Heat","Strike_Temp",[0,0,1,1,0,0,1,0,0,0],[0,0,1,1,0,0,1,0,0,0],[1,0,0],"HLT",True)
@@ -1494,7 +1522,11 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.standardPhase(3,"Fill","Strike_Target",[0,0,0,1,1,0,1,0,0,0],[0,0,1,1,1,0,1,0,0,0],[1,0,0],"MLT",True)
 
     def startPhase4(self):
+        self.messageSignal.emit("Turn on water for filling of HLT","Warning")
+        self.alarmControl.alarm = 1
         self.standardPhase(4,"Fill","HLT_Fill_2_Target",[1,0,1,0,0,0,1,0,0,0],[0,0,1,0,0,0,1,0,0,0],[0,0,0],"HLT",True)
+        self.messageSignal.emit("Turn off water for filling of HLT","Warning")
+        self.alarmControl.alarm = 1
 
     def startPhase5(self):
         self.standardPhase(5,"Heat","HLT_Fill_2_Temp",[0,0,1,1,0,1,1,0,1,0],[0,0,1,1,0,1,1,0,1,0],[1,1,0],"MLT",False)
@@ -1545,8 +1577,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 #highlights the current mash step
                 self.highlightMashStepSignal.emit(step)
                 
-                #sets the heat to the correct temperature for the step
-                self.setHeatSignal.emit("HLT","Auto",self.mashSchedule[step][2])
+                #sets the heat to the correct temperature for the step. Note this adjusts the inputSource of the HLT PID to read from the MLT
+                self.setHeatSignal.emit("HLT","Auto",self.mashSchedule[step][2],"MLT")
                 
                 #for each step, starts by adding the correct amount of water, if needed (except for the first step, where this was completed in advance)
                 if step != 0 and self.mashSchedule[step][1] != 0:
@@ -1591,7 +1623,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             self.mashTimerSignal.emit("Pause")
 
             #turns off the heat and pumps/aeration
-            self.setHeatSignal.emit("HLT","Off",0)
+            self.setHeatSignal.emit("HLT","Off",0,"HLT")
             self.PAVControl.waterPump = 0
             self.PAVControl.wortPump = 0
             self.PAVControl.aeration = 0
@@ -1607,15 +1639,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def startPhase7(self):
         #Gets the input needed for the phase
-        spargeAmount = self.getVolumeInput("Sparge_Target")
+        targetVolume = self.getVolumeInput("Pre_Boil_Target")
         BLKStartAmount = self.BLKVolume
         HLTStartAmount = self.HLTVolume
-        if spargeAmount != None:
-            targetVolume = BLKStartAmount + spargeAmount
-        else:
-            targetVolume = None
-            self.phaseRunning = None
-            return
 
         spargeTemp = self.getTempInput("Sparge_Temp")
 
@@ -1655,7 +1681,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             self.PAVControl.aeration = 0
 
             #Turn on the heat
-            self.setHeatSignal.emit("HLT","Auto",spargeTemp)
+            self.setHeatSignal.emit("HLT","Auto",spargeTemp,"MLT")
 
             #Waits until target is hit
             while self.MLTTemp<spargeTemp and self.stopPhase == False:
@@ -1663,6 +1689,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
             #Sends a message that the mash-out temperature has been reached
             self.messageSignal.emit("Achieved mash-out temp of {}. Beginning sparge.".format(spargeTemp),"Success")
+
+            #turns off the heat
+            self.setHeatSignal.emit("HLT","Off",0,"HLT")
 
             #Turns off the pumps
             self.PAVControl.waterPump = 0
@@ -1677,8 +1706,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             time.sleep(5)
 
             #Partially opens valves 5 and 9 (two seconds, or approximately halfway)
-            self.PAVControl.partialOpenClose(5,2)
-            self.PAVControl.partialOpenClose(9,2)
+            self.PAVControl.partialOpenClose(5,self.spargeValve5StartPartialOpenTime)
+            self.PAVControl.partialOpenClose(9,self.spargeValve9StartPartialOpenTime)
 
             #Turns on the pumps
             self.PAVControl.waterPump = 1
@@ -1688,36 +1717,72 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             counter=0
             lastFiveMLTFlowOut=[]
             lastFiveBLKFlowIn=[]
+            lastFiveMLTVolumes=[]
+            lastFiveBLKVolumes=[]
             targetFlowRate = self.targetSpargeRate
             valveChangeMultiplier = self.valveChangeMultiplier
             while self.BLKVolume<targetVolume and self.stopPhase == False:
                 time.sleep(1)
-                if counter!=5:
-                    #Records the last flow rate
-                    lastFiveMLTFlowOut.append(self.MLTFlowOut)
-                    lastFiveBLKFlowIn.append(self.BLKFlowIn)
-                    counter += 1
-                else:
-                    #Every five seconds, compares the flow rate average to the target, and adjusts the valves
-                    #Uses a 10:1 calculation to adjust flow rate - if the rate is off by .1 gal/min, opens the
-                    #Valve for 1 second
-                    MLTFlow = sum(lastFiveMLTFlowOut)/len(lastFiveMLTFlowOut)
-                    MLTFlowError = targetFlowRate - MLTFlow
-                    MLTCorrection = MLTFlowError*valveChangeMultiplier
-                    #Doesn't change the value if change is less than .25 sec, to reduce impact on relays
-                    if abs(MLTCorrection)>self.minPartialValveChange:
-                        self.PAVControl.partialOpenClose(5,MLTCorrection)
+                #If dynamic sparging is on, then adjusts the sparge rate (currently WIP)
+                if self.dynamicSparge == "Flow":
+                    if counter!=5:
+                        #Records the last flow rate
+                        lastFiveMLTFlowOut.append(self.MLTFlowOut)
+                        lastFiveBLKFlowIn.append(self.BLKFlowIn)
+                        counter += 1
+                    else:
+                        #Every five seconds, compares the flow rate average to the target, and adjusts the valves
+                        #Uses a 10:1 calculation to adjust flow rate - if the rate is off by .1 gal/min, opens the
+                        #Valve for 1 second
+                        MLTFlow = sum(lastFiveMLTFlowOut)/float(len(lastFiveMLTFlowOut))
+                        MLTFlowError = targetFlowRate - MLTFlow
+                        MLTCorrection = MLTFlowError*valveChangeMultiplier
+                        #Doesn't change the value if change is less than .25 sec, to reduce impact on relays
+                        if abs(MLTCorrection)>self.minPartialValveChange:
+                            self.PAVControl.partialOpenClose(5,MLTCorrection)
 
-                    BLKFlow = sum(lastFiveBLKFlowIn)/len(lastFiveBLKFlowIn)
-                    BLKFlowError = targetFlowRate - BLKFlow
-                    BLKCorrection = BLKFlowError*valveChangeMultiplier
-                    if abs(BLKCorrection)>self.minPartialValveChange:
-                        self.PAVControl.partialOpenClose(9,BLKCorrection)
+                        BLKFlow = sum(lastFiveBLKFlowIn)/float(len(lastFiveBLKFlowIn))
+                        BLKFlowError = targetFlowRate - BLKFlow
+                        BLKCorrection = BLKFlowError*valveChangeMultiplier
+                        if abs(BLKCorrection)>self.minPartialValveChange:
+                            self.PAVControl.partialOpenClose(9,BLKCorrection)
 
-                    #Resets the flow values and counter
-                    lastFiveMLTFlowOut=[]
-                    lastFiveBLKFlowIn=[]
-                    counter=0
+                        #Resets the flow values and counter
+                        lastFiveMLTFlowOut=[]
+                        lastFiveBLKFlowIn=[]
+                        counter=0
+
+                elif self.dynamicSparge == "Volume":
+                    if counter!=5:
+                        #Records the last volume measurement
+                        lastFiveMLTFlowOut.append(self.MLTVolume)
+                        lastFiveBLKFlowIn.append(self.BLKVolume)
+                        counter += 1
+                    else:
+                        #Every five seconds, compares the change in volume of each kettle to the target, and adjusts the valves
+                        #Uses a 10:1 calculation to adjust flow rate - if the rate is off by .1 gal/min, opens the
+                        #Valve for 1 second
+                        MLTVolumeChanges = [j-i for i, j in zip(lastFiveMLTVolumes[:-1], lastFiveMLTVolumes[1:])]
+                        BLKVolumeChanges = [j-i for i, j in zip(lastFiveBLKVolumes[:-1], lastFiveBLKVolumes[1:])]
+
+                        MLTVolumeChange = sum(lastFiveMLTVolumes)*60/float(len(lastFiveMLTVolumes))
+                        #The MLT should ideally not be changing in volume
+                        MLTFlowError = 0 - MLTVolumeChange
+                        MLTCorrection = MLTFlowError*valveChangeMultiplier
+                        #Doesn't change the value if change is less than .25 sec, to reduce impact on relays
+                        if abs(MLTCorrection)>self.minPartialValveChange:
+                            self.PAVControl.partialOpenClose(5,MLTCorrection)
+
+                        BLKVolumeChange = sum(lastFiveBLKVolumes)*60/float(len(lastFiveBLKVolumes))
+                        BLKFlowError = targetFlowRate - BLKVolumeChange
+                        BLKCorrection = BLKFlowError*valveChangeMultiplier
+                        if abs(BLKCorrection)>self.minPartialValveChange:
+                            self.PAVControl.partialOpenClose(9,BLKCorrection)
+
+                        #Resets the flow values and counter
+                        lastFiveMLTVolumes=[]
+                        lastFiveBLKVolumes=[]
+                        counter=0    
 
             #Since sparge is complete, fully closes valves 5 and 9, and turns off the pumps
             self.PAVControl.waterPump = 0
@@ -1779,7 +1844,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             self.PAVControl.aeration = 0
 
             #To get to boiling as quickly as possible, turns on the heat to 100%.
-            self.setHeatSignal.emit("BLK","SemiAuto",100)
+            self.setHeatSignal.emit("BLK","SemiAuto",100,"BLK")
 
             #Waits until we hit near a boil (208 F), when it will alarm
             while self.BLKTemp<self.boilWarningTemp and self.stopPhase == False:
@@ -1794,7 +1859,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
             self.messageSignal.emit("Reached boil - reducing heat to {}%. Add additions if needed.".format(self.boilHeatLevel),"Warning")
             self.alarmControl.alarm = 1
-            self.setHeatSignal.emit("BLK","SemiAuto",self.boilHeatLevel)
+            self.setHeatSignal.emit("BLK","SemiAuto",self.boilHeatLevel,"BLK")
             self.boilTimerSignal.emit("Start")
 
             #Alarms whenever an addition is needed in 2 minutes, and turns off heat at the end of the boil
@@ -1846,7 +1911,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             self.boilTimerSignal.emit("Pause")
 
             #turns off the heat and pumps/aeration, just in case
-            self.setHeatSignal.emit("BLK","Off",0)
+            self.setHeatSignal.emit("BLK","Off",0,"BLK")
             self.PAVControl.waterPump = 0
             self.PAVControl.wortPump = 0
             self.PAVControl.aeration = 0
@@ -1862,6 +1927,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def startPhase9(self):
         #Checks that the DO target is valid
+        self.messageSignal.emit("Turn on water for chiller","Warning")
+        self.alarmControl.alarm = 1
         try:
             DOTarget = float(self.DO_target.text())
         except:
@@ -1883,7 +1950,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         #After this, the  brew day is complete! Sends a message, and an alarm
         #Note that it does not start the cleaning phase, since you need to move 
         #the outlet hose to the drain (also remove the grain from the MLT)
-        self.messageSignal.emit("BREWING COMPLETE! Once MLT grain has been removed, and wort chiller out hose is connected to the sink (was connected to fermenter), press phase 10 to start cleaning cycle.","Success")
+        self.messageSignal.emit("BREWING COMPLETE! Once MLT grain has been removed, water is turned off, and wort chiller out hose is connected to the sink (was connected to fermenter), press phase 10 to start cleaning cycle.","Success")
         self.alarmControl.alarm = 1
 
         #Notes that this phase is complete (otherwise other phases won't start)
@@ -2065,8 +2132,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.PAVControl.aeration = 0
 
         #turns off heat
-        self.setHeatSignal.emit("HLT","Off",0)
-        self.setHeatSignal.emit("BLK","Off",0)
+        self.setHeatSignal.emit("HLT","Off",0,"HLT")
+        self.setHeatSignal.emit("BLK","Off",0,"BLK")
         self.UIToHLTPIDPipe.send(("mode","Off"))
         self.UIToHLTPIDPipe.send(("stop",True))
         self.UIToBLKPIDPipe.send(("mode","Off"))
