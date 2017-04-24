@@ -3,13 +3,15 @@ import os
 sys.path.insert(0, os.path.abspath(".."))
 import pickle
 
-if os.path.isfile('../calibrations/PIDCalibration.pk1'):
-    with open('../calibrations/PIDCalibration.pk1','rb') as pickleInput:
-        HLTResults = pickle.load(pickleInput)
-        BLKResults = pickle.load(pickleInput)
+if os.path.isfile('../calibrations/RTDCalibration.pk1'):
+    with open('../calibrations/RTDCalibration.pk1','rb') as pickleInput:
+        HLTOffset = pickle.load(pickleInput)
+        MLTOffset = pickle.load(pickleInput)
+        BLKOffset = pickle.load(pickleInput)
 
-        print("HLT: Kp={:.6f}, Ki={:.12f}, Kd={:.2f}".format(HLTResults[0],HLTResults[1],HLTResults[2]))
-        print("BLK: Kp={:.6f}, Ki={:.12f}, Kd={:.2f}".format(BLKResults[0],BLKResults[1],BLKResults[2]))
+        print("HLT offset = {:.2f}".format(HLTOffset))
+        print("MLT offset = {:.2f}".format(MLTOffset))
+        print("BLK offset = {:.2f}".format(BLKOffset))
 else:
     HLTResults = [0,0,0]
     BLKResults = [0,0,0]
@@ -34,6 +36,7 @@ if kettle=="HLT" or kettle=="BLK":
         with open('PIDCalibration.pk1','wb') as output:
             pickle.dump(HLTResults,output,protocol = pickle.HIGHEST_PROTOCOL)
             pickle.dump(BLKResults,output,protocol = pickle.HIGHEST_PROTOCOL)
+            print("Calibrations saved")
     else: print ("Calibrations not saved")
 else:
     print("Error: Kettle not valid")
