@@ -33,6 +33,9 @@ Ui_TempPopup,TempPopupQtBaseClass = uic.loadUiType(tempPopupQtCreatorFile)
 releaseLockedInputsPopupQtCreatorFile = "../UI/AutomatedBreweryUI/ReleaseLockedInputsPopup.ui"
 Ui_ReleaseLockedInputsPopup,ReleaseLockedInputsPopupQtBaseClass = uic.loadUiType(releaseLockedInputsPopupQtCreatorFile)
 
+partialOpenCloseQtCreatorFile = "../UI/AutomatedBreweryUI/PartialOpenClosePopup.ui"
+Ui_PartialOpenClosePopup,PartialOpenClosePopupQtBaseClass = uic.loadUiType(partialOpenClosePopupQtCreatorFile)
+
 class releaseLockedInputsPopup(QtWidgets.QMainWindow, Ui_ReleaseLockedInputsPopup):
     def __init__(self,releaseLockedInputsSignal):
         super(releaseLockedInputsPopup,self).__init__()
@@ -73,6 +76,25 @@ class tempPopup(QtWidgets.QMainWindow, Ui_TempPopup):
         self.close()
 
     def cancel(self): self.close()
+
+class partialOpenClosePopup(QtWidgets.QMainWindow, Ui_PartialOpenClosePopup):
+    def __init__(self,partialOpenCloseSignal,valve):
+        super(partialOpenClosePopup, self).__init__()
+
+        self.setupUi(self)
+        self.show()
+
+        self.partialOpenCloseSignal = partialOpenCloseSignal
+        self.valve = valve
+        self.SetValve.clicked.connect(self.setValve)
+        self.Cancel.clicked.connect(self.cancel)
+
+    def setValve(self):
+        openCloseTime = float(self.OpenCloseTime.text())
+        self.partialOpenCloseSignal.emit(self.valve,self.ValveAction.currentText(),openCloseTime)
+
+    def cancel(self): self.close()
+
     
 
 class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -107,6 +129,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     boilTimerTextSignal = QtCore.pyqtSignal(float)
 
     releaseLockedInputsSignal = QtCore.pyqtSignal()
+
+    partialOpenCloseSignal = QtCore.pyqtSignal(int,str,float)
 
     redSwitchStyle = '''
     QPushButton {
@@ -623,6 +647,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.highlightBoilStepsSignal.connect(self.highlightCurrentBoilStep)
         self.boilTimerTextSignal.connect(self.updateBoilTimerText)
         self.releaseLockedInputsSignal.connect(self.releaseLockedInputs)
+        self.partialOpenCloseSignal.connect(self.partiallyOpenClose)
 
         #Starts up the UI and sets some default states
         self.setupUi(self)
@@ -1323,6 +1348,16 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             #Updates the main switch states to reflect the new Auto statuses
             mainSwitchStates = self.mainSwitchSensor.allMainSwitchStates()
             self.mainSwitchSignal.emit(mainSwitchStates)
+
+    def partiallyOpenClose(self,valve,action,time):
+        if action == "Fully Open":
+            self.PAVControl.fullyOpenClose(valve,1)
+        elif action =="Fully Closed"
+            self.PAVControl.fullyOpenClose(valve,0)
+        elif action == "Partial Open/Close":
+            self.PAVControl.partialOpenClose(valve,time)
+
+        self.valveSwitchUpdate(self.valveSwitchSensor.allValveSwitchStates())
 
     def getVolumeInput(self,inputToCheck):
         if getattr(self,inputToCheck).text()[-4:]!=" gal":
