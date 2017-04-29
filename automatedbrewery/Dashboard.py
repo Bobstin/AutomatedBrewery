@@ -772,8 +772,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.MLTMaxVolume = 10
         self.BLKMaxVolume = 10
 
-        self.spargeValve5StartPartialOpenTime = .5
-        self.spargeValve9StartPartialOpenTime = .5
+        self.spargeValve5StartPartialOpenTime = .4
+        self.spargeValve9StartPartialOpenTime = .75
         self.dynamicSparge = False
         self.targetSpargeRate = .2
 
