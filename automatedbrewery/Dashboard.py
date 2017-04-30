@@ -33,7 +33,7 @@ Ui_TempPopup,TempPopupQtBaseClass = uic.loadUiType(tempPopupQtCreatorFile)
 releaseLockedInputsPopupQtCreatorFile = "../UI/AutomatedBreweryUI/ReleaseLockedInputsPopup.ui"
 Ui_ReleaseLockedInputsPopup,ReleaseLockedInputsPopupQtBaseClass = uic.loadUiType(releaseLockedInputsPopupQtCreatorFile)
 
-partialOpenCloseQtCreatorFile = "../UI/AutomatedBreweryUI/PartialOpenClosePopup.ui"
+partialOpenClosePopupQtCreatorFile = "../UI/AutomatedBreweryUI/PartialOpenClosePopup.ui"
 Ui_PartialOpenClosePopup,PartialOpenClosePopupQtBaseClass = uic.loadUiType(partialOpenClosePopupQtCreatorFile)
 
 class releaseLockedInputsPopup(QtWidgets.QMainWindow, Ui_ReleaseLockedInputsPopup):
@@ -90,8 +90,12 @@ class partialOpenClosePopup(QtWidgets.QMainWindow, Ui_PartialOpenClosePopup):
         self.Cancel.clicked.connect(self.cancel)
 
     def setValve(self):
-        openCloseTime = float(self.OpenCloseTime.text())
+        if self.ValveAction.currentText() == "Partial Open/Close":
+            openCloseTime = float(self.OpenCloseTime.text())
+        else:
+            openCloseTime = 0
         self.partialOpenCloseSignal.emit(self.valve,self.ValveAction.currentText(),openCloseTime)
+        self.close()
 
     def cancel(self): self.close()
 
@@ -736,6 +740,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.valve8u.clicked.connect(lambda: self.changeValve(8))
         self.valve8d.clicked.connect(lambda: self.changeValve(8))
 
+        self.valve5_POC.clicked.connect(lambda: self.setPartialOpenClosePopup(5))
+        self.valve9_POC.clicked.connect(lambda: self.setPartialOpenClosePopup(9))
+
         #Connects the pump and Aeration buttons
         self.waterPump.clicked.connect(lambda: self.changePumpAeration("waterPump"))
         self.wortPump.clicked.connect(lambda: self.changePumpAeration("wortPump"))
@@ -798,7 +805,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.BLKMaxVolume = 10
 
         self.spargeValve5StartPartialOpenTime = .4
-        self.spargeValve9StartPartialOpenTime = .75
+        self.spargeValve9StartPartialOpenTime = .6
         self.dynamicSparge = False
         self.targetSpargeRate = .2
 
@@ -1229,6 +1236,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     def setHeatPopup(self,kettle):
         self.tempPopup = tempPopup(self.setHeatSignal,kettle)
 
+    def setPartialOpenClosePopup(self,valve):
+        self.partialOpenClosePopup = partialOpenClosePopup(self.partialOpenCloseSignal,valve)
+
     def setHeat(self, kettle, mode, setting, inputKettle):
         #Adds a message
         if mode == "Off":
@@ -1350,9 +1360,10 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             self.mainSwitchSignal.emit(mainSwitchStates)
 
     def partiallyOpenClose(self,valve,action,time):
+        print(valve)
         if action == "Fully Open":
             self.PAVControl.fullyOpenClose(valve,1)
-        elif action =="Fully Closed"
+        elif action =="Fully Close":
             self.PAVControl.fullyOpenClose(valve,0)
         elif action == "Partial Open/Close":
             self.PAVControl.partialOpenClose(valve,time)
@@ -1493,8 +1504,8 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 else:
                     self.setHeatSignal.emit(kettle,"Auto",target,kettle)
 
-            #For drains, waits 5 seconds before starting the check to give it a chance to have a flow
-            if phaseType == "Drain": time.sleep(5)
+            #For drains, waits 30 seconds before starting the check to give it a chance to have a flow
+            if phaseType == "Drain": time.sleep(30)
 
             #Waits until target is hit
             if phaseType == "Fill":  
