@@ -1,0 +1,542 @@
+<Selections><_MOD_>1969-12-31</_MOD_>
+<Name>Selections</Name>
+<Type>7372</Type>
+<Dirty>1</Dirty>
+<Owndata>0</Owndata>
+<TID>1</TID>
+<Size>1</Size>
+<_XName>Selections</_XName>
+<Allocinc>16</Allocinc>
+<Data><Recipe><_MOD_>2017-06-18</_MOD_>
+<F_R_NAME>Pilsner</F_R_NAME>
+<F_R_BREWER>AutomatedBrewery</F_R_BREWER>
+<F_R_ASST_BREWER></F_R_ASST_BREWER>
+<F_R_DATE>2017-06-16</F_R_DATE>
+<F_R_INV_DATE>1992-02-01</F_R_INV_DATE>
+<F_R_FOLDER_NAME></F_R_FOLDER_NAME>
+<F_R_VOLUME_MEASURED>640.0000000</F_R_VOLUME_MEASURED>
+<F_R_VOLUME_MEASURED_SET>1</F_R_VOLUME_MEASURED_SET>
+<F_R_FINAL_VOL_MEASURED>640.0000000</F_R_FINAL_VOL_MEASURED>
+<F_R_FINAL_VOL_MEASURED_SET>0</F_R_FINAL_VOL_MEASURED_SET>
+<F_R_MASH_TIMER>0</F_R_MASH_TIMER>
+<F_R_BOIL_TIMER>0</F_R_BOIL_TIMER>
+<F_R_MTIMER_DOWN>1800</F_R_MTIMER_DOWN>
+<F_R_BTIMER_DOWN>2400</F_R_BTIMER_DOWN>
+<Image></Image>
+<F_R_IMAGE_X>0</F_R_IMAGE_X>
+<F_R_IMAGE_Y>0</F_R_IMAGE_Y>
+<F_R_EQUIPMENT><_MOD_>2017-06-16</_MOD_>
+<F_E_NAME>My Equipment</F_E_NAME>
+<F_E_MASH_VOL>2560.0000000</F_E_MASH_VOL>
+<F_E_TUN_MASS>160.0000000</F_E_TUN_MASS>
+<F_E_BOIL_RATE_FLAG>1</F_E_BOIL_RATE_FLAG>
+<F_E_TUN_SPECIFIC_HEAT>0.1200000</F_E_TUN_SPECIFIC_HEAT>
+<F_E_TUN_DEADSPACE>192.0000000</F_E_TUN_DEADSPACE>
+<F_E_TUN_ADDITION>0.0000000</F_E_TUN_ADDITION>
+<F_E_TUN_ADJ_DEADSPACE>1</F_E_TUN_ADJ_DEADSPACE>
+<F_E_CALC_BOIL>1</F_E_CALC_BOIL>
+<F_E_BOIL_VOL>1028.0000000</F_E_BOIL_VOL>
+<F_E_BOIL_TIME>60.0000000</F_E_BOIL_TIME>
+<F_E_OLD_EVAP_RATE>10.0000000</F_E_OLD_EVAP_RATE>
+<F_EQUIP_39>1</F_EQUIP_39>
+<F_E_BOIL_OFF>128.0000000</F_E_BOIL_OFF>
+<F_E_TRUB_LOSS>96.0000000</F_E_TRUB_LOSS>
+<F_E_COOL_PCT>4.0000000</F_E_COOL_PCT>
+<F_E_TOP_UP_KETTLE>0.0000000</F_E_TOP_UP_KETTLE>
+<F_E_BATCH_VOL>768.0000000</F_E_BATCH_VOL>
+<F_E_FERMENTER_LOSS>0.0000000</F_E_FERMENTER_LOSS>
+<F_E_TOP_UP>0.0000000</F_E_TOP_UP>
+<F_E_EFFICIENCY>65.0000000</F_E_EFFICIENCY>
+<F_E_HOP_UTIL>100.0000000</F_E_HOP_UTIL>
+<F_E_NOTES></F_E_NOTES>
+<F_E_WHIRLPOOL_CARRY>0</F_E_WHIRLPOOL_CARRY>
+<F_E_WHIRLPOOL_TIME>0</F_E_WHIRLPOOL_TIME>
+</F_R_EQUIPMENT>
+<F_R_STYLE><_MOD_>2017-06-16</_MOD_>
+<F_S_NAME>Classic American Pilsner</F_S_NAME>
+<F_S_CATEGORY>Pilsner</F_S_CATEGORY>
+<F_S_GUIDE>BJCP 2008</F_S_GUIDE>
+<F_S_LETTER>3</F_S_LETTER>
+<F_S_NUMBER>2</F_S_NUMBER>
+<F_S_TYPE>1</F_S_TYPE>
+<F_S_MIN_OG>1.0440000</F_S_MIN_OG>
+<F_S_MAX_OG>1.0600000</F_S_MAX_OG>
+<F_S_MIN_FG>1.0100000</F_S_MIN_FG>
+<F_S_MAX_FG>1.0150000</F_S_MAX_FG>
+<F_S_MIN_IBU>25.0000000</F_S_MIN_IBU>
+<F_S_MAX_IBU>40.0000000</F_S_MAX_IBU>
+<F_S_MIN_CARB>2.5000000</F_S_MIN_CARB>
+<F_S_MAX_CARB>2.7000000</F_S_MAX_CARB>
+<F_S_MIN_COLOR>3.0000000</F_S_MIN_COLOR>
+<F_S_MAX_COLOR>6.0000000</F_S_MAX_COLOR>
+<F_S_MIN_ABV>4.5000000</F_S_MIN_ABV>
+<F_S_MAX_ABV>6.0000000</F_S_MAX_ABV>
+<F_S_DESCRIPTION>A substantial Pilsner that can stand up to the classic European Pilsners, but exhibiting the native American grains and hops available to German brewers who initially brewed it in the USA. Refreshing, but with the underlying malt and hops that stand out when compared to other modern American light lagers. Maize lends a distinctive grainy sweetness. Rice contributes a crisper, more neutral character. A version of Pilsner brewed in the USA by immigrant German brewers who brought the process and yeast with them when they settled in America. They worked with the ingredients that were native to America to create a unique version of the original Pilsner. This style died out after Prohibition but was resurrected as a home-brewed style by advocates of the hobby. The classic American Pilsner was brewed both pre-Prohibition and post-Prohibition with some differences. OGs of 1.050-1.060 would have been appropriate for pre-Prohibition beers while gravities dropped to 1.044-1.048 after Prohibition. Corresponding IBUs dropped from a pre-Prohibition level of 30-40 to 25-30 after Prohibition.</F_S_DESCRIPTION>
+<F_S_PROFILE>Aroma: Low to medium grainy, corn-like or sweet maltiness may be evident (although rice-based beers are more neutral). Medium to moderately high hop aroma, often classic noble hops. Clean lager character, with no fruitiness or diacetyl. Some DMS is acceptable.
+Appearance: Yellow to deep gold color. Substantial, long lasting white head. Bright clarity.
+Flavor: Moderate to moderately high maltiness similar in character to the Continental Pilsners but somewhat lighter in intensity due to the use of up to 30% flaked maize (corn) or rice used as an adjunct. Slight grainy, corn-like sweetness from the use of maize with substantial offsetting hop bitterness. Rice-based versions are crisper, drier, and often lack corn-like flavors. Medium to high hop flavor from noble hops (either late addition or first-wort hopped). Medium to high hop bitterness, which should not be coarse nor have a harsh aftertaste. No fruitiness or diacetyl. Should be smooth and welllagered.
+Mouthfeel: Medium body and rich, creamy mouthfeel. Medium to high carbonation levels.</F_S_PROFILE>
+<F_S_INGREDIENTS>Six-row barley with 20% to 30% flaked maize to dilute the excessive protein levels. Native American hops such as Clusters, traditional continental noble hops, or modern noble crosses (Ultra, Liberty, Crystal) are also appropriate. Modern American hops such as Cascade are inappropriate. Water with a high mineral content can lead to an inappropriate coarseness in flavor and harshness in aftertaste.</F_S_INGREDIENTS>
+<F_S_EXAMPLES>Brewpub and microbrewery specials.</F_S_EXAMPLES>
+<F_S_WEB_LINK>http://www.bjcp.org</F_S_WEB_LINK>
+</F_R_STYLE>
+<F_R_MASH><_MOD_>2017-06-16</_MOD_>
+<F_MH_NAME>Single Infusion, Light Body, No Mash Out</F_MH_NAME>
+<F_MH_GRAIN_WEIGHT>222.0000000</F_MH_GRAIN_WEIGHT>
+<F_MH_GRAIN_TEMP>72.0000000</F_MH_GRAIN_TEMP>
+<F_MH_BOIL_TEMP>212.0000000</F_MH_BOIL_TEMP>
+<F_MH_TUN_TEMP>72.0000000</F_MH_TUN_TEMP>
+<F_MH_PH>5.4000000</F_MH_PH>
+<F_MH_SPARGE_TEMP>168.0000000</F_MH_SPARGE_TEMP>
+<F_MH_BATCH>0</F_MH_BATCH>
+<F_MH_BATCH_PCT>100.0000000</F_MH_BATCH_PCT>
+<F_MH_BATCH_EVEN>0</F_MH_BATCH_EVEN>
+<F_MH_BATCH_DRAIN>0</F_MH_BATCH_DRAIN>
+<F_MASH_39>1</F_MASH_39>
+<F_MH_TUN_DEADSPACE>192.0000000</F_MH_TUN_DEADSPACE>
+<F_MH_BIAB_VOL>640.0000000</F_MH_BIAB_VOL>
+<F_MH_BIAB>0</F_MH_BIAB>
+<F_MH_NOTES>Simple single infusion mash for use with most modern well modified grains (about 95% of the time).</F_MH_NOTES>
+<steps><_MOD_>2017-06-16</_MOD_>
+<Name>steps</Name>
+<Type>7432</Type>
+<Dirty>1</Dirty>
+<Owndata>1</Owndata>
+<TID>7149</TID>
+<Size>1</Size>
+<_XName>steps</_XName>
+<Allocinc>16</Allocinc>
+<Data><MashStep><_MOD_>2017-06-16</_MOD_>
+<F_MS_NAME>Mash In</F_MS_NAME>
+<F_MS_TYPE>0</F_MS_TYPE>
+<F_MS_INFUSION>555.0000000</F_MS_INFUSION>
+<F_MS_STEP_TEMP>150.0000000</F_MS_STEP_TEMP>
+<F_MS_STEP_TIME>90.0000000</F_MS_STEP_TIME>
+<F_MS_RISE_TIME>2.0000000</F_MS_RISE_TIME>
+<F_MS_TUN_ADDITION>192.0000000</F_MS_TUN_ADDITION>
+<F_MS_TUN_HC>0.1200000</F_MS_TUN_HC>
+<F_MS_TUN_VOL>2560.0000000</F_MS_TUN_VOL>
+<F_MS_TUN_TEMP>72.0000000</F_MS_TUN_TEMP>
+<F_MS_TUN_MASS>160.0000000</F_MS_TUN_MASS>
+<F_MS_START_TEMP>0.0000000</F_MS_START_TEMP>
+<F_MS_GRAIN_TEMP>72.0000000</F_MS_GRAIN_TEMP>
+<F_MS_START_VOL>0.0000000</F_MS_START_VOL>
+<F_MS_GRAIN_WEIGHT>222.0000000</F_MS_GRAIN_WEIGHT>
+<F_MS_INFUSION_TEMP>159.2752249</F_MS_INFUSION_TEMP>
+<F_MS_DECOCTION_AMT>0.0000000</F_MS_DECOCTION_AMT>
+</MashStep>
+</Data>
+<_TExpanded>1</_TExpanded>
+</steps>
+<F_MH_EQUIP_ADJUST>1</F_MH_EQUIP_ADJUST>
+<F_MH_TUN_VOL>2560.0000000</F_MH_TUN_VOL>
+<F_MH_TUN_MASS>160.0000000</F_MH_TUN_MASS>
+<F_MH_TUN_HC>0.1200000</F_MH_TUN_HC>
+</F_R_MASH>
+<F_R_BASE_GRAIN><_MOD_>2017-06-16</_MOD_>
+<F_G_NAME>Malt</F_G_NAME>
+<F_G_ORIGIN></F_G_ORIGIN>
+<F_G_SUPPLIER></F_G_SUPPLIER>
+<F_G_TYPE>0</F_G_TYPE>
+<F_G_IN_RECIPE>0</F_G_IN_RECIPE>
+<F_G_INVENTORY>0.0000000</F_G_INVENTORY>
+<F_G_AMOUNT>16.0000000</F_G_AMOUNT>
+<F_G_COLOR>3.0000000</F_G_COLOR>
+<F_G_YIELD>75.0000000</F_G_YIELD>
+<F_G_LATE_EXTRACT>0.0000000</F_G_LATE_EXTRACT>
+<F_G_PERCENT>0.0000000</F_G_PERCENT>
+<F_G_NOT_FERMENTABLE>0</F_G_NOT_FERMENTABLE>
+<F_ORDER>0</F_ORDER>
+<F_G_COARSE_FINE_DIFF>1.5000000</F_G_COARSE_FINE_DIFF>
+<F_G_MOISTURE>4.0000000</F_G_MOISTURE>
+<F_G_DIASTATIC_POWER>120.0000000</F_G_DIASTATIC_POWER>
+<F_G_PROTEIN>11.7000000</F_G_PROTEIN>
+<F_G_IBU_GAL_PER_LB>0.0000000</F_G_IBU_GAL_PER_LB>
+<F_G_ADD_AFTER_BOIL>0</F_G_ADD_AFTER_BOIL>
+<F_G_RECOMMEND_MASH>0</F_G_RECOMMEND_MASH>
+<F_G_MAX_IN_BATCH>100.0000000</F_G_MAX_IN_BATCH>
+<F_G_NOTES></F_G_NOTES>
+<F_G_BOIL_TIME>60.0000000</F_G_BOIL_TIME>
+<F_G_PRICE>1.5000000</F_G_PRICE>
+<F_G_CONVERT_GRAIN></F_G_CONVERT_GRAIN>
+</F_R_BASE_GRAIN>
+<F_R_CARB><_MOD_>2017-06-16</_MOD_>
+<F_C_NAME>Corn Sugar</F_C_NAME>
+<F_C_TEMPERATURE>70.0000000</F_C_TEMPERATURE>
+<F_C_TYPE>0</F_C_TYPE>
+<F_C_PRIMER_NAME>Corn Sugar</F_C_PRIMER_NAME>
+<F_C_CARB_RATE>100.0000000</F_C_CARB_RATE>
+<F_C_NOTES>Use corn sugar for priming the beer</F_C_NOTES>
+</F_R_CARB>
+<F_R_AGE><_MOD_>2017-06-16</_MOD_>
+<F_A_NAME>Ale, Two Stage</F_A_NAME>
+<F_A_PRIM_TEMP>67.0000000</F_A_PRIM_TEMP>
+<F_A_PRIM_END_TEMP>67.0000000</F_A_PRIM_END_TEMP>
+<F_A_SEC_TEMP>67.0000000</F_A_SEC_TEMP>
+<F_A_SEC_END_TEMP>67.0000000</F_A_SEC_END_TEMP>
+<F_A_TERT_TEMP>65.0000000</F_A_TERT_TEMP>
+<F_A_AGE_TEMP>65.0000000</F_A_AGE_TEMP>
+<F_A_TERT_END_TEMP>65.0000000</F_A_TERT_END_TEMP>
+<F_A_END_AGE_TEMP>65.0000000</F_A_END_AGE_TEMP>
+<F_A_END_TEMPS_SET>1</F_A_END_TEMPS_SET>
+<F_A_PRIM_DAYS>4.0000000</F_A_PRIM_DAYS>
+<F_A_SEC_DAYS>10.0000000</F_A_SEC_DAYS>
+<F_A_TERT_DAYS>7.0000000</F_A_TERT_DAYS>
+<F_A_AGE>30.0000000</F_A_AGE>
+<F_A_TYPE>1</F_A_TYPE>
+<F_A_NOTES></F_A_NOTES>
+</F_R_AGE>
+<Ingredients><_MOD_>2017-06-16</_MOD_>
+<Name>Ingredients</Name>
+<Type>7405</Type>
+<Dirty>1</Dirty>
+<Owndata>1</Owndata>
+<TID>7182</TID>
+<Size>11</Size>
+<_XName>Ingredients</_XName>
+<Allocinc>16</Allocinc>
+<Data><Grain><_MOD_>2017-06-16</_MOD_>
+<F_G_NAME>Pale Malt (2 Row) US</F_G_NAME>
+<F_G_ORIGIN>US</F_G_ORIGIN>
+<F_G_SUPPLIER></F_G_SUPPLIER>
+<F_G_TYPE>0</F_G_TYPE>
+<F_G_IN_RECIPE>1</F_G_IN_RECIPE>
+<F_G_INVENTORY>0.0000000</F_G_INVENTORY>
+<F_G_AMOUNT>80.0000000</F_G_AMOUNT>
+<F_G_COLOR>2.0000000</F_G_COLOR>
+<F_G_YIELD>79.0000000</F_G_YIELD>
+<F_G_LATE_EXTRACT>0.0000000</F_G_LATE_EXTRACT>
+<F_G_PERCENT>36.0360360</F_G_PERCENT>
+<F_G_NOT_FERMENTABLE>0</F_G_NOT_FERMENTABLE>
+<F_ORDER>1</F_ORDER>
+<F_G_COARSE_FINE_DIFF>1.5000000</F_G_COARSE_FINE_DIFF>
+<F_G_MOISTURE>4.0000000</F_G_MOISTURE>
+<F_G_DIASTATIC_POWER>140.0000000</F_G_DIASTATIC_POWER>
+<F_G_PROTEIN>12.3000000</F_G_PROTEIN>
+<F_G_IBU_GAL_PER_LB>0.0000000</F_G_IBU_GAL_PER_LB>
+<F_G_ADD_AFTER_BOIL>0</F_G_ADD_AFTER_BOIL>
+<F_G_RECOMMEND_MASH>1</F_G_RECOMMEND_MASH>
+<F_G_MAX_IN_BATCH>100.0000000</F_G_MAX_IN_BATCH>
+<F_G_NOTES>Base malt for all beer styles</F_G_NOTES>
+<F_G_BOIL_TIME>60.0000000</F_G_BOIL_TIME>
+<F_G_PRICE>0.0800000</F_G_PRICE>
+<F_G_CONVERT_GRAIN>Pale Liquid Extract</F_G_CONVERT_GRAIN>
+</Grain>
+<Grain><_MOD_>2017-06-16</_MOD_>
+<F_G_NAME>Pilsner (2 Row) Ger</F_G_NAME>
+<F_G_ORIGIN>Germany</F_G_ORIGIN>
+<F_G_SUPPLIER></F_G_SUPPLIER>
+<F_G_TYPE>0</F_G_TYPE>
+<F_G_IN_RECIPE>1</F_G_IN_RECIPE>
+<F_G_INVENTORY>0.0000000</F_G_INVENTORY>
+<F_G_AMOUNT>80.0000000</F_G_AMOUNT>
+<F_G_COLOR>2.0000000</F_G_COLOR>
+<F_G_YIELD>81.0000000</F_G_YIELD>
+<F_G_LATE_EXTRACT>0.0000000</F_G_LATE_EXTRACT>
+<F_G_PERCENT>36.0360360</F_G_PERCENT>
+<F_G_NOT_FERMENTABLE>0</F_G_NOT_FERMENTABLE>
+<F_ORDER>2</F_ORDER>
+<F_G_COARSE_FINE_DIFF>1.5000000</F_G_COARSE_FINE_DIFF>
+<F_G_MOISTURE>4.0000000</F_G_MOISTURE>
+<F_G_DIASTATIC_POWER>110.0000000</F_G_DIASTATIC_POWER>
+<F_G_PROTEIN>11.0000000</F_G_PROTEIN>
+<F_G_IBU_GAL_PER_LB>0.0000000</F_G_IBU_GAL_PER_LB>
+<F_G_ADD_AFTER_BOIL>0</F_G_ADD_AFTER_BOIL>
+<F_G_RECOMMEND_MASH>1</F_G_RECOMMEND_MASH>
+<F_G_MAX_IN_BATCH>100.0000000</F_G_MAX_IN_BATCH>
+<F_G_NOTES>German base for Pilsners and Bohemian Lagers</F_G_NOTES>
+<F_G_BOIL_TIME>60.0000000</F_G_BOIL_TIME>
+<F_G_PRICE>0.0800000</F_G_PRICE>
+<F_G_CONVERT_GRAIN>Pilsner Liquid Extract</F_G_CONVERT_GRAIN>
+</Grain>
+<Grain><_MOD_>2017-06-16</_MOD_>
+<F_G_NAME>Corn, Flaked</F_G_NAME>
+<F_G_ORIGIN>US</F_G_ORIGIN>
+<F_G_SUPPLIER></F_G_SUPPLIER>
+<F_G_TYPE>0</F_G_TYPE>
+<F_G_IN_RECIPE>1</F_G_IN_RECIPE>
+<F_G_INVENTORY>0.0000000</F_G_INVENTORY>
+<F_G_AMOUNT>56.0000000</F_G_AMOUNT>
+<F_G_COLOR>1.3000000</F_G_COLOR>
+<F_G_YIELD>80.0000000</F_G_YIELD>
+<F_G_LATE_EXTRACT>0.0000000</F_G_LATE_EXTRACT>
+<F_G_PERCENT>25.2252252</F_G_PERCENT>
+<F_G_NOT_FERMENTABLE>0</F_G_NOT_FERMENTABLE>
+<F_ORDER>3</F_ORDER>
+<F_G_COARSE_FINE_DIFF>1.5000000</F_G_COARSE_FINE_DIFF>
+<F_G_MOISTURE>9.0000000</F_G_MOISTURE>
+<F_G_DIASTATIC_POWER>0.0000000</F_G_DIASTATIC_POWER>
+<F_G_PROTEIN>10.0000000</F_G_PROTEIN>
+<F_G_IBU_GAL_PER_LB>0.0000000</F_G_IBU_GAL_PER_LB>
+<F_G_ADD_AFTER_BOIL>0</F_G_ADD_AFTER_BOIL>
+<F_G_RECOMMEND_MASH>1</F_G_RECOMMEND_MASH>
+<F_G_MAX_IN_BATCH>40.0000000</F_G_MAX_IN_BATCH>
+<F_G_NOTES>Generally a neutral flavor, used to reduce maltiness of beer
+Produces beer with a milder, less malty flavor
+Uses: Primarily for light Bohemian and Pilsner lagers</F_G_NOTES>
+<F_G_BOIL_TIME>60.0000000</F_G_BOIL_TIME>
+<F_G_PRICE>0.0800000</F_G_PRICE>
+<F_G_CONVERT_GRAIN>Sugar, Table (Sucrose)</F_G_CONVERT_GRAIN>
+</Grain>
+<Grain><_MOD_>2017-06-16</_MOD_>
+<F_G_NAME>Acid Malt</F_G_NAME>
+<F_G_ORIGIN>Germany</F_G_ORIGIN>
+<F_G_SUPPLIER></F_G_SUPPLIER>
+<F_G_TYPE>0</F_G_TYPE>
+<F_G_IN_RECIPE>1</F_G_IN_RECIPE>
+<F_G_INVENTORY>0.0000000</F_G_INVENTORY>
+<F_G_AMOUNT>6.0000000</F_G_AMOUNT>
+<F_G_COLOR>3.0000000</F_G_COLOR>
+<F_G_YIELD>58.7000000</F_G_YIELD>
+<F_G_LATE_EXTRACT>0.0000000</F_G_LATE_EXTRACT>
+<F_G_PERCENT>2.7027027</F_G_PERCENT>
+<F_G_NOT_FERMENTABLE>0</F_G_NOT_FERMENTABLE>
+<F_ORDER>4</F_ORDER>
+<F_G_COARSE_FINE_DIFF>1.5000000</F_G_COARSE_FINE_DIFF>
+<F_G_MOISTURE>4.0000000</F_G_MOISTURE>
+<F_G_DIASTATIC_POWER>0.0000000</F_G_DIASTATIC_POWER>
+<F_G_PROTEIN>6.0000000</F_G_PROTEIN>
+<F_G_IBU_GAL_PER_LB>0.0000000</F_G_IBU_GAL_PER_LB>
+<F_G_ADD_AFTER_BOIL>0</F_G_ADD_AFTER_BOIL>
+<F_G_RECOMMEND_MASH>1</F_G_RECOMMEND_MASH>
+<F_G_MAX_IN_BATCH>10.0000000</F_G_MAX_IN_BATCH>
+<F_G_NOTES>Acid malt contains acids from natural lactic acids.  Used by German brewers to adjust malt PH without chemicals to adhere to German purity laws.  Also enhances the head retention. </F_G_NOTES>
+<F_G_BOIL_TIME>60.0000000</F_G_BOIL_TIME>
+<F_G_PRICE>0.0800000</F_G_PRICE>
+<F_G_CONVERT_GRAIN>Pale Liquid Extract</F_G_CONVERT_GRAIN>
+</Grain>
+<Hops><_MOD_>1970-02-20</_MOD_>
+<F_H_NAME>Hallertauer Mittelfrueh</F_H_NAME>
+<F_H_ORIGIN>Germany</F_H_ORIGIN>
+<F_H_TYPE>1</F_H_TYPE>
+<F_H_FORM>0</F_H_FORM>
+<F_H_ALPHA>2.5000000</F_H_ALPHA>
+<F_H_BETA>4.6000000</F_H_BETA>
+<F_H_PERCENT>10.3842160</F_H_PERCENT>
+<F_H_INVENTORY>0.0000000</F_H_INVENTORY>
+<F_H_AMOUNT>1.0000000</F_H_AMOUNT>
+<F_H_HSI>45.0000000</F_H_HSI>
+<F_H_BOIL_TIME>60.0000000</F_H_BOIL_TIME>
+<F_H_DRY_HOP_TIME>0.0000000</F_H_DRY_HOP_TIME>
+<F_H_NOTES>Used for: Continental Lagers, German Ales/Lagers, US Lagers
+Aroma: Pleasant, assertive, mild herbal aroma
+Substitutes: Hallertauer, Mt. Hood, Liberty, Crystal
+Examples: Sam Adams Boston Lager, Sam Adams Boston Lightship</F_H_NOTES>
+<F_H_IBU_CONTRIB>7.2595218</F_H_IBU_CONTRIB>
+<F_ORDER>5</F_ORDER>
+<F_H_USE>0</F_H_USE>
+<F_H_IN_RECIPE>1</F_H_IN_RECIPE>
+<F_H_PRICE>1.0000000</F_H_PRICE>
+</Hops>
+<Hops><_MOD_>1970-02-20</_MOD_>
+<F_H_NAME>Northern Brewer</F_H_NAME>
+<F_H_ORIGIN>Germany</F_H_ORIGIN>
+<F_H_TYPE>2</F_H_TYPE>
+<F_H_FORM>0</F_H_FORM>
+<F_H_ALPHA>6.8000000</F_H_ALPHA>
+<F_H_BETA>4.0000000</F_H_BETA>
+<F_H_PERCENT>10.3842160</F_H_PERCENT>
+<F_H_INVENTORY>0.0000000</F_H_INVENTORY>
+<F_H_AMOUNT>1.0000000</F_H_AMOUNT>
+<F_H_HSI>35.0000000</F_H_HSI>
+<F_H_BOIL_TIME>20.0000000</F_H_BOIL_TIME>
+<F_H_DRY_HOP_TIME>0.0000000</F_H_DRY_HOP_TIME>
+<F_H_NOTES>Also called Hallertauer Northern Brewers
+Used for: Bittering and finishing both ales and lagers of all kinds
+Aroma: Fine, dry, clean bittering hop.  Unique flavor.
+Substitutes: Hallertauer Mittelfrueh, Hallertauer
+Examples: Anchor Steam, Old Peculiar, </F_H_NOTES>
+<F_H_IBU_CONTRIB>11.9583300</F_H_IBU_CONTRIB>
+<F_ORDER>6</F_ORDER>
+<F_H_USE>0</F_H_USE>
+<F_H_IN_RECIPE>1</F_H_IN_RECIPE>
+<F_H_PRICE>1.0000000</F_H_PRICE>
+</Hops>
+<Hops><_MOD_>2017-06-18</_MOD_>
+<F_H_NAME>Hallertauer Mittelfrueh</F_H_NAME>
+<F_H_ORIGIN>Germany</F_H_ORIGIN>
+<F_H_TYPE>1</F_H_TYPE>
+<F_H_FORM>0</F_H_FORM>
+<F_H_ALPHA>2.5000000</F_H_ALPHA>
+<F_H_BETA>4.6000000</F_H_BETA>
+<F_H_PERCENT>36.3447560</F_H_PERCENT>
+<F_H_INVENTORY>0.0000000</F_H_INVENTORY>
+<F_H_AMOUNT>3.5000000</F_H_AMOUNT>
+<F_H_HSI>45.0000000</F_H_HSI>
+<F_H_BOIL_TIME>10.0000000</F_H_BOIL_TIME>
+<F_H_DRY_HOP_TIME>0.0000000</F_H_DRY_HOP_TIME>
+<F_H_NOTES>Used for: Continental Lagers, German Ales/Lagers, US Lagers
+Aroma: Pleasant, assertive, mild herbal aroma
+Substitutes: Hallertauer, Mt. Hood, Liberty, Crystal
+Examples: Sam Adams Boston Lager, Sam Adams Boston Lightship</F_H_NOTES>
+<F_H_IBU_CONTRIB>9.2123405</F_H_IBU_CONTRIB>
+<F_ORDER>7</F_ORDER>
+<F_H_USE>0</F_H_USE>
+<F_H_IN_RECIPE>1</F_H_IN_RECIPE>
+<F_H_PRICE>1.0000000</F_H_PRICE>
+</Hops>
+<Hops><_MOD_>2017-06-18</_MOD_>
+<F_H_NAME>Saaz</F_H_NAME>
+<F_H_ORIGIN>U.S.</F_H_ORIGIN>
+<F_H_TYPE>1</F_H_TYPE>
+<F_H_FORM>0</F_H_FORM>
+<F_H_ALPHA>2.6000000</F_H_ALPHA>
+<F_H_BETA>3.7500000</F_H_BETA>
+<F_H_PERCENT>16.9262721</F_H_PERCENT>
+<F_H_INVENTORY>0.0000000</F_H_INVENTORY>
+<F_H_AMOUNT>1.6300000</F_H_AMOUNT>
+<F_H_HSI>50.0000000</F_H_HSI>
+<F_H_BOIL_TIME>5.0000000</F_H_BOIL_TIME>
+<F_H_DRY_HOP_TIME>0.0000000</F_H_DRY_HOP_TIME>
+<F_H_NOTES>This traditional variety from the Czech Republic is grown on a limited basis in the U.S. A classic noble aroma that is famously used in Pilsners.
+Used for: Bohemian-style beers, Continental lagers, Wheats, Pilsener lagers, Ales, Pilsners
+Aroma: Seasoned herbal character
+Substitiutions: Czech Saaz, Polish Lublin, Sterling
+Storage: Poor
+2-6% AA / 3-4.5% Beta</F_H_NOTES>
+<F_H_IBU_CONTRIB>2.4533215</F_H_IBU_CONTRIB>
+<F_ORDER>8</F_ORDER>
+<F_H_USE>0</F_H_USE>
+<F_H_IN_RECIPE>1</F_H_IN_RECIPE>
+<F_H_PRICE>1.8900000</F_H_PRICE>
+</Hops>
+<Hops><_MOD_>1969-12-31</_MOD_>
+<F_H_NAME>Northern Brewer</F_H_NAME>
+<F_H_ORIGIN>Germany</F_H_ORIGIN>
+<F_H_TYPE>2</F_H_TYPE>
+<F_H_FORM>0</F_H_FORM>
+<F_H_ALPHA>6.8000000</F_H_ALPHA>
+<F_H_BETA>4.0000000</F_H_BETA>
+<F_H_PERCENT>5.1921080</F_H_PERCENT>
+<F_H_INVENTORY>0.0000000</F_H_INVENTORY>
+<F_H_AMOUNT>0.5000000</F_H_AMOUNT>
+<F_H_HSI>35.0000000</F_H_HSI>
+<F_H_BOIL_TIME>5.0000000</F_H_BOIL_TIME>
+<F_H_DRY_HOP_TIME>0.0000000</F_H_DRY_HOP_TIME>
+<F_H_NOTES>Also called Hallertauer Northern Brewers
+Used for: Bittering and finishing both ales and lagers of all kinds
+Aroma: Fine, dry, clean bittering hop.  Unique flavor.
+Substitutes: Hallertauer Mittelfrueh, Hallertauer
+Examples: Anchor Steam, Old Peculiar, </F_H_NOTES>
+<F_H_IBU_CONTRIB>1.9682145</F_H_IBU_CONTRIB>
+<F_ORDER>9</F_ORDER>
+<F_H_USE>0</F_H_USE>
+<F_H_IN_RECIPE>1</F_H_IN_RECIPE>
+<F_H_PRICE>1.0000000</F_H_PRICE>
+</Hops>
+<Hops><_MOD_>1969-12-31</_MOD_>
+<F_H_NAME>Hallertauer Mittelfrueh</F_H_NAME>
+<F_H_ORIGIN>Germany</F_H_ORIGIN>
+<F_H_TYPE>1</F_H_TYPE>
+<F_H_FORM>0</F_H_FORM>
+<F_H_ALPHA>2.5000000</F_H_ALPHA>
+<F_H_BETA>4.6000000</F_H_BETA>
+<F_H_PERCENT>20.7684320</F_H_PERCENT>
+<F_H_INVENTORY>0.0000000</F_H_INVENTORY>
+<F_H_AMOUNT>2.0000000</F_H_AMOUNT>
+<F_H_HSI>45.0000000</F_H_HSI>
+<F_H_BOIL_TIME>0.0000000</F_H_BOIL_TIME>
+<F_H_DRY_HOP_TIME>0.0000000</F_H_DRY_HOP_TIME>
+<F_H_NOTES>Used for: Continental Lagers, German Ales/Lagers, US Lagers
+Aroma: Pleasant, assertive, mild herbal aroma
+Substitutes: Hallertauer, Mt. Hood, Liberty, Crystal
+Examples: Sam Adams Boston Lager, Sam Adams Boston Lightship</F_H_NOTES>
+<F_H_IBU_CONTRIB>0.0000000</F_H_IBU_CONTRIB>
+<F_ORDER>10</F_ORDER>
+<F_H_USE>0</F_H_USE>
+<F_H_IN_RECIPE>1</F_H_IN_RECIPE>
+<F_H_PRICE>1.0000000</F_H_PRICE>
+</Hops>
+<Yeast><_MOD_>2017-06-18</_MOD_>
+<F_Y_NAME>Pilsen Lager</F_Y_NAME>
+<F_Y_LAB>Wyeast Labs</F_Y_LAB>
+<F_Y_PRODUCT_ID>2007</F_Y_PRODUCT_ID>
+<F_Y_TYPE>1</F_Y_TYPE>
+<F_Y_FORM>0</F_Y_FORM>
+<F_Y_FLOCCULATION>1</F_Y_FLOCCULATION>
+<F_Y_STARTER_SIZE>4.2000000</F_Y_STARTER_SIZE>
+<F_Y_AMOUNT>1.0000000</F_Y_AMOUNT>
+<F_Y_INVENTORY>0.0000000</F_Y_INVENTORY>
+<F_Y_PRICE>6.0000000</F_Y_PRICE>
+<F_ORDER>11</F_ORDER>
+<F_Y_IN_RECIPE>1</F_Y_IN_RECIPE>
+<F_Y_BREW_DATE>2017-06-16</F_Y_BREW_DATE>
+<F_Y_PKG_DATE>2017-06-16</F_Y_PKG_DATE>
+<F_Y_CELLS>100.0000000</F_Y_CELLS>
+<F_Y_MIN_ATTENUATION>71.0000000</F_Y_MIN_ATTENUATION>
+<F_Y_MAX_ATTENUATION>75.0000000</F_Y_MAX_ATTENUATION>
+<F_Y_MIN_TEMP>48.0000000</F_Y_MIN_TEMP>
+<F_Y_MAX_TEMP>56.0000000</F_Y_MAX_TEMP>
+<F_Y_USE_STARTER>0</F_Y_USE_STARTER>
+<F_Y_ADD_TO_SECONDARY>0</F_Y_ADD_TO_SECONDARY>
+<F_Y_TIMES_CULTURED>0</F_Y_TIMES_CULTURED>
+<F_Y_MAX_REUSE>5</F_Y_MAX_REUSE>
+<F_Y_CULTURE_DATE>2003-06-14</F_Y_CULTURE_DATE>
+<F_Y_BEST_FOR>American Pilsner, Bohemian Pilsner, Light Lagers</F_Y_BEST_FOR>
+<F_Y_NOTES>Classic American pilsner strain.  Smooth with a malty flavor.  Dry and crisp fermentation.</F_Y_NOTES>
+<F_Y_AGE_RATE>21.0000000</F_Y_AGE_RATE>
+</Yeast>
+</Data>
+<_TExpanded>1</_TExpanded>
+</Ingredients>
+<AgeData><_MOD_>2017-06-16</_MOD_>
+<Name>AgeData</Name>
+<Type>9361</Type>
+<Dirty>0</Dirty>
+<Owndata>1</Owndata>
+<TID>9357</TID>
+<Size>0</Size>
+<_XName>AgeData</_XName>
+<Allocinc>16</Allocinc>
+<Data></Data>
+<_TExpanded>1</_TExpanded>
+</AgeData>
+<F_R_TYPE>2</F_R_TYPE>
+<F_R_OLD_TYPE>0</F_R_OLD_TYPE>
+<F_R_LOCKED>0</F_R_LOCKED>
+<F_R_OG_MEASURED>1.0460000</F_R_OG_MEASURED>
+<F_R_OG_MEASURED_SET>0</F_R_OG_MEASURED_SET>
+<F_R_FG_MEASURED>1.0100000</F_R_FG_MEASURED>
+<F_R_FG_MEASURED_SET>0</F_R_FG_MEASURED_SET>
+<F_R_OG_PRIMARY>1.0180000</F_R_OG_PRIMARY>
+<F_R_OG_PRIMARY_SET>0</F_R_OG_PRIMARY_SET>
+<F_R_OG_SECONDARY>1.0110000</F_R_OG_SECONDARY>
+<F_R_OG_SECONDARY_SET>0</F_R_OG_SECONDARY_SET>
+<F_R_BOIL_VOL_MEASURED>640.0000000</F_R_BOIL_VOL_MEASURED>
+<F_R_BOIL_VOL_MEASURED_SET>0</F_R_BOIL_VOL_MEASURED_SET>
+<F_R_OG_BOIL_MEASURED>1.0500000</F_R_OG_BOIL_MEASURED>
+<F_R_OG_BOIL_MEASURED_SET>0</F_R_OG_BOIL_MEASURED_SET>
+<F_R_OG_MASH_MEASURED>1.0500000</F_R_OG_MASH_MEASURED>
+<F_R_OG_MASH_MEASURED_SET>0</F_R_OG_MASH_MEASURED_SET>
+<F_R_NOTES></F_R_NOTES>
+<F_R_RATING>30.0000000</F_R_RATING>
+<F_R_DESCRIPTION></F_R_DESCRIPTION>
+<F_R_CARB_VOLS>2.3000000</F_R_CARB_VOLS>
+<F_R_MASH_PH>5.2000000</F_R_MASH_PH>
+<F_R_MASH_PH_SET>0</F_R_MASH_PH_SET>
+<F_R_TARGET_PH>5.2000000</F_R_TARGET_PH>
+<F_R_ACID_CONC>88.0000000</F_R_ACID_CONC>
+<F_R_ACID>0</F_R_ACID>
+<F_R_RUNOFF_PH>6.0000000</F_R_RUNOFF_PH>
+<F_R_RUNOFF_PH_SET>0</F_R_RUNOFF_PH_SET>
+<F_R_RUNNING_GRAVITY>1.0100000</F_R_RUNNING_GRAVITY>
+<F_R_RUNNING_GRAVITY_SET>0</F_R_RUNNING_GRAVITY_SET>
+<F_R_STARTER_OG>1.0360000</F_R_STARTER_OG>
+<F_R_GRAIN_STEEP_TIME>30</F_R_GRAIN_STEEP_TIME>
+<F_R_GRAIN_STEEP_TEMP>155.0000000</F_R_GRAIN_STEEP_TEMP>
+<F_R_INCLUDE_STARTER>0</F_R_INCLUDE_STARTER>
+<F_R_VERSION>1.0000000</F_R_VERSION>
+<F_R_STARTER_SIZE>60.8648901</F_R_STARTER_SIZE>
+<F_R_STIR_PLATE>1</F_R_STIR_PLATE>
+<F_R_OLD_VOL>640.0000000</F_R_OLD_VOL>
+<F_R_OLD_BOIL_VOL>640.0000000</F_R_OLD_BOIL_VOL>
+<F_R_OLD_EFFICIENCY>72.0000000</F_R_OLD_EFFICIENCY>
+<F_R_DESIRED_IBU>20.0000000</F_R_DESIRED_IBU>
+<F_R_DESIRED_COLOR>10.0000000</F_R_DESIRED_COLOR>
+<F_R_COLOR_ADJ_STRING></F_R_COLOR_ADJ_STRING>
+<F_R_DESIRED_OG>1.0500000</F_R_DESIRED_OG>
+<F_R_REBALANCE_SCALE>0</F_R_REBALANCE_SCALE>
+</Recipe>
+</Data>
+<_TExpanded>1</_TExpanded>
+</Selections>
