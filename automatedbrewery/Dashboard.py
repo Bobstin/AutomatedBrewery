@@ -1512,8 +1512,16 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 while getattr(self,kettle+"Volume")<target and self.stopPhase == False:
                     time.sleep(.5)
             elif phaseType == "Drain":
-                while getattr(self,kettle+"FlowOut")>target and self.stopPhase == False:
-                    time.sleep(.5)
+                numStopped = 0
+                drainComplete = False
+                while drainComplete == False:
+                    while getattr(self,kettle+"FlowOut")>target and self.stopPhase == False:
+                        time.sleep(5)
+                        
+                    if numStopped<5:
+                        numstopped += 1
+                    else:
+                        drainComplete = True
             elif phaseType == "Heat":
                 while getattr(self,kettle+"Temp")<target and self.stopPhase == False:
                     time.sleep(.5)
@@ -1647,6 +1655,23 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                     #waits until the volume target is reached
                     while self.MLTVolume<volumeTarget and self.stopPhase == False:
                         time.sleep(.5)
+
+                    #turns off the pumps
+                    self.PAVControl.waterPump = 0
+                    self.PAVControl.wortPump = 0
+                    self.PAVControl.aeration = 0
+
+                    #opens the valves to the correct state     
+                    self.PAVControl.valveStates = [0,0,1,1,0,1,1,0,1,0]
+
+                    #waits 5 seconds for the valves to change positions
+                    time.sleep(5)
+
+                    #starts the pumps
+                    self.PAVControl.waterPump = 1
+                    self.PAVControl.wortPump = 1
+                    self.PAVControl.aeration = 0
+                        
 
                 #waits until the target temp is reached
                 while self.MLTTemp<self.mashSchedule[step][2] and self.stopPhase == False:
