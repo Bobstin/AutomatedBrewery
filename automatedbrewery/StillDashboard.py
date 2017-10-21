@@ -198,6 +198,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.boilWarningTemp = 208
         self.boilTemp = 212
         self.boilHeatLevel = 50
+
+        #Sets the volume to 1; this is to pass the check that there is sufficient volume in the boiler without a volume sensor
+        self.HLTVolume = 1
      
         #Starts the above threads
         self.tempThread.start()
@@ -231,7 +234,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         #Note that the PIDs get the temp from the dashboard; this prevents them from also
         #Polling the RTDs, which causes errors
         time.sleep(2)
-        self.HLTPID = PID(self,"HLTTemp")
+        self.HLTPID = PID(self,"BoilerTemp")
         self.HLTPID.outputPipeConn = self.HLTPIDToHeatPipe
         self.HLTPID.inputPipeConn = self.HLTPIDToUIPipe
         self.HLTPID.outputMin = 0
@@ -291,9 +294,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         if tempValues[1]<0:tempValues[1]=0
         if tempValues[2]<0:tempValues[2]=0
 
-        NewBoilerText=OldBoilerText[:14]+"{: >6.2f}".format(int(round(tempValues[0])))+OldBoilerText[17:]
-        NewMidColText=OldMidColText[:14]+"{: >6.2f}".format(int(round(tempValues[1])))+OldMidColText[17:]
-        NewTopColText=OldTopColText[:14]+"{: >6.2f}".format(int(round(tempValues[2])))+OldTopColText[17:]
+        NewBoilerText=OldBoilerText[:14]+"{: >6.2f}".format(tempValues[0])+OldBoilerText[20:]
+        NewMidColText=OldMidColText[:14]+"{: >6.2f}".format(tempValues[1])+OldMidColText[20:]
+        NewTopColText=OldTopColText[:14]+"{: >6.2f}".format(tempValues[2])+OldTopColText[20:]
 
         self.Boiler_Temp.setText(NewBoilerText)
         self.MidCol_Temp.setText(NewMidColText)
@@ -310,10 +313,10 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
             self.tempy[2].append(tempValues[2])
             self.tempx[2].append(currTime)
 
-        self.graph1.clear()
-        self.graph1.plot(self.tempx[0],self.tempy[0], pen=self.HLTPen)
-        self.graph1.plot(self.tempx[1],self.tempy[1], pen=self.MLTPen)
-        self.graph1.plot(self.tempx[2],self.tempy[2], pen=self.BLKPen)
+        self.Temp_Graph.clear()
+        self.Temp_Graph.plot(self.tempx[0],self.tempy[0], pen=self.HLTPen)
+        self.Temp_Graph.plot(self.tempx[1],self.tempy[1], pen=self.MLTPen)
+        self.Temp_Graph.plot(self.tempx[2],self.tempy[2], pen=self.BLKPen)
 
     def mainSwitchUpdate(self, mainSwitchValues):
         #Updates the heat select
@@ -353,10 +356,16 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
     def setHeatPopup(self,kettle):
         self.tempPopup = tempPopup(self.setHeatSignal,kettle)
 
+    def presetHeat(self,semiAutoSetting):
+        if semiAutoSetting == 0:
+            self.setHeat("HLT","Off",0,"HLT")
+        else:
+            self.setHeat("HLT","SemiAuto",semiAutoSetting,"HLT")
+
     def setHeat(self, kettle, mode, setting, inputKettle):
         #Adds a message
         if mode == "Off":
-            self.printAndSendMessage("Turning off heat to the {}".format(kettle),"message")
+            self.printAndSendMessage("Turning off heat to the boiler","message")
         else:
             if self.mainSwitchSensor.switchState('Master Heat') == "On":
                 if kettle == "HLT":
@@ -388,15 +397,15 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.UIToHeatPipe.send(("kettle","HLT"))
 
                 OldBoilerText = self.Boiler_Temp.text()
-                NewBoilerText=OldBoilerText[:17]+"\nSetting: {:.0f}%".format(setting)
+                NewBoilerText=OldBoilerText[:20]+"\nSetting: {:.0f}%".format(setting)
                 self.Boiler_Temp.setText(NewBoilerText)
               
             if mode == "Off":
                 self.UIToHLTPIDPipe.send(("mode","Off"))
 
-                OldHLTText = self.HLT_Heat.text()
-                NewHLTText=OldHLTText[:17]
-                self.HLT_Heat.setText(NewHLTText)
+                OldHLTText = self.Boiler_Temp.text()
+                NewHLTText=OldHLTText[:20]
+                self.Boiler_Temp.setText(NewHLTText)
                 
                 #If the current kettle is the one being turned off, then set the kettles to None for safety
                 if self.kettleSetting == "HLT":
@@ -409,7 +418,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         if mode == "Auto":
             OldBoilerText = self.Boiler_Temp.text()
 
-            NewBoilerText=OldBoilerText[:17]
+            NewBoilerText=OldBoilerText[:20]
              
             if inputKettle == "HLT":
                 NewBoilerText=NewBoilerText+"\nTarget temp: {:.0f}".format(setting)
@@ -454,13 +463,13 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def updateHeatGraph(self,time,heatSetting,kettle):
         currTime = (time/1000 - self.startTime)/60
-            self.heaty[0].append(heatSetting)
-            self.heatx[0].append(currTime)
-            self.heaty[1].append(0)
-            self.heatx[1].append(currTime)
+        self.heaty[0].append(heatSetting)
+        self.heatx[0].append(currTime)
+        self.heaty[1].append(0)
+        self.heatx[1].append(currTime)
           
-        self.graph2.clear()
-        self.graph2.plot(self.heatx[0],self.heaty[0], pen=self.HLTPen)      
+        self.Heat_Graph.clear()
+        self.Heat_Graph.plot(self.heatx[0],self.heaty[0], pen=self.HLTPen)      
              
         
     
