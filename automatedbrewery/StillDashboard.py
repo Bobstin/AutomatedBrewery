@@ -239,7 +239,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.HLTPID.inputPipeConn = self.HLTPIDToUIPipe
         self.HLTPID.outputMin = 0
         self.HLTPID.outputMax = 100
-        self.HLTPID.cycleTime = 2000
+        self.HLTPID.cycleTime = 1000
         self.HLTPID.outputAttributeName = "heatSetting"
         self.HLTPID.Kp = self.HLTPIDCalibration[0]
         self.HLTPID.Ki = self.HLTPIDCalibration[1]
@@ -251,7 +251,7 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         self.HLTPID.run()
         
     def startHeatControl(self):
-        heatCtrl = HeatController(pipeConn = self.heatToHLTPIDPipe,pipeConn2 = None,pipeConn3 = self.heatToUIPipe, heatGraphSignal = self.heatGraphSignal, dashboard = self, messageSignal = self.messageSignal,HLTSafeVolume = 0, BLKSafeVolume = 0)
+        heatCtrl = HeatController(pipeConn = self.heatToHLTPIDPipe,pipeConn2 = None,pipeConn3 = self.heatToUIPipe, heatGraphSignal = self.heatGraphSignal, dashboard = self, messageSignal = self.messageSignal,HLTSafeVolume = 0, BLKSafeVolume = 0, cycleTime=100)
         heatCtrl.run()
 
     def startAlarmControl(self):
@@ -294,9 +294,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         if tempValues[1]<0:tempValues[1]=0
         if tempValues[2]<0:tempValues[2]=0
 
-        NewBoilerText=OldBoilerText[:14]+"{: >6.2f}".format(tempValues[0])+OldBoilerText[20:]
+        NewBoilerText=OldBoilerText[:14]+"{: >6.2f}".format(tempValues[2])+OldBoilerText[20:]
         NewMidColText=OldMidColText[:14]+"{: >6.2f}".format(tempValues[1])+OldMidColText[20:]
-        NewTopColText=OldTopColText[:14]+"{: >6.2f}".format(tempValues[2])+OldTopColText[20:]
+        NewTopColText=OldTopColText[:14]+"{: >6.2f}".format(tempValues[0])+OldTopColText[20:]
 
         self.Boiler_Temp.setText(NewBoilerText)
         self.MidCol_Temp.setText(NewMidColText)
