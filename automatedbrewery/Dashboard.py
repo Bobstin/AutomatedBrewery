@@ -1244,12 +1244,9 @@ class dashboard(QtWidgets.QMainWindow, Ui_MainWindow):
         if mode == "Off":
             self.printAndSendMessage("Turning off heat to the {}".format(kettle),"message")
         else:
-            if self.mainSwitchSensor.switchState('Master Heat') == "On":
-                if mode == "SemiAuto":self.printAndSendMessage("Setting the {} to {:.0f}%".format(kettle,setting),"Message")
-                if mode == "Auto":self.printAndSendMessage("Heating the {} to get the {} to {:.0f} deg F".format(kettle,inputKettle,setting),"Message")
-            else:
-                self.printAndSendMessage("Error: Master heat is switched to off, but heat is turned on. Please turn on the master heat","Alarm")
-                return
+            if mode == "SemiAuto":self.printAndSendMessage("Setting the {} to {:.0f}%".format(kettle,setting),"Message")
+            if mode == "Auto":self.printAndSendMessage("Heating the {} to get the {} to {:.0f} deg F".format(kettle,inputKettle,setting),"Message")
+            self.printAndSendMessage("Check that the master heat switch is set to on", "Message")
         
         #print(setting)
         if kettle == "HLT": 
