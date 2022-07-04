@@ -178,6 +178,7 @@ class HeatController(object):
         self.relay2 = 0
         self.SSR1 = 0
         self.SSR2 = 0
+        self.signalDelay = 0
 
         #Set onTime and offTime
         self.calcOnOffTime()
@@ -217,7 +218,11 @@ class HeatController(object):
                 setattr(self,data[0],data[1])
 
     def sendGraphPoint(self):
-        self.heatGraphSignal.emit(time.time()*1000, self.heatSetting, self.kettle)
+        if self.signalDelay >= 1000:
+            self.heatGraphSignal.emit(time.time()*1000, self.heatSetting, self.kettle)
+            self.signalDelay = 0
+        else:
+            self.signalDelay += self.cycleTime
         
 
     def run(self):

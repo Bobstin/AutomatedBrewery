@@ -17,7 +17,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Calibrating PIDs</string>
+   <string>Still Dashboard</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QMainWindow {
@@ -173,7 +173,7 @@ background: white;
      <string>Temperature</string>
     </property>
    </widget>
-   <widget class="PlotWidget" name="Power_Graph">
+   <widget class="PlotWidget" name="Heat_Graph">
     <property name="geometry">
      <rect>
       <x>510</x>
@@ -402,7 +402,7 @@ QPushButton:pressed {
 }</string>
     </property>
     <property name="text">
-     <string>Current temp: XXX</string>
+     <string>Current temp: XXXXXX</string>
     </property>
    </widget>
    <widget class="QPushButton" name="Column_1">
@@ -500,7 +500,7 @@ QPushButton:pressed {
      <string>Current temp: XXXXXX</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="TopCall_Heat">
+   <widget class="QPushButton" name="TopCol_Temp">
     <property name="geometry">
      <rect>
       <x>210</x>
