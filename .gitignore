@@ -9,3 +9,4 @@ test.py
 RPi
 fcntl.py
 *.pyc
+.DS_store
