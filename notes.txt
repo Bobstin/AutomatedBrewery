@@ -1,0 +1,21 @@
+
+
+Attempted to use python 3.12, but ran into an SSL error:
+1. Installed python 3.12.1 based on these instructions: https://raspberrytips.com/install-latest-python-raspberry-pi/
+2. Changed it to be the default python, based on the same link
+
+
+
+Attempt 2:
+1. Installed a clean version of raspberry pi os (bullseye)
+2. Followed the instructions here to install deconz (https://phoscon.de/en/conbee/install#raspbian)
+3. Reboot
+4. Start the deconz service on boot: `sudo systemctl enable deconz-gui`
+5. Reboot again
+6. Created a python environment and activated it (`source ~/Documents/python_environments/automatedbreweryenv/bin/activate`)
+7. Pip install zigpy-deconz
+
+1. Install mosquitto: https://randomnerdtutorials.com/how-to-install-mosquitto-broker-on-raspberry-pi/
+2. Install zigbee2mqtt: https://www.zigbee2mqtt.io/guide/installation/01_linux.html#determine-location-of-the-adapter-and-checking-user-permissions
+3. Using the same link above, set up zigbee2mqtt to start on boot. Note that you may need to change the user in the configuration file, if you didn't use the default user ("pi")
+

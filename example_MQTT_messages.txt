@@ -1,0 +1,4 @@
+zigbee2mqtt/0x744dbdfffe603d2d/10/set
+
+{"read":{"attributes":["presentValue"],"cluster":"genAnalogOutput","options":{}}}
+{"write":{"attributes":["presentValue"],"cluster":"genAnalogOutput","options":{},"payload":{"presentValue":2}}}
